@@ -20,18 +20,25 @@ export default function Gmail() {
   const [seqEmails, setSeqEmails] = useState([{ day: 1, subject: "", body: "" }]);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { window.location.href = "/login"; return; }
       setUser(data.user);
-      checkConnection(data.user.id);
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("connected") === "true") {
+        await supabase.from("gmail_accounts").upsert({
+          user_id: data.user.id,
+          email: data.user.email,
+        }, { onConflict: "user_id" });
+        setConnected(true);
+        setGmailUser(data.user.email);
+        setSuccess("Gmail connected successfully!");
+        window.history.replaceState({}, "", "/gmail");
+      } else {
+        checkConnection(data.user.id);
+      }
       loadSequences(data.user.id);
     });
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("connected") === "true") {
-      setSuccess("Gmail connected successfully!");
-      window.history.replaceState({}, "", "/gmail");
-    }
   }, []);
 
   const checkConnection = async (userId) => {
