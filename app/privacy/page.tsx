@@ -1,4 +1,4 @@
-export default function Terms() {
+export default function Privacy() {
   return (
     <main style={{ fontFamily: "'Inter', sans-serif", background: "#080c09", color: "#d1e0d6", minHeight: "100vh" }}>
       <style>{`
@@ -40,197 +40,118 @@ export default function Terms() {
 
       <div className="container">
         <span className="page-tag">Legal</span>
-        <h1 className="page-title">Algemene Voorwaarden</h1>
-        <p className="page-date">Laatste update: 19 mei 2026 · Versie 1.0 · Van toepassing op alle overeenkomsten met LeadMagnet Inc.</p>
+        <h1 className="page-title">Privacybeleid</h1>
+        <p className="page-date">Laatste update: 19 mei 2026 · Versie 1.0 · LeadMagnet Inc.</p>
 
         <div className="highlight-box">
-          <p>Deze algemene voorwaarden zijn opgesteld conform Nederlands recht en de Europese regelgeving. Door gebruik te maken van LeadMagnet gaat u akkoord met deze voorwaarden. Lees ze zorgvuldig door.</p>
+          <p>Dit privacybeleid is opgesteld conform de AVG (Algemene Verordening Gegevensbescherming) en de Nederlandse Uitvoeringswet AVG (UAVG). Wij nemen uw privacy serieus en verwerken uw gegevens zorgvuldig en transparant.</p>
         </div>
 
         <div className="section">
-          <h2>1. Definities</h2>
+          <h2>1. Wie zijn wij?</h2>
+          <p>LeadMagnet Inc. is een SaaS-bedrijf gevestigd in Nederland, ingeschreven bij de Kamer van Koophandel. Wij bieden een platform voor LinkedIn-, Instagram- en Gmail-automatisering voor marketingbureaus en ondernemers.</p>
+          <p>📧 privacy@leadmagnetinc.com · 🌐 leadmagnetinc.com · 📍 Nederland</p>
+        </div>
+
+        <div className="section">
+          <h2>2. Welke gegevens verzamelen wij?</h2>
+          <h3>2.1 Accountgegevens</h3>
           <ul>
-            <li><strong style={{ color: "#c4d4c8" }}>LeadMagnet / Wij:</strong> LeadMagnet Inc., gevestigd in Nederland, ingeschreven bij de KVK.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Gebruiker / U:</strong> De natuurlijke persoon of rechtspersoon die een account aanmaakt en gebruik maakt van de Dienst.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Dienst:</strong> Het SaaS-platform LeadMagnet, inclusief alle functionaliteiten voor LinkedIn-, Instagram- en Gmail-automatisering.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Account:</strong> De persoonlijke omgeving van de Gebruiker binnen de Dienst.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Abonnement:</strong> De betaalde of gratis toegang tot de Dienst voor een bepaalde periode.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Leads:</strong> Contactpersonen die via de Dienst worden verzameld.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Content:</strong> Alle teksten, berichten, gegevens en andere inhoud die via de Dienst worden verwerkt.</li>
+            <li>E-mailadres en wachtwoord (versleuteld)</li>
+            <li>Naam en bedrijfsnaam (indien opgegeven)</li>
+            <li>Facturatiegegevens (verwerkt via Stripe)</li>
+          </ul>
+          <h3>2.2 Platformkoppelingen</h3>
+          <ul>
+            <li>LinkedIn sessiecookie (li_at) voor automatisering</li>
+            <li>Gmail App Password voor e-mailverzending</li>
+            <li>Instagram accountgegevens</li>
+          </ul>
+          <h3>2.3 Leadgegevens</h3>
+          <ul>
+            <li>Namen, functies, bedrijven en LinkedIn-profielen van verzamelde leads</li>
+            <li>Tijdstip van interactie (bijv. commentaar op een post)</li>
+          </ul>
+          <h3>2.4 Gebruiksgegevens</h3>
+          <ul>
+            <li>IP-adres en browsertype (voor beveiliging)</li>
+            <li>Activiteitslogboeken binnen het platform</li>
           </ul>
         </div>
 
         <div className="section">
-          <h2>2. Toepasselijkheid</h2>
-          <p>Deze algemene voorwaarden zijn van toepassing op alle overeenkomsten tussen LeadMagnet en de Gebruiker. Afwijkende voorwaarden van de Gebruiker worden uitdrukkelijk van de hand gewezen, tenzij schriftelijk anders overeengekomen.</p>
-          <p>Door een account aan te maken, op "Akkoord" te klikken of de Dienst te gebruiken, aanvaardt u deze voorwaarden volledig en onvoorwaardelijk.</p>
-        </div>
-
-        <div className="section">
-          <h2>3. De Dienst</h2>
-          <h3>3.1 Beschrijving</h3>
-          <p>LeadMagnet biedt een SaaS-platform waarmee Gebruikers automatisch kunnen reageren op commentaren op LinkedIn- en Instagram-posts en geautomatiseerde e-mailsequenties kunnen versturen via Gmail. De Dienst maakt gebruik van sessiecookies en API-koppelingen.</p>
-
-          <h3>3.2 Beschikbaarheid</h3>
-          <p>Wij streven naar een beschikbaarheid van 99,5% per kalendermaand, gemeten op maandbasis. Gepland onderhoud wordt minimaal 24 uur van tevoren aangekondigd. Wij zijn niet aansprakelijk voor onderbrekingen veroorzaakt door derden (waaronder LinkedIn, Instagram, Google of Phantombuster).</p>
-
-          <h3>3.3 Gratis proefperiode</h3>
-          <p>Nieuwe Gebruikers ontvangen een gratis proefperiode van 7 dagen. Na afloop van de proefperiode wordt de Dienst automatisch beëindigd, tenzij u een betaald abonnement afsluit. Er zijn geen automatische kosten verbonden aan de proefperiode.</p>
-
-          <h3>3.4 Wijzigingen</h3>
-          <p>Wij behouden het recht de Dienst te wijzigen, uit te breiden of te beperken. Wezenlijke wijzigingen worden minimaal 30 dagen van tevoren gecommuniceerd. Bij substantiële nadelige wijzigingen heeft u het recht de overeenkomst kosteloos te beëindigen.</p>
-        </div>
-
-        <div className="section">
-          <h2>4. Account en toegang</h2>
-          <h3>4.1 Registratie</h3>
-          <p>U bent verantwoordelijk voor de juistheid van de bij registratie opgegeven gegevens. U dient minimaal 18 jaar oud te zijn om een account aan te maken. Zakelijke gebruikers dienen bevoegd te zijn om namens de rechtspersoon te handelen.</p>
-
-          <h3>4.2 Accountbeveiliging</h3>
-          <p>U bent verantwoordelijk voor de beveiliging van uw inloggegevens en alle activiteiten die via uw account plaatsvinden. Bij vermoeden van ongeautoriseerde toegang dient u ons onmiddellijk te informeren via support@leadmagnetinc.com.</p>
-
-          <h3>4.3 Één account per persoon</h3>
-          <p>Het is niet toegestaan meerdere accounts aan te maken voor hetzelfde individu, tenzij dit expliciet door ons is toegestaan (bijv. voor agentschappen op het Agency-plan).</p>
-        </div>
-
-        <div className="section">
-          <h2>5. Abonnementen en betaling</h2>
-          <h3>5.1 Abonnementsvormen</h3>
-          <p>De Dienst wordt aangeboden in de volgende abonnementen:</p>
+          <h2>3. Waarom verwerken wij uw gegevens?</h2>
           <ul>
-            <li><strong style={{ color: "#c4d4c8" }}>Starter:</strong> €49 per maand</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Pro:</strong> €99 per maand</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Agency:</strong> €199 per maand</li>
-          </ul>
-          <p>Alle prijzen zijn exclusief btw (21%). Als zakelijke gebruiker is de btw aftrekbaar conform de Wet OB 1968.</p>
-
-          <h3>5.2 Facturering</h3>
-          <p>Abonnementen worden maandelijks vooruitbetaald. Betaling geschiedt via Stripe. Facturen worden automatisch per e-mail verzonden. U bent verantwoordelijk voor correcte facturatiegegevens voor btw-doeleinden.</p>
-
-          <h3>5.3 Automatische verlenging</h3>
-          <p>Abonnementen worden automatisch verlengd tenzij u het abonnement minimaal 1 dag voor de verlengingsdatum opzegt via uw accountinstellingen.</p>
-
-          <h3>5.4 Prijswijzigingen</h3>
-          <p>Wij behouden het recht prijzen te wijzigen. Prijsverhogingen worden minimaal 30 dagen van tevoren schriftelijk medegedeeld. Bij substantiële prijsverhogingen (>15%) heeft u het recht de overeenkomst kosteloos te beëindigen.</p>
-
-          <h3>5.5 Restitutie</h3>
-          <p>Betalingen zijn niet restitueerbaar, behoudens gevallen van ernstige tekortkoming aan onze zijde of verplichtingen op grond van het consumentenrecht. Als consument heeft u een wettelijk herroepingsrecht van 14 dagen na aanvang van het abonnement, mits de Dienst nog niet is gebruikt.</p>
-        </div>
-
-        <div className="section">
-          <h2>6. Acceptabel gebruik</h2>
-          <div className="warning-box">
-            <p>⚠️ Het gebruik van LeadMagnet voor spam, misleiding of het overtreden van de gebruiksvoorwaarden van LinkedIn, Instagram of Google is verboden en kan leiden tot onmiddellijke beëindiging van uw account zonder restitutie.</p>
-          </div>
-
-          <h3>6.1 Toegestaan gebruik</h3>
-          <p>U mag de Dienst uitsluitend gebruiken voor legale, zakelijke doeleinden in overeenstemming met:</p>
-          <ul>
-            <li>De Telecommunicatiewet (inclusief artikel 11.7 inzake spam)</li>
-            <li>De AVG en UAVG</li>
-            <li>De gebruiksvoorwaarden van LinkedIn, Instagram en Google</li>
-            <li>Toepasselijk Europees en nationaal recht</li>
-          </ul>
-
-          <h3>6.2 Verboden gebruik</h3>
-          <p>Het is verboden de Dienst te gebruiken voor:</p>
-          <ul>
-            <li>Het versturen van ongewenste commerciële berichten (spam)</li>
-            <li>Misleidende, leugenachtige of frauduleuze communicatie</li>
-            <li>Phishing, identiteitsdiefstal of andere vormen van oplichting</li>
-            <li>Illegale verzameling van persoonsgegevens</li>
-            <li>Het omzeilen van beveiligingsmaatregelen van platforms</li>
-            <li>Het doorverkopen van toegang tot de Dienst zonder toestemming</li>
-            <li>Activiteiten die in strijd zijn met toepasselijke wet- en regelgeving</li>
-          </ul>
-
-          <h3>6.3 Verantwoordelijkheid voor leadcommunicatie</h3>
-          <p>U bent als Gebruiker volledig verantwoordelijk voor de inhoud van berichten die via de Dienst worden verstuurd. U vrijwaart LeadMagnet van alle aanspraken voortvloeiende uit door u verstuurd berichtverkeer.</p>
-        </div>
-
-        <div className="section">
-          <h2>7. Gegevensbescherming en verwerkersovereenkomst</h2>
-          <p>Voor zover u via de Dienst persoonsgegevens van derden (leads) verwerkt, treedt LeadMagnet op als verwerker in de zin van artikel 28 AVG. U bent de verwerkingsverantwoordelijke.</p>
-          <p>Door akkoord te gaan met deze voorwaarden sluit u tevens een verwerkersovereenkomst met LeadMagnet. Wij verwerken leadgegevens uitsluitend op uw instructie en beveiligen deze conform artikel 32 AVG. U garandeert dat u gerechtigd bent de betreffende persoonsgegevens te verwerken en dat uw communicatie met leads voldoet aan de AVG.</p>
-        </div>
-
-        <div className="section">
-          <h2>8. Intellectueel eigendom</h2>
-          <h3>8.1 LeadMagnet IP</h3>
-          <p>Alle intellectuele eigendomsrechten met betrekking tot de Dienst, inclusief software, ontwerp, logo's, documentatie en knowhow, berusten bij LeadMagnet. U verkrijgt uitsluitend een niet-exclusief, niet-overdraagbaar gebruiksrecht voor de duur van het abonnement.</p>
-
-          <h3>8.2 Gebruikerscontent</h3>
-          <p>U behoudt alle rechten op content die u via de Dienst verwerkt. U verleent LeadMagnet een beperkte licentie om deze content te verwerken uitsluitend ten behoeve van de levering van de Dienst.</p>
-        </div>
-
-        <div className="section">
-          <h2>9. Aansprakelijkheid</h2>
-          <h3>9.1 Beperking van aansprakelijkheid</h3>
-          <p>De totale aansprakelijkheid van LeadMagnet voor directe schade is in alle gevallen beperkt tot het bedrag dat u in de 3 maanden voorafgaand aan het schadeveroorzakend voorval aan abonnementskosten heeft betaald, met een maximum van €1.000 per incident.</p>
-
-          <h3>9.2 Uitsluitingen</h3>
-          <p>LeadMagnet is niet aansprakelijk voor:</p>
-          <ul>
-            <li>Indirecte schade, gevolgschade, gederfde winst of reputatieschade</li>
-            <li>Schade veroorzaakt door wijzigingen in de API's of gebruiksvoorwaarden van LinkedIn, Instagram of Google</li>
-            <li>Schade als gevolg van blokkering of beperking van uw LinkedIn-, Instagram- of Google-account</li>
-            <li>Schade veroorzaakt door onjuist gebruik van de Dienst</li>
-            <li>Schade door overmacht, waaronder storingen bij derden, cyberaanvallen of overheidsmaatregelen</li>
-          </ul>
-
-          <h3>9.3 Consumentenbescherming</h3>
-          <p>Bovenstaande aansprakelijkheidsbeperkingen gelden niet voor consumenten voor zover dwingend consumentenrecht van toepassing is.</p>
-        </div>
-
-        <div className="section">
-          <h2>10. Duur en beëindiging</h2>
-          <h3>10.1 Opzegging door Gebruiker</h3>
-          <p>U kunt het abonnement te allen tijde opzeggen via uw accountinstellingen. Opzegging heeft geen terugwerkende kracht; u behoudt toegang tot het einde van de lopende betaalperiode.</p>
-
-          <h3>10.2 Beëindiging door LeadMagnet</h3>
-          <p>Wij kunnen uw account onmiddellijk beëindigen bij:</p>
-          <ul>
-            <li>Overtreding van deze voorwaarden</li>
-            <li>Frauduleuze activiteiten</li>
-            <li>Niet-betaling na aanmaning</li>
-            <li>Gebruik dat reputatie- of juridische schade veroorzaakt aan LeadMagnet of derden</li>
-          </ul>
-
-          <h3>10.3 Gevolgen van beëindiging</h3>
-          <p>Na beëindiging van het account worden uw gegevens binnen 30 dagen verwijderd, behoudens wettelijke bewaarverplichtingen. U exporteert uw leadgegevens vóór beëindiging via de exportfunctie.</p>
-        </div>
-
-        <div className="section">
-          <h2>11. Klachtenregeling</h2>
-          <p>Klachten over de Dienst dienen schriftelijk te worden ingediend via support@leadmagnetinc.com. Wij reageren binnen 5 werkdagen. Als wij er samen niet uitkomen, kunt u een klacht indienen bij:</p>
-          <ul>
-            <li><strong style={{ color: "#c4d4c8" }}>Geschillencommissie ICT:</strong> <a href="https://www.degeschillencommissie.nl" target="_blank" style={{ color: "#22c97a" }}>degeschillencommissie.nl</a></li>
-            <li><strong style={{ color: "#c4d4c8" }}>ODR-platform EU:</strong> <a href="https://ec.europa.eu/consumers/odr" target="_blank" style={{ color: "#22c97a" }}>ec.europa.eu/consumers/odr</a></li>
+            <li><strong style={{ color: "#c4d4c8" }}>Uitvoering overeenkomst:</strong> Om de Dienst te leveren waarvoor u zich heeft aangemeld.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Wettelijke verplichting:</strong> Fiscale bewaarplicht van factuurgegevens (7 jaar).</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Gerechtvaardigd belang:</strong> Beveiliging van het platform en fraudepreventie.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Toestemming:</strong> Voor marketingcommunicatie (u kunt zich altijd afmelden).</li>
           </ul>
         </div>
 
         <div className="section">
-          <h2>12. Toepasselijk recht en bevoegde rechter</h2>
-          <p>Op deze algemene voorwaarden en alle overeenkomsten tussen LeadMagnet en de Gebruiker is uitsluitend Nederlands recht van toepassing.</p>
-          <p>Geschillen worden voorgelegd aan de bevoegde rechter in het arrondissement waar LeadMagnet is gevestigd, tenzij dwingend recht anders bepaalt. Voor consumenten geldt de woonplaats van de consument als bevoegde rechtbank.</p>
+          <h2>4. Hoe lang bewaren wij uw gegevens?</h2>
+          <ul>
+            <li>Accountgegevens: zolang uw account actief is + 30 dagen na opzegging</li>
+            <li>Factuurgegevens: 7 jaar (wettelijke bewaarplicht)</li>
+            <li>Leadgegevens: tot u ze verwijdert of uw account opzegt</li>
+            <li>Logboeken: maximaal 90 dagen</li>
+          </ul>
         </div>
 
         <div className="section">
-          <h2>13. Overige bepalingen</h2>
+          <h2>5. Delen wij uw gegevens?</h2>
+          <p>Wij verkopen uw gegevens nooit. Wij delen gegevens uitsluitend met:</p>
           <ul>
-            <li><strong style={{ color: "#c4d4c8" }}>Nietigheid:</strong> Indien een bepaling nietig of vernietigbaar is, tast dit de geldigheid van de overige bepalingen niet aan.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Overdracht:</strong> U kunt uw rechten en verplichtingen niet overdragen zonder onze schriftelijke toestemming.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Volledige overeenkomst:</strong> Deze voorwaarden vormen samen met het privacybeleid de volledige overeenkomst tussen partijen.</li>
-            <li><strong style={{ color: "#c4d4c8" }}>Taal:</strong> In geval van tegenstrijdigheid tussen de Nederlandse en een vertaalde versie, prevaleert de Nederlandse tekst.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Supabase:</strong> Databaseopslag (EU-servers)</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Stripe:</strong> Betalingsverwerking</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Phantombuster:</strong> LinkedIn-automatisering</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Vercel:</strong> Hostingprovider</li>
           </ul>
+          <p>Met alle verwerkers zijn verwerkersovereenkomsten gesloten conform artikel 28 AVG.</p>
+        </div>
+
+        <div className="section">
+          <h2>6. Uw rechten</h2>
+          <p>Op grond van de AVG heeft u de volgende rechten:</p>
+          <ul>
+            <li><strong style={{ color: "#c4d4c8" }}>Inzage:</strong> U kunt opvragen welke gegevens wij van u verwerken.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Rectificatie:</strong> U kunt onjuiste gegevens laten corrigeren.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Verwijdering:</strong> U kunt verzoeken uw gegevens te verwijderen.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Bezwaar:</strong> U kunt bezwaar maken tegen verwerking op basis van gerechtvaardigd belang.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Overdraagbaarheid:</strong> U kunt uw gegevens in een machine-leesbaar formaat opvragen.</li>
+            <li><strong style={{ color: "#c4d4c8" }}>Klacht:</strong> U kunt een klacht indienen bij de Autoriteit Persoonsgegevens (autoriteitpersoonsgegevens.nl).</li>
+          </ul>
+          <p>Verzoeken kunt u indienen via privacy@leadmagnetinc.com. Wij reageren binnen 30 dagen.</p>
+        </div>
+
+        <div className="section">
+          <h2>7. Beveiliging</h2>
+          <p>Wij treffen passende technische en organisatorische maatregelen conform artikel 32 AVG, waaronder:</p>
+          <ul>
+            <li>Versleutelde opslag van wachtwoorden en gevoelige gegevens</li>
+            <li>HTTPS-encryptie voor alle dataoverdracht</li>
+            <li>Toegangsbeperking op basis van het need-to-know principe</li>
+            <li>Regelmatige beveiligingsaudits</li>
+          </ul>
+        </div>
+
+        <div className="section">
+          <h2>8. Cookies</h2>
+          <p>Wij gebruiken uitsluitend functionele cookies die noodzakelijk zijn voor het functioneren van de Dienst. Er worden geen tracking- of advertentiecookies geplaatst zonder uw toestemming.</p>
+        </div>
+
+        <div className="section">
+          <h2>9. Wijzigingen</h2>
+          <p>Wij kunnen dit privacybeleid aanpassen. Wezenlijke wijzigingen worden minimaal 30 dagen van tevoren gecommuniceerd via e-mail. De meest actuele versie is altijd beschikbaar op leadmagnetinc.com/privacy.</p>
         </div>
 
         <div className="contact-card">
-          <h3>Contact</h3>
-          <p>Voor vragen over deze algemene voorwaarden:</p>
-          <p style={{ marginTop: "0.5rem" }}>📧 <a href="mailto:legal@leadmagnetinc.com">legal@leadmagnetinc.com</a></p>
+          <h3>Contact & vragen</h3>
+          <p>Voor vragen over uw privacy of dit beleid:</p>
+          <p style={{ marginTop: "0.5rem" }}>📧 <a href="mailto:privacy@leadmagnetinc.com">privacy@leadmagnetinc.com</a></p>
           <p>🌐 <a href="https://leadmagnetinc.com">leadmagnetinc.com</a></p>
-          <p>📍 Nederland</p>
+          <p>📍 Nederland · Autoriteit Persoonsgegevens: <a href="https://autoriteitpersoonsgegevens.nl" target="_blank">autoriteitpersoonsgegevens.nl</a></p>
         </div>
       </div>
 
