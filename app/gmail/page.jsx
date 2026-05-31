@@ -11,6 +11,8 @@ export default function Gmail() {
   const [user, setUser] = useState(null);
   const [connected, setConnected] = useState(false);
   const [gmailUser, setGmailUser] = useState("");
+  const [gmailInput, setGmailInput] = useState("");
+  const [appPassword, setAppPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -26,15 +28,6 @@ export default function Gmail() {
       checkConnection(data.user.id);
       loadSequences(data.user.id);
     });
-
-    // Check if user just came back from Google OAuth
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("connected") === "true") {
-      setConnected(true);
-      setSuccess("✅ Gmail connected successfully!");
-      // Clean URL
-      window.history.replaceState({}, "", "/gmail");
-    }
   }, []);
 
   const checkConnection = async (userId) => {
@@ -59,22 +52,46 @@ export default function Gmail() {
   };
 
   const handleConnect = async () => {
+    if (!gmailInput || !appPassword) {
+      setError("Please enter your Gmail address and App Password.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          scopes: "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly",
-          redirectTo: `${window.location.origin}/gmail?connected=true`,
-        },
-      });
-      if (oauthError) throw oauthError;
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error("Not logged in");
+
+      // Delete existing connection if any
+      await supabase.from("gmail_accounts").delete().eq("user_id", currentUser.id);
+
+      const { error: insertError } = await supabase
+        .from("gmail_accounts")
+        .insert({
+          user_id: currentUser.id,
+          email: gmailInput,
+          app_password: appPassword,
+        });
+
+      if (insertError) throw insertError;
+
+      setConnected(true);
+      setGmailUser(gmailInput);
+      setSuccess("Gmail connected successfully!");
+      setTimeout(() => setSuccess(""), 5000);
     } catch (err) {
       setError("Failed to connect: " + err.message);
-      setLoading(false);
     }
+    setLoading(false);
+  };
+
+  const handleDisconnect = async () => {
+    if (!user) return;
+    await supabase.from("gmail_accounts").delete().eq("user_id", user.id);
+    setConnected(false);
+    setGmailUser("");
+    setGmailInput("");
+    setAppPassword("");
   };
 
   const handleCreateSequence = async (e) => {
@@ -88,9 +105,10 @@ export default function Gmail() {
         .select().single();
       if (seqError) throw seqError;
       if (seq) setSequences(prev => [seq, ...prev]);
-      setSeqName(""); setSeqEmails([{ day: 1, subject: "", body: "" }]);
+      setSeqName("");
+      setSeqEmails([{ day: 1, subject: "", body: "" }]);
       setShowNewSequence(false);
-      setSuccess("✉️ Email sequence created!");
+      setSuccess("Email sequence created!");
       setTimeout(() => setSuccess(""), 5000);
     } catch (err) {
       setError("Error: " + err.message);
@@ -132,8 +150,8 @@ export default function Gmail() {
         .connected-dot{width:8px;height:8px;background:#22c97a;border-radius:50%;animation:pulse 2s infinite;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
         .connected-text{font-size:0.875rem;color:#22c97a;font-weight:500;}
-        .reconnect-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.3rem 0.75rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .reconnect-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
+        .reconnect-btn{background:transparent;border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.78rem;padding:0.3rem 0.75rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+        .reconnect-btn:hover{background:rgba(239,68,68,0.08);}
         .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
         .section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.975rem;font-weight:700;color:#c4d4c8;}
         .btn-primary{background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.835rem;padding:0.55rem 1.1rem;border-radius:9px;border:none;cursor:pointer;transition:all 0.15s;}
@@ -175,11 +193,6 @@ export default function Gmail() {
         .add-email-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
         .success-bar{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.2);color:#22c97a;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
         .error-bar{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
-        .tip-card{background:rgba(34,201,122,0.04);border:1px solid rgba(34,201,122,0.1);border-radius:12px;padding:1rem 1.25rem;margin-top:1.5rem;}
-        .tip-title{font-size:0.815rem;font-weight:600;color:#22c97a;margin-bottom:0.3rem;}
-        .tip-text{font-size:0.785rem;color:#2d4a33;line-height:1.6;}
-
-        /* CONNECT CARD */
         .connect-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2.5rem;max-width:520px;margin:0 auto;}
         .connect-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#f0f7f2;margin-bottom:0.5rem;letter-spacing:-0.03em;}
         .connect-sub{font-size:0.875rem;color:#3d5240;margin-bottom:1.75rem;line-height:1.6;}
@@ -188,10 +201,15 @@ export default function Gmail() {
         .feature-icon{font-size:1.25rem;margin-bottom:0.5rem;}
         .feature-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.835rem;font-weight:700;color:#c4d4c8;margin-bottom:0.2rem;}
         .feature-desc{font-size:0.75rem;color:#2d4a33;line-height:1.4;}
-        .google-btn{width:100%;background:#fff;color:#1a1a1a;font-family:'Inter',sans-serif;font-weight:600;font-size:0.925rem;padding:0.875rem;border-radius:11px;border:none;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.75rem;letter-spacing:-0.01em;}
-        .google-btn:hover{background:#f5f5f5;transform:translateY(-1px);box-shadow:0 4px 16px rgba(255,255,255,0.1);}
-        .google-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-        .security-note{display:flex;align-items:center;gap:0.5rem;font-size:0.775rem;color:#2a3d2e;margin-top:0.875rem;justify-content:center;}
+        .connect-btn{width:100%;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:700;font-size:0.975rem;padding:0.9rem;border-radius:11px;border:none;cursor:pointer;transition:all 0.15s;letter-spacing:-0.01em;}
+        .connect-btn:hover{background:#1db36c;transform:translateY(-1px);}
+        .connect-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .tip-box{background:rgba(34,201,122,0.04);border:1px solid rgba(34,201,122,0.1);border-radius:10px;padding:0.875rem 1rem;margin-bottom:1.25rem;font-size:0.795rem;color:#2d4a33;line-height:1.6;}
+        .tip-box a{color:#22c97a;text-decoration:none;}
+        .tip-box a:hover{text-decoration:underline;}
+        .tip-card{background:rgba(34,201,122,0.04);border:1px solid rgba(34,201,122,0.1);border-radius:12px;padding:1rem 1.25rem;margin-top:1.5rem;}
+        .tip-title{font-size:0.815rem;font-weight:600;color:#22c97a;margin-bottom:0.3rem;}
+        .tip-text{font-size:0.785rem;color:#2d4a33;line-height:1.6;}
       `}</style>
 
       <nav className="nav">
@@ -206,7 +224,7 @@ export default function Gmail() {
         {!connected ? (
           <div className="connect-card">
             <div className="connect-title">📧 Connect Gmail</div>
-            <p className="connect-sub">Connect your Gmail account to send automated follow-up emails to your leads — directly from your own inbox.</p>
+            <p className="connect-sub">Connect your Gmail to send automated follow-up emails to your leads on autopilot.</p>
 
             <div className="feature-grid">
               <div className="feature-card">
@@ -226,18 +244,32 @@ export default function Gmail() {
               </div>
             </div>
 
-            <button className="google-btn" onClick={handleConnect} disabled={loading}>
-              <svg width="18" height="18" viewBox="0 0 18 18">
-                <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/>
-                <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 01-7.18-2.54H1.83v2.07A8 8 0 008.98 17z"/>
-                <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 010-3.04V5.41H1.83a8 8 0 000 7.18l2.67-2.07z"/>
-                <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 001.83 5.4L4.5 7.49a4.77 4.77 0 014.48-3.31z"/>
-              </svg>
-              {loading ? "Connecting..." : "Connect with Google"}
-            </button>
-            <div className="security-note">
-              🔒 We only request permission to send emails on your behalf. Your password is never stored.
+            <label className="form-label">YOUR GMAIL ADDRESS</label>
+            <input
+              className="form-input"
+              type="email"
+              placeholder="you@gmail.com"
+              value={gmailInput}
+              onChange={e => setGmailInput(e.target.value)}
+            />
+
+            <label className="form-label">GMAIL APP PASSWORD</label>
+            <input
+              className="form-input"
+              type="password"
+              placeholder="xxxx xxxx xxxx xxxx"
+              value={appPassword}
+              onChange={e => setAppPassword(e.target.value)}
+            />
+
+            <div className="tip-box">
+              🔑 You need a Gmail App Password — not your regular password. <a href="https://myaccount.google.com/apppasswords" target="_blank">Click here to generate one →</a><br/>
+              Make sure <strong style={{color:"#4d6b54"}}>2-Step Verification</strong> is enabled on your Google account first.
             </div>
+
+            <button className="connect-btn" onClick={handleConnect} disabled={loading}>
+              {loading ? "Connecting..." : "Connect Gmail →"}
+            </button>
           </div>
         ) : (
           <>
@@ -247,9 +279,9 @@ export default function Gmail() {
             <div className="connected-bar">
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <div className="connected-dot"></div>
-                <div className="connected-text">Gmail connected {gmailUser ? `— ${gmailUser}` : ""}</div>
+                <div className="connected-text">Gmail connected — {gmailUser}</div>
               </div>
-              <button className="reconnect-btn" onClick={() => setConnected(false)}>Reconnect</button>
+              <button className="reconnect-btn" onClick={handleDisconnect}>Disconnect</button>
             </div>
 
             <div className="section-header">
@@ -308,7 +340,7 @@ export default function Gmail() {
                   <label className="form-label">Send on day</label>
                   <input className="form-input" type="number" min="1" value={email.day} onChange={e => updateEmail(index, "day", parseInt(e.target.value))} required />
                   <label className="form-label">Subject line</label>
-                  <input className="form-input" placeholder="e.g. Quick follow-up from [Your Name]" value={email.subject} onChange={e => updateEmail(index, "subject", e.target.value)} required />
+                  <input className="form-input" placeholder="e.g. Quick follow-up, [Name]" value={email.subject} onChange={e => updateEmail(index, "subject", e.target.value)} required />
                   <label className="form-label">Email body</label>
                   <div className="var-tags">
                     {["[Name]", "[Company]", "[Link]"].map(tag => (
