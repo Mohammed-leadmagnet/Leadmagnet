@@ -5,7 +5,7 @@ export async function GET() {
   const redirectUri = "https://leadmagnetinc.com/api/auth/instagram/callback";
   const state = Math.random().toString(36).substring(7);
 
-  const url = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=public_profile&state=${state}&response_type=code`;
+  const url = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=instagram_basic,instagram_manage_messages,pages_show_list,pages_messaging&state=${state}&response_type=code`;
 
   return NextResponse.redirect(url);
 }
