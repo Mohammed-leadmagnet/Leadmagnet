@@ -10,9 +10,6 @@ const supabase = createClient(
 export default function Instagram() {
   const [user, setUser] = useState(null);
   const [connected, setConnected] = useState(false);
-  const [step, setStep] = useState(1);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -28,6 +25,17 @@ export default function Instagram() {
       checkConnection(data.user.id);
       loadCampaigns(data.user.id);
     });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("connected") === "true") {
+      setConnected(true);
+      setSuccess("Instagram connected successfully!");
+      window.history.replaceState({}, "", "/instagram");
+    }
+    if (params.get("error")) {
+      setError("Connection failed: " + params.get("error"));
+      window.history.replaceState({}, "", "/instagram");
+    }
   }, []);
 
   const checkConnection = async (userId) => {
@@ -48,28 +56,14 @@ export default function Instagram() {
     if (data) setCampaigns(data);
   };
 
-  const handleConnect = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const { error: dbError } = await supabase
-        .from("instagram_accounts")
-        .upsert({
-          user_id: user.id,
-          username,
-          status: "Active",
-          connected_at: new Date().toISOString()
-        });
-      if (dbError) throw dbError;
-      setConnected(true);
-      setUsername("");
-      setPassword("");
-      setSuccess("✅ Instagram connected successfully!");
-    } catch (err) {
-      setError("Failed to connect: " + err.message);
-    }
-    setLoading(false);
+  const handleConnect = () => {
+    window.location.href = "/api/auth/instagram";
+  };
+
+  const handleDisconnect = async () => {
+    if (!user) return;
+    await supabase.from("instagram_accounts").delete().eq("user_id", user.id);
+    setConnected(false);
   };
 
   const handleAddPost = async (e) => {
@@ -79,16 +73,11 @@ export default function Instagram() {
     try {
       const { data: campaign } = await supabase
         .from("instagram_campaigns")
-        .insert({
-          user_id: user.id,
-          post_url: postUrl,
-          dm_message: dmMessage,
-          status: "Active"
-        })
+        .insert({ user_id: user.id, post_url: postUrl, dm_message: dmMessage, status: "Active" })
         .select().single();
       if (campaign) setCampaigns(prev => [campaign, ...prev]);
       setPostUrl(""); setDmMessage(""); setShowNewPost(false);
-      setSuccess("🚀 Instagram automation started!");
+      setSuccess("Instagram automation started!");
       setTimeout(() => setSuccess(""), 5000);
     } catch (err) {
       setError("Error: " + err.message);
@@ -108,71 +97,71 @@ export default function Instagram() {
   };
 
   return (
-    <main style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "'DM Sans', sans-serif", color: "#e8f0ec", display: "flex", flexDirection: "column" }}>
+    <main style={{ minHeight: "100vh", background: "#080c09", fontFamily: "'Inter', sans-serif", color: "#d1e0d6", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;}
-        .nav{background:#0d1410;border-bottom:1px solid #1e2b24;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-        .logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#00e5a0;text-decoration:none;}
-        .back-btn{background:transparent;border:1px solid #1e2b24;color:#a0a8a3;font-size:0.82rem;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;text-decoration:none;}
-        .back-btn:hover{border-color:#2a3a2a;color:#e8f0ec;}
+        .nav{background:#0b120d;border-bottom:1px solid rgba(255,255,255,0.06);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:#22c97a;text-decoration:none;letter-spacing:-0.02em;}
+        .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.835rem;padding:0.4rem 0.875rem;border-radius:8px;cursor:pointer;text-decoration:none;font-family:'Inter',sans-serif;transition:all 0.15s;}
+        .back-btn:hover{border-color:rgba(255,255,255,0.15);color:#94a3b8;}
         .container{max-width:900px;margin:0 auto;padding:2rem 1.5rem;}
-        .page-title{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:0.4rem;letter-spacing:-0.03em;}
-        .page-sub{font-size:0.9rem;color:#6b7c73;margin-bottom:2rem;font-weight:300;}
-        .connected-bar{background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
-        .connected-dot{width:10px;height:10px;background:#00e5a0;border-radius:50%;animation:pulse 2s infinite;}
+        .page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#f0f7f2;letter-spacing:-0.03em;margin-bottom:0.25rem;}
+        .page-sub{font-size:0.855rem;color:#4d6b54;margin-bottom:2rem;}
+        .connected-bar{background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.15);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
+        .connected-dot{width:8px;height:8px;background:#22c97a;border-radius:50%;animation:pulse 2s infinite;}
         @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-        .connected-text{font-size:0.88rem;color:#00e5a0;font-weight:500;}
-        .reconnect-btn{background:transparent;border:1px solid #1e2b24;color:#6b7c73;font-size:0.78rem;padding:0.3rem 0.8rem;border-radius:8px;cursor:pointer;}
+        .connected-text{font-size:0.875rem;color:#22c97a;font-weight:500;}
+        .disconnect-btn{background:transparent;border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.78rem;padding:0.3rem 0.75rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+        .disconnect-btn:hover{background:rgba(239,68,68,0.08);}
         .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-        .section-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;}
-        .new-btn{background:#00e5a0;color:#0a0a0a;font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;padding:0.55rem 1.2rem;border-radius:8px;border:none;cursor:pointer;}
-        .new-btn:hover{opacity:0.88;}
-        .post-card{background:#111714;border:1px solid #1e2b24;border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:0.75rem;}
-        .post-url{font-size:0.82rem;color:#00e5a0;font-weight:500;word-break:break-all;margin-bottom:0.4rem;}
-        .post-msg{font-size:0.78rem;color:#6b7c73;margin-bottom:0.75rem;}
+        .section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.975rem;font-weight:700;color:#c4d4c8;}
+        .btn-primary{background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.835rem;padding:0.55rem 1.1rem;border-radius:9px;border:none;cursor:pointer;transition:all 0.15s;}
+        .btn-primary:hover{background:#1db36c;transform:translateY(-1px);}
+        .post-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.125rem 1.25rem;margin-bottom:0.75rem;}
+        .post-url{font-size:0.82rem;color:#22c97a;font-weight:500;word-break:break-all;margin-bottom:0.4rem;}
+        .post-msg{font-size:0.78rem;color:#3d5240;margin-bottom:0.75rem;}
         .post-actions{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;}
-        .status-active{font-size:0.72rem;padding:0.25rem 0.7rem;border-radius:100px;font-weight:600;background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);color:#00e5a0;}
-        .status-paused{font-size:0.72rem;padding:0.25rem 0.7rem;border-radius:100px;font-weight:600;background:rgba(255,165,0,0.1);border:1px solid rgba(255,165,0,0.3);color:#ffa500;}
-        .toggle-btn{background:transparent;border:1px solid #1e2b24;color:#a0a8a3;font-size:0.78rem;padding:0.3rem 0.8rem;border-radius:8px;cursor:pointer;}
-        .toggle-btn:hover{border-color:#00e5a0;color:#00e5a0;}
-        .delete-btn{background:transparent;border:1px solid #1e2b24;color:#6b7c73;font-size:0.78rem;padding:0.3rem 0.8rem;border-radius:8px;cursor:pointer;}
-        .delete-btn:hover{border-color:#ff4d6d;color:#ff4d6d;}
-        .empty-state{background:#111714;border:1px solid #1e2b24;border-radius:16px;padding:3rem;text-align:center;}
-        .empty-icon{font-size:2.5rem;margin-bottom:1rem;}
-        .empty-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:0.5rem;}
-        .empty-sub{font-size:0.88rem;color:#6b7c73;font-weight:300;margin-bottom:1.5rem;}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;}
-        .modal{background:#111714;border:1px solid #1e2b24;border-radius:22px;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
-        .modal-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:0.4rem;}
-        .modal-sub{font-size:0.85rem;color:#6b7c73;margin-bottom:1.5rem;font-weight:300;}
-        .label{display:block;font-size:0.82rem;font-weight:500;color:#a0a8a3;margin-bottom:0.5rem;}
-        .input{width:100%;background:#0a0a0a;border:1px solid #1e2b24;border-radius:10px;padding:0.85rem 1rem;color:#e8f0ec;font-size:0.9rem;outline:none;transition:border-color 0.2s;margin-bottom:1rem;font-family:'DM Sans',sans-serif;}
-        .input:focus{border-color:#00e5a0;}
-        .textarea{width:100%;background:#0a0a0a;border:1px solid #1e2b24;border-radius:10px;padding:0.85rem 1rem;color:#e8f0ec;font-size:0.9rem;outline:none;transition:border-color 0.2s;margin-bottom:1rem;font-family:'DM Sans',sans-serif;resize:vertical;min-height:120px;}
-        .textarea:focus{border-color:#00e5a0;}
+        .status-active{font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:100px;font-weight:600;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.2);color:#22c97a;}
+        .status-paused{font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:100px;font-weight:600;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;}
+        .toggle-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.3rem 0.65rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+        .toggle-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
+        .delete-btn{background:transparent;border:1px solid rgba(239,68,68,0.2);color:#f87171;font-family:'Inter',sans-serif;font-weight:500;font-size:0.78rem;padding:0.3rem 0.65rem;border-radius:7px;cursor:pointer;transition:all 0.15s;}
+        .delete-btn:hover{background:rgba(239,68,68,0.08);}
+        .empty-state{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:3rem 2rem;text-align:center;}
+        .empty-icon{font-size:2.25rem;margin-bottom:0.875rem;display:block;}
+        .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}
+        .empty-sub{font-size:0.835rem;color:#3d5240;margin-bottom:1.5rem;line-height:1.5;}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(4px);}
+        .modal{background:#0f1a11;border:1px solid rgba(255,255,255,0.09);border-radius:18px;padding:1.875rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+        .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:#f0f7f2;margin-bottom:0.3rem;letter-spacing:-0.02em;}
+        .modal-sub{font-size:0.835rem;color:#3d5240;margin-bottom:1.5rem;line-height:1.5;}
+        .form-label{display:block;font-size:0.775rem;font-weight:600;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.02em;}
+        .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:border-color 0.15s;}
+        .form-input:focus{border-color:rgba(34,201,122,0.35);}
+        .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:120px;transition:border-color 0.15s;}
+        .form-textarea:focus{border-color:rgba(34,201,122,0.35);}
         .modal-btns{display:flex;gap:0.75rem;}
-        .cancel-btn{flex:1;background:transparent;border:1px solid #1e2b24;color:#a0a8a3;font-family:'Syne',sans-serif;font-weight:600;font-size:0.88rem;padding:0.8rem;border-radius:10px;cursor:pointer;}
-        .submit-btn{flex:2;background:#00e5a0;color:#0a0a0a;font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;padding:0.8rem;border-radius:10px;border:none;cursor:pointer;}
-        .submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
-        .success-bar{background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);color:#00e5a0;font-size:0.85rem;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;}
-        .error-bar{background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);color:#ff4d6d;font-size:0.85rem;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;}
-        .tag{display:inline-block;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);color:#00e5a0;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:100px;margin-right:0.4rem;margin-bottom:0.4rem;cursor:pointer;}
-        .connect-card{background:#111714;border:1px solid #1e2b24;border-radius:22px;padding:2.5rem;max-width:520px;margin:0 auto;}
-        .connect-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:0.5rem;}
-        .connect-sub{font-size:0.88rem;color:#6b7c73;margin-bottom:1.5rem;line-height:1.6;}
-        .warning{background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.2);color:#ffa500;font-size:0.82rem;padding:0.75rem 1rem;border-radius:8px;margin-bottom:1.5rem;line-height:1.5;}
-        .btn{width:100%;background:#00e5a0;color:#0a0a0a;font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;padding:0.9rem;border-radius:10px;border:none;cursor:pointer;}
-        .btn:hover{opacity:0.88;}
-        .btn:disabled{opacity:0.5;cursor:not-allowed;}
-        .steps-bar{display:flex;gap:0.5rem;margin-bottom:2rem;}
-        .step-bar{flex:1;height:4px;border-radius:100px;background:#1e2b24;}
-        .step-bar.active{background:#00e5a0;}
-        .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;}
-        .feature-card{background:#0d1410;border:1px solid #1e2b24;border-radius:12px;padding:1.25rem;}
-        .feature-icon{font-size:1.5rem;margin-bottom:0.5rem;}
-        .feature-title{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:0.25rem;}
-        .feature-desc{font-size:0.78rem;color:#6b7c73;line-height:1.4;}
+        .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-family:'Inter',sans-serif;font-weight:500;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;}
+        .modal-submit{flex:2;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;}
+        .modal-submit:disabled{opacity:0.5;cursor:not-allowed;}
+        .success-bar{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.2);color:#22c97a;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
+        .error-bar{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
+        .connect-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2.5rem;max-width:520px;margin:0 auto;}
+        .connect-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#f0f7f2;margin-bottom:0.5rem;letter-spacing:-0.03em;}
+        .connect-sub{font-size:0.875rem;color:#3d5240;margin-bottom:1.75rem;line-height:1.6;}
+        .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;margin-bottom:2rem;}
+        .feature-card{background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:1rem;}
+        .feature-icon{font-size:1.25rem;margin-bottom:0.5rem;}
+        .feature-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.835rem;font-weight:700;color:#c4d4c8;margin-bottom:0.2rem;}
+        .feature-desc{font-size:0.75rem;color:#2d4a33;line-height:1.4;}
+        .instagram-btn{width:100%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:0.925rem;padding:0.875rem;border-radius:11px;border:none;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.75rem;letter-spacing:-0.01em;}
+        .instagram-btn:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 4px 16px rgba(220,39,67,0.3);}
+        .instagram-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .security-note{display:flex;align-items:center;gap:0.5rem;font-size:0.775rem;color:#2a3d2e;margin-top:0.875rem;justify-content:center;}
+        .var-tag{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.18);color:#22c97a;font-size:0.72rem;padding:0.2rem 0.55rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;margin-right:0.375rem;}
+        .var-tag:hover{background:rgba(34,201,122,0.15);}
+        .date-text{font-size:0.72rem;color:#3d5240;}
       `}</style>
 
       <nav className="nav">
@@ -181,62 +170,41 @@ export default function Instagram() {
       </nav>
 
       <div className="container">
-        {success && <div className="success-bar">{success}</div>}
-        {error && <div className="error-bar">❌ {error}</div>}
+        {success && <div className="success-bar">✓ {success}</div>}
+        {error && <div className="error-bar">⚠ {error}</div>}
 
         {!connected ? (
           <div className="connect-card">
-            <div className="steps-bar">
-              <div className={`step-bar ${step >= 1 ? "active" : ""}`}></div>
-              <div className={`step-bar ${step >= 2 ? "active" : ""}`}></div>
+            <div className="connect-title">📸 Connect Instagram</div>
+            <p className="connect-sub">Connect your Instagram account with one click via Meta. We'll redirect you to Facebook/Instagram to approve access.</p>
+
+            <div className="feature-grid">
+              <div className="feature-card">
+                <div className="feature-icon">💬</div>
+                <div className="feature-title">Auto-DM</div>
+                <div className="feature-desc">Automatically DM everyone who comments on your posts</div>
+              </div>
+              <div className="feature-card">
+                <div className="feature-icon">👥</div>
+                <div className="feature-title">Lead Capture</div>
+                <div className="feature-desc">Collect commenter profiles automatically</div>
+              </div>
+              <div className="feature-card">
+                <div className="feature-icon">⚡</div>
+                <div className="feature-title">24/7 Autopilot</div>
+                <div className="feature-desc">Runs while you sleep</div>
+              </div>
             </div>
 
-            {step === 1 && (
-              <>
-                <div className="connect-title">📸 Connect Instagram</div>
-                <p className="connect-sub">Connect your Instagram account to automatically DM everyone who comments on your posts.</p>
-                <div className="warning">⚠️ Use a business or creator account for best results. Personal accounts have lower automation limits.</div>
-                <div className="feature-grid">
-                  <div className="feature-card">
-                    <div className="feature-icon">💬</div>
-                    <div className="feature-title">Auto-DM Commenters</div>
-                    <div className="feature-desc">Send personalised DMs to everyone who comments on your posts</div>
-                  </div>
-                  <div className="feature-card">
-                    <div className="feature-icon">👥</div>
-                    <div className="feature-title">Lead Collection</div>
-                    <div className="feature-desc">Collect commenter profiles and contact info automatically</div>
-                  </div>
-                  <div className="feature-card">
-                    <div className="feature-icon">🎯</div>
-                    <div className="feature-title">Smart Follow-up</div>
-                    <div className="feature-desc">Send follow-up sequences based on engagement level</div>
-                  </div>
-                </div>
-                <button className="btn" onClick={() => setStep(2)}>Connect Instagram →</button>
-              </>
-            )}
-
-            {step === 2 && (
-              <>
-                <div className="connect-title">Enter your credentials</div>
-                <p className="connect-sub">Your credentials are encrypted and stored securely. We never share them with anyone.</p>
-                <div className="warning">🔒 Your password is encrypted with AES-256. We only use it to run automations on your behalf.</div>
-                {error && <div className="error-bar">{error}</div>}
-                <form onSubmit={handleConnect}>
-                  <label className="label">Instagram username</label>
-                  <input className="input" placeholder="@yourusername" value={username} onChange={e => setUsername(e.target.value)} required />
-                  <label className="label">Instagram password</label>
-                  <input className="input" type="password" placeholder="Your password" value={password} onChange={e => setPassword(e.target.value)} required />
-                  <button className="btn" type="submit" disabled={loading || !username || !password}>
-                    {loading ? "Connecting..." : "Connect Instagram →"}
-                  </button>
-                </form>
-                <div style={{ textAlign: "center", marginTop: "1rem" }}>
-                  <a href="#" onClick={() => setStep(1)} style={{ color: "#6b7c73", fontSize: "0.85rem" }}>← Back</a>
-                </div>
-              </>
-            )}
+            <button className="instagram-btn" onClick={handleConnect} disabled={loading}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+              {loading ? "Connecting..." : "Connect with Instagram"}
+            </button>
+            <div className="security-note">
+              🔒 We use official Meta OAuth. Your password is never stored.
+            </div>
           </div>
         ) : (
           <>
@@ -248,20 +216,20 @@ export default function Instagram() {
                 <div className="connected-dot"></div>
                 <div className="connected-text">Instagram connected & active</div>
               </div>
-              <button className="reconnect-btn" onClick={() => setConnected(false)}>Reconnect</button>
+              <button className="disconnect-btn" onClick={handleDisconnect}>Disconnect</button>
             </div>
 
             <div className="section-header">
               <div className="section-title">Your Automated Posts</div>
-              <button className="new-btn" onClick={() => setShowNewPost(true)}>+ Add Post</button>
+              <button className="btn-primary" onClick={() => setShowNewPost(true)}>+ Add Post</button>
             </div>
 
             {campaigns.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-icon">📸</div>
+                <span className="empty-icon">📸</span>
                 <div className="empty-title">No automated posts yet</div>
                 <div className="empty-sub">Add your first Instagram post URL to start automating DMs to everyone who comments.</div>
-                <button className="new-btn" onClick={() => setShowNewPost(true)}>+ Add your first post</button>
+                <button className="btn-primary" onClick={() => setShowNewPost(true)}>+ Add your first post</button>
               </div>
             ) : (
               campaigns.map(c => (
@@ -270,13 +238,13 @@ export default function Instagram() {
                   <div className="post-msg">DM: "{c.dm_message?.slice(0, 70)}..."</div>
                   <div className="post-actions">
                     <div className={c.status === "Active" ? "status-active" : "status-paused"}>
-                      {c.status === "Active" ? "🟢 Active" : "⏸ Paused"}
+                      {c.status === "Active" ? "Active" : "Paused"}
                     </div>
                     <button className="toggle-btn" onClick={() => toggleCampaign(c)}>
                       {c.status === "Active" ? "Pause" : "Resume"}
                     </button>
                     <button className="delete-btn" onClick={() => deleteCampaign(c.id)}>Delete</button>
-                    <span style={{ fontSize: "0.72rem", color: "#6b7c73" }}>{new Date(c.created_at).toLocaleDateString()}</span>
+                    <span className="date-text">{new Date(c.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))
@@ -291,18 +259,18 @@ export default function Instagram() {
             <div className="modal-title">Automate an Instagram Post</div>
             <div className="modal-sub">Paste your Instagram post URL and write the DM to send to everyone who comments.</div>
             <form onSubmit={handleAddPost}>
-              <label className="label">Instagram Post URL</label>
-              <input className="input" type="url" placeholder="https://instagram.com/p/..." value={postUrl} onChange={e => setPostUrl(e.target.value)} required />
-              <label className="label">DM Message</label>
+              <label className="form-label">Instagram Post URL</label>
+              <input className="form-input" type="url" placeholder="https://instagram.com/p/..." value={postUrl} onChange={e => setPostUrl(e.target.value)} required />
+              <label className="form-label">DM Message</label>
               <div style={{ marginBottom: "0.5rem" }}>
                 {["[Name]", "[Link]"].map(tag => (
-                  <span key={tag} className="tag" onClick={() => setDmMessage(prev => prev + tag)}>{tag}</span>
+                  <span key={tag} className="var-tag" onClick={() => setDmMessage(prev => prev + tag)}>{tag}</span>
                 ))}
               </div>
-              <textarea className="textarea" placeholder="Hey [Name], thanks for commenting! Here's the resource: [Link]" value={dmMessage} onChange={e => setDmMessage(e.target.value)} required />
+              <textarea className="form-textarea" placeholder="Hey [Name], thanks for commenting! Here's the resource: [Link]" value={dmMessage} onChange={e => setDmMessage(e.target.value)} required />
               <div className="modal-btns">
-                <button type="button" className="cancel-btn" onClick={() => setShowNewPost(false)}>Cancel</button>
-                <button type="submit" className="submit-btn" disabled={loading}>{loading ? "Starting..." : "Start Automation →"}</button>
+                <button type="button" className="modal-cancel" onClick={() => setShowNewPost(false)}>Cancel</button>
+                <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Starting..." : "Start Automation →"}</button>
               </div>
             </form>
           </div>
