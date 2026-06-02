@@ -9,17 +9,17 @@ export default function Home() {
     { q: "Is this allowed by LinkedIn?", a: "LeadMagnet uses cookie-based automation with human-like delays, making it safe and undetectable. Thousands of users run it safely every day. We provide safe usage guidelines to protect your account." },
     { q: "What is a lead magnet exactly?", a: "A lead magnet is a free resource you offer in exchange for attention — a PDF guide, template, checklist, or video. On LinkedIn, you post about it and offer to DM it to anyone who comments. LeadMagnet automates the entire delivery." },
     { q: "How many DMs can I send per day?", a: "We recommend capping at 50–80 DMs per day for account safety. LeadMagnet automatically paces delivery with randomized human-like delays so it never looks like bot activity." },
-    { q: "Can I connect multiple LinkedIn accounts?", a: "Yes, multi-account management is available on the Apex plan — ideal for agencies managing LinkedIn automation for multiple clients." },
-    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. LinkedIn is fully live. Instagram and Gmail automation are available on Pro and Apex plans." },
+    { q: "Can I connect multiple LinkedIn accounts?", a: "Yes, multi-account management is available on the Agency plan — ideal for agencies managing LinkedIn automation for multiple clients." },
+    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. Connect your accounts in one click and manage all your outreach from one dashboard." },
   ];
 
   const features = [
-    { icon: "💬", title: "Auto-DM on Comment", desc: "Instantly send a personalised DM to anyone who comments on your post. Works 24/7 while you focus on your business." },
-    { icon: "📧", title: "Email Collection Gate", desc: "Create a gated page where leads enter their email before accessing your resource. Build your list on autopilot." },
-    { icon: "📊", title: "Link Click Tracking", desc: "Know exactly who clicked your link, when, and how many times. Prioritise your most engaged leads." },
-    { icon: "🤝", title: "Auto-Accept Connections", desc: "Automatically accept LinkedIn connection requests and send a welcome DM to warm up new connections." },
-    { icon: "🎯", title: "Intent-Based Follow-Up", desc: "Send different follow-up sequences based on what leads did — clicked, opened, or went cold." },
-    { icon: "🔗", title: "CRM & Newsletter Sync", desc: "Native integrations with Kit, Beehiiv, HubSpot, and custom webhooks for any tool in your stack." },
+    { icon: "🔗", title: "LinkedIn Automation", desc: "Connect your LinkedIn account and automatically capture leads who comment on your posts. Phantombuster powers the scraping engine behind the scenes." },
+    { icon: "📧", title: "Gmail Sequences", desc: "Connect Gmail with one click via Google OAuth. Send automated follow-up emails on day 1, 7, 14, and 30 — personalised with [Name] and [Company]." },
+    { icon: "📊", title: "Leads Dashboard", desc: "All your leads in one place. Search, filter, export to CSV, and archive leads. See first name, company, headline, location and more." },
+    { icon: "📈", title: "Analytics", desc: "Daily leads bar chart, location breakdown, and industry breakdown. Know exactly where your best leads are coming from." },
+    { icon: "🏢", title: "Agency Client Manager", desc: "Manage multiple clients from one dashboard. Add clients, track their campaigns, and deliver results at scale." },
+    { icon: "🤖", title: "Campaign Manager", desc: "Create LinkedIn and Instagram campaigns with one click. Set your post URL, DM template, and let LeadMagnet run it 24/7." },
   ];
 
   const plans = [
@@ -28,7 +28,7 @@ export default function Home() {
       price: "€49",
       period: "/ month",
       desc: "For solopreneurs & coaches",
-      features: ["1 LinkedIn account", "Up to 10 active campaigns", "Auto-DM on comment", "Email collection gate", "Link click tracking", "Basic analytics", "Email support"],
+      features: ["1 LinkedIn account", "Up to 10 active campaigns", "LinkedIn automation", "Leads dashboard", "CSV export", "Basic analytics", "Email support"],
       popular: false,
       cta: "Start Free Trial",
     },
@@ -37,7 +37,7 @@ export default function Home() {
       price: "€99",
       period: "/ month",
       desc: "For growing agencies",
-      features: ["Up to 5 client accounts", "Up to 50 active campaigns", "Everything in Starter", "Instagram automation", "Intent-based follow-up", "CRM & newsletter sync", "Priority support"],
+      features: ["Up to 5 client accounts", "Up to 50 active campaigns", "Everything in Starter", "Instagram automation", "Gmail sequences", "Advanced analytics", "Priority support"],
       popular: true,
       cta: "Start Free Trial",
     },
@@ -46,17 +46,17 @@ export default function Home() {
       price: "€199",
       period: "/ month",
       desc: "For full-scale agencies",
-      features: ["Unlimited client accounts", "Unlimited campaigns", "Everything in Pro", "Gmail automation", "White-label dashboard", "AI-powered personalisation", "Dedicated account manager"],
+      features: ["Unlimited client accounts", "Unlimited campaigns", "Everything in Pro", "Agency client manager", "White-label dashboard", "Dedicated account manager", "Custom integrations"],
       popular: false,
       cta: "Start Free Trial",
     },
   ];
 
   const stats = [
-    { n: "2M+", l: "DMs Delivered" },
-    { n: "15K+", l: "Campaigns Created" },
-    { n: "1M+", l: "Leads Generated" },
-    { n: "<10m", l: "Avg Response Time" },
+    { n: "0", l: "DMs Delivered" },
+    { n: "0", l: "Campaigns Created" },
+    { n: "0", l: "Leads Generated" },
+    { n: "< 10m", l: "Avg Setup Time" },
   ];
 
   return (
@@ -193,7 +193,7 @@ export default function Home() {
         <div className="container">
           <div className="section-tag">Features</div>
           <h2 className="section-title">Everything your agency needs<br />to scale lead generation</h2>
-          <p className="section-sub">From LinkedIn DMs to Gmail sequences — one platform handles your entire outreach pipeline automatically.</p>
+          <p className="section-sub">From LinkedIn automation to Gmail sequences — one platform handles your entire outreach pipeline automatically.</p>
           <div className="features-grid">
             {features.map(f => (
               <div className="feature-card" key={f.title}>
