@@ -43,12 +43,33 @@ export default function Agency() {
   }, []);
 
   const loadClients = async (userId) => {
-    const { data } = await supabase
+    const { data: clientsData } = await supabase
       .from("agency_clients")
       .select("*")
       .eq("agency_user_id", userId)
       .order("created_at", { ascending: false });
-    if (data) setClients(data);
+
+    if (!clientsData) return;
+
+    const enriched = await Promise.all(clientsData.map(async (c) => {
+      const { count: campaignsCount } = await supabase
+        .from("campaigns")
+        .select("*", { count: "exact", head: true })
+        .eq("client_id", c.id);
+
+      const { count: leadsCount } = await supabase
+        .from("leads")
+        .select("*", { count: "exact", head: true })
+        .eq("client_id", c.id);
+
+      return {
+        ...c,
+        campaigns_count: campaignsCount || 0,
+        leads_count: leadsCount || 0,
+      };
+    }));
+
+    setClients(enriched);
   };
 
   const handleSubmit = async (e) => {
@@ -59,10 +80,10 @@ export default function Agency() {
       if (showEditClient && selectedClient) {
         const { error: dbError } = await supabase
           .from("agency_clients")
-          .update({ ...form, platforms: form.platforms, mrr: parseFloat(form.mrr) || 0 })
+          .update({ ...form, mrr: parseFloat(form.mrr) || 0 })
           .eq("id", selectedClient.id);
         if (dbError) throw dbError;
-        setClients(prev => prev.map(c => c.id === selectedClient.id ? { ...c, ...form } : c));
+        setClients(prev => prev.map(c => c.id === selectedClient.id ? { ...c, ...form, mrr: parseFloat(form.mrr) || 0 } : c));
         setSuccess("Client updated!");
       } else {
         const { data: client, error: dbError } = await supabase
@@ -70,7 +91,6 @@ export default function Agency() {
           .insert({
             agency_user_id: user.id,
             ...form,
-            platforms: form.platforms,
             mrr: parseFloat(form.mrr) || 0,
             status: "Active",
             leads_count: 0,
@@ -79,7 +99,7 @@ export default function Agency() {
           })
           .select().single();
         if (dbError) throw dbError;
-        if (client) setClients(prev => [client, ...prev]);
+        if (client) setClients(prev => [{ ...client, campaigns_count: 0, leads_count: 0 }, ...prev]);
         setSuccess("Client added!");
       }
       setShowAddClient(false);
@@ -185,7 +205,7 @@ export default function Agency() {
         .metric-lbl{font-size:0.62rem;color:#2d4a33;text-transform:uppercase;letter-spacing:0.06em;margin-top:0.15rem;}
         .platforms-row{display:flex;gap:0.375rem;margin-bottom:1rem;flex-wrap:wrap;}
         .platform-tag{font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:5px;background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.12);color:#4d6b54;}
-        .card-actions{display:flex;gap:0.5rem;}
+        .card-actions{display:flex;gap:0.5rem;margin-top:1rem;}
         .edit-btn{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.775rem;padding:0.4rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;}
         .edit-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
         .del-btn{background:transparent;border:1px solid rgba(239,68,68,0.15);color:#f87171;font-size:0.775rem;padding:0.4rem 0.65rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
@@ -307,7 +327,7 @@ export default function Agency() {
                     </div>
                   )}
 
-                  <div className="card-actions" style={{ marginTop: "1rem" }}>
+                  <div className="card-actions">
                     <button className="edit-btn" onClick={(e) => openEdit(c, e)}>✏️ Edit</button>
                     <button className="del-btn" onClick={(e) => deleteClient(c.id, e)}>Delete</button>
                   </div>
@@ -322,7 +342,7 @@ export default function Agency() {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">{showEditClient ? "Edit Client" : "Add New Client"}</div>
-            <div className="modal-sub">Fill in the client details and set their tier and platforms.</div>
+            <div className="modal-sub">Fill in the client details, set their tier and platforms.</div>
             <form onSubmit={handleSubmit}>
               <div className="form-row">
                 <div>
