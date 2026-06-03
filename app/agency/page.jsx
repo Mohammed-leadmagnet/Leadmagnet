@@ -15,6 +15,11 @@ const TIER_COLORS = {
   Inactive: { bg: "rgba(160,160,160,0.1)", border: "rgba(160,160,160,0.3)", color: "#a0a0a0" },
 };
 const PLATFORMS = ["LinkedIn", "Instagram", "Gmail"];
+const REPORT_FREQUENCIES = [
+  { value: "weekly", label: "Weekly" },
+  { value: "monthly", label: "Monthly" },
+  { value: "quarterly", label: "Quarterly" },
+];
 
 export default function Agency() {
   const [user, setUser] = useState(null);
@@ -25,6 +30,7 @@ export default function Agency() {
   const [filterTier, setFilterTier] = useState("All");
   const [sortBy, setSortBy] = useState("created_at");
   const [loading, setLoading] = useState(false);
+  const [sendingReport, setSendingReport] = useState(null);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
@@ -32,6 +38,7 @@ export default function Agency() {
     name: "", email: "", company: "", phone: "",
     tier: "Standard", platforms: [], mrr: "",
     notes: "", health_score: 75,
+    auto_report: false, report_frequency: "monthly",
   });
 
   useEffect(() => {
@@ -62,11 +69,7 @@ export default function Agency() {
         .select("*", { count: "exact", head: true })
         .eq("client_id", c.id);
 
-      return {
-        ...c,
-        campaigns_count: campaignsCount || 0,
-        leads_count: leadsCount || 0,
-      };
+      return { ...c, campaigns_count: campaignsCount || 0, leads_count: leadsCount || 0 };
     }));
 
     setClients(enriched);
@@ -104,12 +107,36 @@ export default function Agency() {
       }
       setShowAddClient(false);
       setShowEditClient(false);
-      setForm({ name: "", email: "", company: "", phone: "", tier: "Standard", platforms: [], mrr: "", notes: "", health_score: 75 });
+      setForm({ name: "", email: "", company: "", phone: "", tier: "Standard", platforms: [], mrr: "", notes: "", health_score: 75, auto_report: false, report_frequency: "monthly" });
       setTimeout(() => setSuccess(""), 4000);
     } catch (err) {
       setError("Error: " + err.message);
     }
     setLoading(false);
+  };
+
+  const handleSendReport = async (client, e) => {
+    e.stopPropagation();
+    setSendingReport(client.id);
+    try {
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: client.id, userId: user.id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSuccess(`📊 Report sent to ${client.email}!`);
+        setClients(prev => prev.map(c => c.id === client.id ? { ...c, last_report_sent: new Date().toISOString() } : c));
+      } else {
+        setError("Failed to send report: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      setError("Error: " + err.message);
+    }
+    setSendingReport(null);
+    setTimeout(() => setSuccess(""), 5000);
+    setTimeout(() => setError(""), 5000);
   };
 
   const openEdit = (client, e) => {
@@ -124,6 +151,8 @@ export default function Agency() {
       mrr: client.mrr || "",
       notes: client.notes || "",
       health_score: client.health_score || 75,
+      auto_report: client.auto_report || false,
+      report_frequency: client.report_frequency || "monthly",
     });
     setSelectedClient(client);
     setShowEditClient(true);
@@ -205,12 +234,17 @@ export default function Agency() {
         .metric-lbl{font-size:0.62rem;color:#2d4a33;text-transform:uppercase;letter-spacing:0.06em;margin-top:0.15rem;}
         .platforms-row{display:flex;gap:0.375rem;margin-bottom:1rem;flex-wrap:wrap;}
         .platform-tag{font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:5px;background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.12);color:#4d6b54;}
-        .card-actions{display:flex;gap:0.5rem;margin-top:1rem;}
+        .card-actions{display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;}
+        .report-btn{flex:2;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.25);color:#22c97a;font-size:0.775rem;padding:0.4rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;font-weight:600;}
+        .report-btn:hover{background:rgba(34,201,122,0.2);}
+        .report-btn:disabled{opacity:0.5;cursor:not-allowed;}
         .edit-btn{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.775rem;padding:0.4rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;}
         .edit-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
         .del-btn{background:transparent;border:1px solid rgba(239,68,68,0.15);color:#f87171;font-size:0.775rem;padding:0.4rem 0.65rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
         .del-btn:hover{background:rgba(239,68,68,0.08);}
         .mrr-badge{position:absolute;top:1rem;right:1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:700;color:#22c97a;}
+        .auto-report-tag{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.68rem;color:#63b3ed;background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.2);border-radius:5px;padding:0.15rem 0.5rem;margin-top:0.5rem;}
+        .last-report{font-size:0.68rem;color:#2d4a33;margin-top:0.375rem;}
         .empty-state{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:3rem 2rem;text-align:center;}
         .empty-icon{font-size:2.25rem;margin-bottom:0.875rem;display:block;}
         .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}
@@ -227,6 +261,16 @@ export default function Agency() {
         .platforms-select{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;}
         .platform-toggle{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.875rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
         .platform-toggle.selected{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.3);color:#22c97a;}
+        .freq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem;}
+        .freq-btn{background:#080c09;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.6rem;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;}
+        .freq-btn.selected{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.35);color:#22c97a;font-weight:600;}
+        .toggle-row{display:flex;align-items:center;justify-content:space-between;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;}
+        .toggle-label{font-size:0.835rem;color:#c4d4c8;}
+        .toggle-sub{font-size:0.72rem;color:#3d5240;margin-top:0.1rem;}
+        .toggle-switch{width:40px;height:22px;background:rgba(255,255,255,0.08);border-radius:100px;position:relative;cursor:pointer;transition:background 0.2s;border:none;outline:none;}
+        .toggle-switch.on{background:#22c97a;}
+        .toggle-knob{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left 0.2s;}
+        .toggle-switch.on .toggle-knob{left:21px;}
         .modal-btns{display:flex;gap:0.75rem;margin-top:0.5rem;}
         .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-family:'Inter',sans-serif;font-weight:500;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;}
         .modal-submit{flex:2;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;}
@@ -321,13 +365,32 @@ export default function Agency() {
                     </div>
                   )}
 
+                  {c.auto_report && (
+                    <div className="auto-report-tag">
+                      📊 Auto-report: {c.report_frequency || "monthly"}
+                    </div>
+                  )}
+
+                  {c.last_report_sent && (
+                    <div className="last-report">
+                      Last report: {new Date(c.last_report_sent).toLocaleDateString()}
+                    </div>
+                  )}
+
                   {c.notes && (
-                    <div className="notes-card">
+                    <div className="notes-card" style={{ marginTop: "0.75rem" }}>
                       <div className="notes-text">📝 {c.notes}</div>
                     </div>
                   )}
 
                   <div className="card-actions">
+                    <button
+                      className="report-btn"
+                      onClick={(e) => handleSendReport(c, e)}
+                      disabled={sendingReport === c.id}
+                    >
+                      {sendingReport === c.id ? "Sending..." : "📊 Send Report"}
+                    </button>
                     <button className="edit-btn" onClick={(e) => openEdit(c, e)}>✏️ Edit</button>
                     <button className="del-btn" onClick={(e) => deleteClient(c.id, e)}>Delete</button>
                   </div>
@@ -389,6 +452,40 @@ export default function Agency() {
 
               <label className="form-label">HEALTH SCORE: {form.health_score}/100</label>
               <input type="range" min="0" max="100" value={form.health_score} onChange={e => setForm(p => ({ ...p, health_score: parseInt(e.target.value) }))} className="health-input" />
+
+              <hr className="divider" />
+
+              <div className="toggle-row">
+                <div>
+                  <div className="toggle-label">📊 Auto-send performance reports</div>
+                  <div className="toggle-sub">Automatically send reports to this client via Gmail</div>
+                </div>
+                <button
+                  type="button"
+                  className={`toggle-switch ${form.auto_report ? "on" : ""}`}
+                  onClick={() => setForm(p => ({ ...p, auto_report: !p.auto_report }))}
+                >
+                  <div className="toggle-knob" />
+                </button>
+              </div>
+
+              {form.auto_report && (
+                <>
+                  <label className="form-label">REPORT FREQUENCY</label>
+                  <div className="freq-grid">
+                    {REPORT_FREQUENCIES.map(f => (
+                      <button
+                        key={f.value}
+                        type="button"
+                        className={`freq-btn ${form.report_frequency === f.value ? "selected" : ""}`}
+                        onClick={() => setForm(p => ({ ...p, report_frequency: f.value }))}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
 
               <label className="form-label">NOTES</label>
               <textarea className="form-textarea" placeholder="Any notes about this client..." value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
