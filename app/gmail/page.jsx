@@ -7,6 +7,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+const FREQUENCIES = [
+  { value: "hourly", label: "Every hour" },
+  { value: "daily", label: "Every day" },
+  { value: "weekly", label: "Every week" },
+  { value: "monthly", label: "Every 30 days" },
+];
+
 export default function Gmail() {
   const [user, setUser] = useState(null);
   const [connected, setConnected] = useState(false);
@@ -17,6 +24,7 @@ export default function Gmail() {
   const [sequences, setSequences] = useState([]);
   const [showNewSequence, setShowNewSequence] = useState(false);
   const [seqName, setSeqName] = useState("");
+  const [seqFrequency, setSeqFrequency] = useState("daily");
   const [seqEmails, setSeqEmails] = useState([{ day: 1, subject: "", body: "" }]);
 
   useEffect(() => {
@@ -97,11 +105,12 @@ export default function Gmail() {
     try {
       const { data: seq, error: seqError } = await supabase
         .from("email_sequences")
-        .insert({ user_id: user.id, name: seqName, emails: seqEmails, status: "Active" })
+        .insert({ user_id: user.id, name: seqName, emails: seqEmails, status: "Active", send_frequency: seqFrequency })
         .select().single();
       if (seqError) throw seqError;
       if (seq) setSequences(prev => [seq, ...prev]);
       setSeqName("");
+      setSeqFrequency("daily");
       setSeqEmails([{ day: 1, subject: "", body: "" }]);
       setShowNewSequence(false);
       setSuccess("Email sequence created!");
@@ -130,6 +139,8 @@ export default function Gmail() {
     setSequences(prev => prev.filter(s => s.id !== id));
   };
 
+  const getFrequencyLabel = (val) => FREQUENCIES.find(f => f.value === val)?.label || val;
+
   return (
     <main style={{ minHeight: "100vh", background: "#080c09", fontFamily: "'Inter', sans-serif", color: "#d1e0d6", display: "flex", flexDirection: "column" }}>
       <style>{`
@@ -155,6 +166,7 @@ export default function Gmail() {
         .seq-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.125rem 1.25rem;margin-bottom:0.75rem;}
         .seq-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#e2ede7;margin-bottom:0.3rem;}
         .seq-info{font-size:0.78rem;color:#3d5240;}
+        .seq-freq{display:inline-block;background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.12);color:#4d6b54;font-size:0.7rem;padding:0.15rem 0.5rem;border-radius:5px;margin-left:0.5rem;}
         .seq-steps{display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;}
         .seq-step{background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:0.3rem 0.65rem;font-size:0.72rem;color:#4d6b54;}
         .status-pill{font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:100px;font-weight:600;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.2);color:#22c97a;}
@@ -171,8 +183,13 @@ export default function Gmail() {
         .form-label{display:block;font-size:0.775rem;font-weight:600;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.02em;}
         .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:border-color 0.15s;}
         .form-input:focus{border-color:rgba(34,201,122,0.35);}
+        .form-select{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;}
         .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:110px;transition:border-color 0.15s;}
         .form-textarea:focus{border-color:rgba(34,201,122,0.35);}
+        .freq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:1rem;}
+        .freq-btn{background:#080c09;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.8rem;padding:0.65rem;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;}
+        .freq-btn.selected{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.35);color:#22c97a;font-weight:600;}
+        .freq-btn:hover{border-color:rgba(34,201,122,0.2);color:#94a3b8;}
         .modal-btns{display:flex;gap:0.75rem;margin-top:0.25rem;}
         .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-family:'Inter',sans-serif;font-weight:500;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;}
         .modal-submit{flex:2;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;}
@@ -219,7 +236,6 @@ export default function Gmail() {
           <div className="connect-card">
             <div className="connect-title">📧 Connect Gmail</div>
             <p className="connect-sub">Connect your Gmail account to send automated follow-up emails to your leads — directly from your own inbox.</p>
-
             <div className="feature-grid">
               <div className="feature-card">
                 <div className="feature-icon">📅</div>
@@ -237,7 +253,6 @@ export default function Gmail() {
                 <div className="feature-desc">See who opens and clicks your emails</div>
               </div>
             </div>
-
             <button className="google-btn" onClick={handleConnect} disabled={loading}>
               <svg width="18" height="18" viewBox="0 0 18 18">
                 <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 002.38-5.88c0-.57-.05-.66-.15-1.18z"/>
@@ -280,7 +295,10 @@ export default function Gmail() {
               sequences.map(s => (
                 <div className="seq-card" key={s.id}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
-                    <div className="seq-name">{s.name}</div>
+                    <div className="seq-name">
+                      {s.name}
+                      <span className="seq-freq">{getFrequencyLabel(s.send_frequency)}</span>
+                    </div>
                     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                       <div className="status-pill">{s.status}</div>
                       <button className="btn-danger" onClick={() => deleteSequence(s.id)}>Delete</button>
@@ -310,18 +328,34 @@ export default function Gmail() {
             <div className="modal-title">New Email Sequence</div>
             <div className="modal-sub">Set up automatic follow-up emails that send to leads on your schedule.</div>
             <form onSubmit={handleCreateSequence}>
-              <label className="form-label">Sequence Name</label>
+              <label className="form-label">SEQUENCE NAME</label>
               <input className="form-input" placeholder="e.g. 30-day follow-up sequence" value={seqName} onChange={e => setSeqName(e.target.value)} required />
+
+              <label className="form-label">SEND FREQUENCY</label>
+              <div className="freq-grid">
+                {FREQUENCIES.map(f => (
+                  <button
+                    key={f.value}
+                    type="button"
+                    className={`freq-btn ${seqFrequency === f.value ? "selected" : ""}`}
+                    onClick={() => setSeqFrequency(f.value)}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
               <hr className="modal-divider" />
+
               {seqEmails.map((email, index) => (
                 <div className="email-block" key={index}>
                   <div className="email-block-title">Email {index + 1} · Day {email.day}</div>
                   {index > 0 && <button type="button" className="remove-email-btn" onClick={() => removeEmail(index)}>✕</button>}
-                  <label className="form-label">Send on day</label>
+                  <label className="form-label">SEND ON DAY</label>
                   <input className="form-input" type="number" min="1" value={email.day} onChange={e => updateEmail(index, "day", parseInt(e.target.value))} required />
-                  <label className="form-label">Subject line</label>
+                  <label className="form-label">SUBJECT LINE</label>
                   <input className="form-input" placeholder="e.g. Quick follow-up, [Name]" value={email.subject} onChange={e => updateEmail(index, "subject", e.target.value)} required />
-                  <label className="form-label">Email body</label>
+                  <label className="form-label">EMAIL BODY</label>
                   <div className="var-tags">
                     {["[Name]", "[Company]", "[Link]"].map(tag => (
                       <span key={tag} className="var-tag" onClick={() => updateEmail(index, "body", email.body + tag)}>{tag}</span>
