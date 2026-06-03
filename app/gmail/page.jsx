@@ -70,25 +70,8 @@ export default function Gmail() {
     if (data) setSequences(data);
   };
 
-  const handleConnect = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) { window.location.href = "/login"; return; }
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          scopes: "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly",
-          redirectTo: "https://leadmagnetinc.com/gmail?connected=true",
-          queryParams: { access_type: "offline", prompt: "consent" },
-        },
-      });
-      if (oauthError) throw oauthError;
-    } catch (err) {
-      setError("Failed to connect: " + err.message);
-      setLoading(false);
-    }
+  const handleConnect = () => {
+    window.location.href = "https://leadmagnetinc.com/api/auth/google";
   };
 
   const handleDisconnect = async () => {
