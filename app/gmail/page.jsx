@@ -80,7 +80,7 @@ export default function Gmail() {
         provider: "google",
         options: {
           scopes: "https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly",
-          redirectTo: `${window.location.origin}/gmail?connected=true`,
+          redirectTo: "https://leadmagnetinc.com/gmail?connected=true",
           queryParams: { access_type: "offline", prompt: "consent" },
         },
       });
@@ -183,7 +183,6 @@ export default function Gmail() {
         .form-label{display:block;font-size:0.775rem;font-weight:600;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.02em;}
         .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:border-color 0.15s;}
         .form-input:focus{border-color:rgba(34,201,122,0.35);}
-        .form-select{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;}
         .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:110px;transition:border-color 0.15s;}
         .form-textarea:focus{border-color:rgba(34,201,122,0.35);}
         .freq-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:1rem;}
@@ -334,12 +333,7 @@ export default function Gmail() {
               <label className="form-label">SEND FREQUENCY</label>
               <div className="freq-grid">
                 {FREQUENCIES.map(f => (
-                  <button
-                    key={f.value}
-                    type="button"
-                    className={`freq-btn ${seqFrequency === f.value ? "selected" : ""}`}
-                    onClick={() => setSeqFrequency(f.value)}
-                  >
+                  <button key={f.value} type="button" className={`freq-btn ${seqFrequency === f.value ? "selected" : ""}`} onClick={() => setSeqFrequency(f.value)}>
                     {f.label}
                   </button>
                 ))}
