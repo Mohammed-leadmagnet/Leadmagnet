@@ -13,10 +13,8 @@ export default function Dashboard() {
   const [leads, setLeads] = useState([]);
   const [allLeads, setAllLeads] = useState([]);
   const [leadSearch, setLeadSearch] = useState("");
-  const [sequences, setSequences] = useState([]);
   const [activeTab, setActiveTab] = useState("campaigns");
   const [showNewCampaign, setShowNewCampaign] = useState(false);
-  const [showNewSequence, setShowNewSequence] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [postUrl, setPostUrl] = useState("");
   const [dmMessage, setDmMessage] = useState("");
@@ -24,8 +22,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [seqName, setSeqName] = useState("");
-  const [seqEmails, setSeqEmails] = useState([{ day: 1, subject: "", body: "" }]);
   const [analyticsRange, setAnalyticsRange] = useState("7d");
 
   useEffect(() => {
@@ -33,7 +29,6 @@ export default function Dashboard() {
       if (!data.user) { window.location.href = "/login"; return; }
       setUser(data.user);
       loadCampaigns(data.user.id);
-      loadSequences(data.user.id);
       loadAllLeads(data.user.id);
     });
   }, []);
@@ -41,11 +36,6 @@ export default function Dashboard() {
   const loadCampaigns = async (userId) => {
     const { data } = await supabase.from("campaigns").select("*").eq("user_id", userId).order("created_at", { ascending: false });
     if (data) setCampaigns(data);
-  };
-
-  const loadSequences = async (userId) => {
-    const { data } = await supabase.from("email_sequences").select("*").eq("user_id", userId).order("created_at", { ascending: false });
-    if (data) setSequences(data);
   };
 
   const loadLeads = async (campaignId) => {
@@ -81,7 +71,7 @@ export default function Dashboard() {
         }).select().single();
         if (campaign) setCampaigns(prev => [campaign, ...prev]);
         setPostUrl(""); setDmMessage(""); setShowNewCampaign(false);
-        setSuccess(`🚀 ${campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} campaign started successfully!`);
+        setSuccess(`🚀 ${campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} campaign started!`);
         setTimeout(() => setSuccess(""), 5000);
       } else {
         setError("Failed: " + (data.error || "Unknown error"));
@@ -90,37 +80,6 @@ export default function Dashboard() {
       setError("Error: " + err.message);
     }
     setLoading(false);
-  };
-
-  const handleCreateSequence = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const { data: seq, error: seqError } = await supabase.from("email_sequences").insert({ user_id: user.id, name: seqName, emails: seqEmails, status: "Active" }).select().single();
-      if (seqError) throw seqError;
-      if (seq) setSequences(prev => [seq, ...prev]);
-      setSeqName(""); setSeqEmails([{ day: 1, subject: "", body: "" }]);
-      setShowNewSequence(false);
-      setSuccess("✉️ Email sequence created!");
-      setTimeout(() => setSuccess(""), 5000);
-    } catch (err) {
-      setError("Error: " + err.message);
-    }
-    setLoading(false);
-  };
-
-  const addEmail = () => {
-    const lastDay = seqEmails[seqEmails.length - 1]?.day || 0;
-    setSeqEmails(prev => [...prev, { day: lastDay + 7, subject: "", body: "" }]);
-  };
-
-  const updateEmail = (index, field, value) => {
-    setSeqEmails(prev => prev.map((e, i) => i === index ? { ...e, [field]: value } : e));
-  };
-
-  const removeEmail = (index) => {
-    setSeqEmails(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleViewLeads = (campaign) => {
@@ -276,21 +235,9 @@ export default function Dashboard() {
         .modal-submit{flex:2;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;transition:background 0.15s;}
         .modal-submit:hover{background:#1db36c;}
         .modal-submit:disabled{opacity:0.5;cursor:not-allowed;}
-        .modal-divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:1.25rem 0;}
         .var-tags{display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.625rem;}
         .var-tag{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.18);color:#22c97a;font-size:0.72rem;padding:0.2rem 0.55rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:background 0.12s;}
         .var-tag:hover{background:rgba(34,201,122,0.15);}
-        .email-block{background:#080c09;border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:1rem;margin-bottom:1rem;position:relative;}
-        .email-block-title{font-size:0.78rem;font-weight:600;color:#22c97a;margin-bottom:0.875rem;letter-spacing:0.02em;text-transform:uppercase;}
-        .remove-email-btn{position:absolute;top:0.875rem;right:0.875rem;background:transparent;border:none;color:#3d5240;cursor:pointer;font-size:0.9rem;padding:0.2rem;}
-        .remove-email-btn:hover{color:#f87171;}
-        .add-email-btn{width:100%;background:transparent;border:1px dashed rgba(255,255,255,0.08);color:#3d5240;font-size:0.835rem;padding:0.7rem;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:all 0.15s;}
-        .add-email-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
-        .seq-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.125rem 1.25rem;margin-bottom:0.75rem;}
-        .seq-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#e2ede7;margin-bottom:0.3rem;}
-        .seq-info{font-size:0.78rem;color:#3d5240;}
-        .seq-steps{display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;}
-        .seq-step{background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:7px;padding:0.3rem 0.65rem;font-size:0.72rem;color:#4d6b54;font-family:'Inter',sans-serif;}
         .range-tabs{display:flex;gap:0.375rem;margin-bottom:1.75rem;}
         .range-tab{background:transparent;border:1px solid rgba(255,255,255,0.07);color:#3d5240;font-size:0.815rem;padding:0.4rem 0.875rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.15s;}
         .range-tab.active{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.25);color:#22c97a;font-weight:600;}
@@ -318,9 +265,6 @@ export default function Dashboard() {
         .info-row:last-child{border-bottom:none;}
         .info-key{font-size:0.815rem;color:#3d5240;font-weight:500;}
         .info-val{font-size:0.815rem;color:#94a3b8;font-weight:500;}
-        .tip-card{background:rgba(34,201,122,0.04);border:1px solid rgba(34,201,122,0.1);border-radius:12px;padding:1rem 1.25rem;margin-top:1.5rem;}
-        .tip-title{font-size:0.815rem;font-weight:600;color:#22c97a;margin-bottom:0.3rem;}
-        .tip-text{font-size:0.785rem;color:#2d4a33;line-height:1.6;}
         .no-leads{font-size:0.815rem;color:#2a3d2e;padding:1.25rem;text-align:center;font-style:italic;}
       `}</style>
 
@@ -342,7 +286,6 @@ export default function Dashboard() {
             { id: "campaigns", icon: "⚡", label: "Campaigns" },
             { id: "leads", icon: "👥", label: "All Leads", badge: allLeads.length || null },
             { id: "analytics", icon: "📊", label: "Analytics" },
-            { id: "sequences", icon: "✉️", label: "Email Sequences" },
           ].map(item => (
             <button key={item.id} className={`nav-item ${activeTab === item.id ? "active" : ""}`} onClick={() => setActiveTab(item.id)}>
               <span className="nav-icon">{item.icon}</span>
@@ -408,7 +351,7 @@ export default function Dashboard() {
                 <div className="empty-state">
                   <span className="empty-icon">🚀</span>
                   <div className="empty-title">No campaigns yet</div>
-                  <div className="empty-sub">Create your first campaign to start automating your LinkedIn or Instagram lead magnet DMs and collect leads automatically.</div>
+                  <div className="empty-sub">Create your first campaign to start automating your LinkedIn or Instagram lead magnet DMs.</div>
                   <button className="btn-primary" onClick={() => setShowNewCampaign(true)}>Create your first campaign</button>
                 </div>
               ) : campaigns.map(c => (
@@ -548,45 +491,6 @@ export default function Dashboard() {
             </>
           )}
 
-          {/* EMAIL SEQUENCES */}
-          {activeTab === "sequences" && (
-            <>
-              <div className="page-header">
-                <h1 className="page-title">Email Sequences</h1>
-                <p className="page-sub">Automatically follow up with leads via Gmail on a custom schedule</p>
-              </div>
-              <div className="section-header">
-                <span className="section-title">Your Sequences</span>
-                <button className="btn-primary" onClick={() => setShowNewSequence(true)}>+ New Sequence</button>
-              </div>
-              {sequences.length === 0 ? (
-                <div className="empty-state">
-                  <span className="empty-icon">✉️</span>
-                  <div className="empty-title">No sequences yet</div>
-                  <div className="empty-sub">Create email sequences to automatically follow up with leads on day 1, 7, 14, or 30 after they're collected.</div>
-                  <button className="btn-primary" onClick={() => setShowNewSequence(true)}>Create first sequence</button>
-                </div>
-              ) : sequences.map(s => (
-                <div className="seq-card" key={s.id}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
-                    <div className="seq-name">{s.name}</div>
-                    <span className="status-pill">{s.status}</span>
-                  </div>
-                  <div className="seq-info">{s.emails?.length || 0} emails in sequence</div>
-                  <div className="seq-steps">
-                    {s.emails?.map((email, i) => (
-                      <div className="seq-step" key={i}>Day {email.day} — {email.subject?.slice(0, 22)}...</div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              <div className="tip-card">
-                <div className="tip-title">How email sequences work</div>
-                <div className="tip-text">Set up a sequence once — it runs forever. Day 1 sends immediately when a lead is captured. Day 7 follows up one week later. Use [Name], [Company], and [Link] to personalise every email automatically.</div>
-              </div>
-            </>
-          )}
-
           {/* SETTINGS */}
           {activeTab === "settings" && (
             <>
@@ -640,43 +544,6 @@ export default function Dashboard() {
               <div className="modal-btns">
                 <button type="button" className="modal-cancel" onClick={() => { setShowNewCampaign(false); setCampaignPlatform("linkedin"); }}>Cancel</button>
                 <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Starting..." : `Start ${campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} Campaign →`}</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* NEW SEQUENCE MODAL */}
-      {showNewSequence && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-title">New Email Sequence</div>
-            <div className="modal-sub">Set up automatic follow-up emails that send to leads on your schedule.</div>
-            <form onSubmit={handleCreateSequence}>
-              <label className="form-label">Sequence Name</label>
-              <input className="form-input" placeholder="e.g. 30-day follow-up sequence" value={seqName} onChange={e => setSeqName(e.target.value)} required />
-              <hr className="modal-divider" />
-              {seqEmails.map((email, index) => (
-                <div className="email-block" key={index}>
-                  <div className="email-block-title">Email {index + 1} · Day {email.day}</div>
-                  {index > 0 && <button type="button" className="remove-email-btn" onClick={() => removeEmail(index)}>✕</button>}
-                  <label className="form-label">Send on day</label>
-                  <input className="form-input" type="number" min="1" value={email.day} onChange={e => updateEmail(index, "day", parseInt(e.target.value))} required />
-                  <label className="form-label">Subject line</label>
-                  <input className="form-input" placeholder="e.g. Quick follow-up from [Your Name]" value={email.subject} onChange={e => updateEmail(index, "subject", e.target.value)} required />
-                  <label className="form-label">Email body</label>
-                  <div className="var-tags">
-                    {["[Name]", "[Company]", "[Link]"].map(tag => (
-                      <span key={tag} className="var-tag" onClick={() => updateEmail(index, "body", email.body + tag)}>{tag}</span>
-                    ))}
-                  </div>
-                  <textarea className="form-textarea" placeholder={`Hey [Name],\n\nJust checking in!\n\n[Your Name]`} value={email.body} onChange={e => updateEmail(index, "body", e.target.value)} required />
-                </div>
-              ))}
-              <button type="button" className="add-email-btn" onClick={addEmail}>+ Add another email</button>
-              <div className="modal-btns">
-                <button type="button" className="modal-cancel" onClick={() => setShowNewSequence(false)}>Cancel</button>
-                <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Saving..." : "Create Sequence →"}</button>
               </div>
             </form>
           </div>
