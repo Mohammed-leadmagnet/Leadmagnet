@@ -9,6 +9,7 @@ const supabase = createClient(
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const state = searchParams.get("state");
 
   if (!code) {
     return NextResponse.redirect("https://leadmagnetinc.com/linkedin?error=no_code");
@@ -41,15 +42,41 @@ export async function GET(request) {
     });
     const profile = await profileRes.json();
 
-    // Get user from Supabase session cookie
+    // Get user from cookies — try all possible Supabase cookie names
     const cookieHeader = request.headers.get("cookie") || "";
-    const { data: { user } } = await supabase.auth.getUser(
-      cookieHeader.match(/sb-access-token=([^;]+)/)?.[1] || ""
+    const cookies = Object.fromEntries(
+      cookieHeader.split(";").map(c => {
+        const [key, ...val] = c.trim().split("=");
+        return [key, val.join("=")];
+      })
     );
 
-    if (user) {
+    // Try to find the Supabase access token in cookies
+    let accessToken = null;
+    for (const [key, value] of Object.entries(cookies)) {
+      if (key.includes("access-token") || key.includes("access_token")) {
+        accessToken = value;
+        break;
+      }
+    }
+
+    let userId = null;
+
+    if (accessToken) {
+      const { data: { user } } = await supabase.auth.getUser(accessToken);
+      if (user) userId = user.id;
+    }
+
+    // Fallback: find user by LinkedIn email
+    if (!userId && profile.email) {
+      const { data: users } = await supabase.auth.admin.listUsers();
+      const matchedUser = users?.users?.find(u => u.email === profile.email);
+      if (matchedUser) userId = matchedUser.id;
+    }
+
+    if (userId) {
       await supabase.from("linkedin_accounts").upsert({
-        user_id: user.id,
+        user_id: userId,
         email: profile.email,
         name: profile.name,
         access_token: tokenData.access_token,
