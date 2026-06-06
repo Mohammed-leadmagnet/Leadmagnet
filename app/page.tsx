@@ -5,21 +5,23 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const faqs = [
-    { q: "Do I need a credit card to start the trial?", a: "No. Your 7-day free trial starts immediately with just your email. No payment info required. At the end of the trial, you can choose to subscribe or walk away — no strings attached." },
-    { q: "Is this allowed by LinkedIn?", a: "LeadMagnet uses cookie-based automation with human-like delays, making it safe and undetectable. Thousands of users run it safely every day. We provide safe usage guidelines to protect your account." },
-    { q: "What is a lead magnet exactly?", a: "A lead magnet is a free resource you offer in exchange for attention — a PDF guide, template, checklist, or video. On LinkedIn, you post about it and offer to DM it to anyone who comments. LeadMagnet automates the entire delivery." },
-    { q: "How many DMs can I send per day?", a: "We recommend capping at 50–80 DMs per day for account safety. LeadMagnet automatically paces delivery with randomized human-like delays so it never looks like bot activity." },
-    { q: "Can I connect multiple LinkedIn accounts?", a: "Yes, multi-account management is available on the Agency plan — ideal for agencies managing LinkedIn automation for multiple clients." },
-    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. Connect your accounts in one click and manage all your outreach from one dashboard." },
+    { q: "Do I need a credit card to start the trial?", a: "No. Your 7-day free trial starts immediately with just your email. No payment info required. At the end of the trial, you choose to subscribe or walk away — no strings attached." },
+    { q: "Is this allowed by LinkedIn?", a: "LeadMagnet is designed to support responsible lead organisation and follow-up workflows. Users are responsible for complying with LinkedIn's terms of service and for avoiding spam or unauthorised automation. We recommend conservative outreach limits and quality-first campaigns. Always review LinkedIn's guidelines before running campaigns." },
+    { q: "What is a lead magnet exactly?", a: "A lead magnet is a free resource you offer in exchange for attention — a PDF guide, template, checklist, or video. You post about it on LinkedIn or Instagram and offer to send it to anyone who engages. LeadMagnet helps you organise and follow up with those engaged prospects from one dashboard." },
+    { q: "How many DMs can I send per day?", a: "We recommend conservative limits and quality-first outreach. LeadMagnet is not designed for mass spam campaigns. Start with small volumes, monitor engagement quality, and scale responsibly. Your account safety is your responsibility." },
+    { q: "Can I connect multiple client accounts?", a: "Yes. Pro and Agency plans are built for agencies managing multiple clients. Each client has a separate workspace, campaigns, and leads — fully isolated from each other." },
+    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. Connect your accounts in one click and manage all your outreach from one dashboard. Instagram automation is in beta." },
+    { q: "Does LeadMagnet replace a CRM?", a: "No. LeadMagnet helps you capture and organise leads from social campaigns, then export or follow up via Gmail. You can use it alongside your existing CRM." },
+    { q: "How does Gmail integration work?", a: "We use Google OAuth — you connect your Gmail account securely via Google's official login. Your password is never stored. We only request permission to send emails on your behalf for follow-up sequences." },
   ];
 
   const features = [
-    { icon: "🔗", title: "LinkedIn Automation", desc: "Connect your LinkedIn account and automatically capture leads who comment on your posts. Phantombuster powers the scraping engine behind the scenes." },
-    { icon: "📧", title: "Gmail Sequences", desc: "Connect Gmail with one click via Google OAuth. Send automated follow-up emails on day 1, 7, 14, and 30 — personalised with [Name] and [Company]." },
-    { icon: "📊", title: "Leads Dashboard", desc: "All your leads in one place. Search, filter, export to CSV, and archive leads. See first name, company, headline, location and more." },
-    { icon: "📈", title: "Analytics", desc: "Daily leads bar chart, location breakdown, and industry breakdown. Know exactly where your best leads are coming from." },
-    { icon: "🏢", title: "Agency Client Manager", desc: "Manage multiple clients from one dashboard. Add clients, track their campaigns, and deliver results at scale." },
-    { icon: "🤖", title: "Campaign Manager", desc: "Create LinkedIn and Instagram campaigns with one click. Set your post URL, DM template, and let LeadMagnet run it 24/7." },
+    { icon: "🔗", title: "Campaign Manager", desc: "Create LinkedIn and Instagram campaigns in one click. Set your post URL and follow-up message — LeadMagnet organises engaged prospects into your dashboard automatically." },
+    { icon: "📧", title: "Gmail Sequences", desc: "Connect Gmail securely via Google OAuth. Send automated follow-up emails on day 1, 7, 14, and 30 — personalised with [Name] and [Company]. No password stored." },
+    { icon: "📊", title: "Leads Dashboard", desc: "All your prospects in one place. Search, filter, export to CSV, and archive leads. See name, company, headline, location and more at a glance." },
+    { icon: "📈", title: "Analytics", desc: "Daily leads chart, location breakdown, and campaign performance. Know exactly which campaigns are driving the most qualified prospects." },
+    { icon: "🏢", title: "Agency Client Manager", desc: "Manage multiple clients from one dashboard. Add clients, track their campaigns, set tiers, and send automated performance reports via Gmail." },
+    { icon: "📋", title: "Performance Reports", desc: "Send branded performance reports directly to clients via Gmail — automatically. Include leads, campaigns, health score, and monthly progress." },
   ];
 
   const plans = [
@@ -27,8 +29,8 @@ export default function Home() {
       name: "Starter",
       price: "€49",
       period: "/ month",
-      desc: "For solopreneurs & coaches",
-      features: ["1 LinkedIn account", "Up to 10 active campaigns", "LinkedIn automation", "Leads dashboard", "CSV export", "Basic analytics", "Email support"],
+      desc: "For consultants & small agencies",
+      features: ["1 workspace", "5 active campaigns", "LinkedIn automation", "Leads dashboard", "CSV export", "Basic analytics", "Email support"],
       popular: false,
       cta: "Start Free Trial",
     },
@@ -37,7 +39,7 @@ export default function Home() {
       price: "€99",
       period: "/ month",
       desc: "For growing agencies",
-      features: ["Up to 5 client accounts", "Up to 50 active campaigns", "Everything in Starter", "Instagram automation", "Gmail sequences", "Advanced analytics", "Priority support"],
+      features: ["5 client workspaces", "25 active campaigns", "Everything in Starter", "Instagram automation", "Gmail sequences", "Advanced analytics", "Priority support"],
       popular: true,
       cta: "Start Free Trial",
     },
@@ -46,17 +48,25 @@ export default function Home() {
       price: "€199",
       period: "/ month",
       desc: "For full-scale agencies",
-      features: ["Unlimited client accounts", "Unlimited campaigns", "Everything in Pro", "Agency client manager", "White-label dashboard", "Dedicated account manager", "Custom integrations"],
+      features: ["15 client workspaces", "75 active campaigns", "Everything in Pro", "Agency client manager", "Automated client reports", "White-label dashboard", "Dedicated account manager"],
       popular: false,
       cta: "Start Free Trial",
     },
   ];
 
   const stats = [
-    { n: "0", l: "DMs Delivered" },
-    { n: "0", l: "Campaigns Created" },
-    { n: "0", l: "Leads Generated" },
-    { n: "< 10m", l: "Avg Setup Time" },
+    { n: "< 10min", l: "Setup time" },
+    { n: "3", l: "Platforms supported" },
+    { n: "7-day", l: "Free trial" },
+    { n: "100%", l: "No credit card needed" },
+  ];
+
+  const howItWorks = [
+    { step: "01", title: "Connect your platforms", desc: "Link your LinkedIn, Instagram, or Gmail account in one click via secure OAuth." },
+    { step: "02", title: "Create a campaign", desc: "Add your post URL and follow-up message. Set which platform to track engagement on." },
+    { step: "03", title: "Leads are captured automatically", desc: "Engaged prospects from your campaigns appear in your leads dashboard — organised and ready." },
+    { step: "04", title: "Follow up with Gmail sequences", desc: "Set up automated follow-up emails that send on day 1, 7, 14, and 30 — personalised for each lead." },
+    { step: "05", title: "Report results to clients", desc: "Send branded performance reports directly to clients via Gmail — weekly, monthly, or on demand." },
   ];
 
   return (
@@ -93,7 +103,7 @@ export default function Home() {
         @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         .hero-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(2.6rem, 6.5vw, 5rem); font-weight: 800; line-height: 1.06; letter-spacing: -0.04em; color: #e8f4ec; max-width: 860px; margin-bottom: 1.5rem; animation: fadeUp 0.6s 0.1s both; }
         .hero-title em { font-style: normal; color: var(--green); }
-        .hero-sub { font-size: 1.05rem; color: #3d5240; max-width: 520px; margin-bottom: 2.5rem; font-weight: 400; line-height: 1.65; animation: fadeUp 0.6s 0.2s both; }
+        .hero-sub { font-size: 1.05rem; color: #3d5240; max-width: 560px; margin-bottom: 2.5rem; font-weight: 400; line-height: 1.65; animation: fadeUp 0.6s 0.2s both; }
         .btn-row { display: flex; gap: 0.875rem; justify-content: center; flex-wrap: wrap; animation: fadeUp 0.6s 0.3s both; }
         .btn-primary { background: var(--green); color: #071209; font-family: 'Inter', sans-serif; font-weight: 600; padding: 0.8rem 1.75rem; border-radius: 10px; text-decoration: none; font-size: 0.925rem; transition: all 0.15s; letter-spacing: -0.01em; }
         .btn-primary:hover { background: #1db36c; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(34,201,122,0.2); }
@@ -116,6 +126,16 @@ export default function Home() {
         .f-icon-wrap { width: 40px; height: 40px; border-radius: 10px; background: var(--green-dim); border: 1px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 1rem; }
         .f-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.935rem; font-weight: 700; color: #c4d4c8; margin-bottom: 0.4rem; }
         .f-desc { color: #2d4a33; font-size: 0.845rem; line-height: 1.6; font-weight: 400; }
+        .how-it-works { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .steps-list { display: flex; flex-direction: column; gap: 0; margin-top: 2.75rem; }
+        .step-item { display: flex; gap: 2rem; align-items: flex-start; padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+        .step-item:last-child { border-bottom: none; }
+        .step-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.75rem; font-weight: 800; color: var(--green); background: var(--green-dim); border: 1px solid var(--green-border); border-radius: 8px; padding: 0.3rem 0.6rem; flex-shrink: 0; letter-spacing: 0.05em; }
+        .step-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700; color: #c4d4c8; margin-bottom: 0.375rem; }
+        .step-desc { font-size: 0.875rem; color: #2d4a33; line-height: 1.6; }
+        .compliance-box { background: rgba(251,191,36,0.04); border: 1px solid rgba(251,191,36,0.15); border-radius: 14px; padding: 1.5rem; margin-top: 3rem; }
+        .compliance-title { font-size: 0.835rem; font-weight: 600; color: #fbbf24; margin-bottom: 0.5rem; }
+        .compliance-text { font-size: 0.815rem; color: #92752a; line-height: 1.65; }
         .pricing-surface { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.25rem; margin-top: 2.75rem; }
         .plan-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 18px; padding: 1.875rem; position: relative; transition: border-color 0.15s; }
@@ -158,6 +178,7 @@ export default function Home() {
         <div className="nav-logo">⚡ LeadMagnet</div>
         <ul className="nav-links">
           <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
           <li><a href="#pricing">Pricing</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
@@ -168,14 +189,14 @@ export default function Home() {
       <section className="hero">
         <div className="hero-glow" />
         <div className="hero-glow2" />
-        <div className="badge"><span className="badge-dot" />LinkedIn · Instagram · Gmail Automation</div>
-        <h1 className="hero-title">The lead generation platform<br /><em>built for agencies</em></h1>
-        <p className="hero-sub">Automate your LinkedIn, Instagram, and Gmail outreach. Collect leads, send DMs, follow up — all on autopilot. Your clients get results while you sleep.</p>
+        <div className="badge"><span className="badge-dot" />Built for Marketing Agencies</div>
+        <h1 className="hero-title">Turn social engagement into<br /><em>qualified leads</em></h1>
+        <p className="hero-sub">LeadMagnet helps agencies capture engaged prospects from LinkedIn and Instagram campaigns, organise them in one dashboard, and automate responsible Gmail follow-ups.</p>
         <div className="btn-row">
           <a href="/signup" className="btn-primary">Start Free Trial →</a>
-          <a href="#features" className="btn-secondary">See how it works</a>
+          <a href="#how-it-works" className="btn-secondary">See how it works</a>
         </div>
-        <p className="hero-note">No credit card required · 7-day free trial · Cancel anytime</p>
+        <p className="hero-note">No credit card required · 7-day free trial · Built for agencies managing multiple clients</p>
       </section>
 
       {/* STATS */}
@@ -193,7 +214,7 @@ export default function Home() {
         <div className="container">
           <div className="section-tag">Features</div>
           <h2 className="section-title">Everything your agency needs<br />to scale lead generation</h2>
-          <p className="section-sub">From LinkedIn automation to Gmail sequences — one platform handles your entire outreach pipeline automatically.</p>
+          <p className="section-sub">From campaign management to Gmail sequences — one platform handles your entire outreach pipeline.</p>
           <div className="features-grid">
             {features.map(f => (
               <div className="feature-card" key={f.title}>
@@ -202,6 +223,30 @@ export default function Home() {
                 <div className="f-desc">{f.desc}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" className="how-it-works">
+        <div className="container">
+          <div className="section-tag">How it works</div>
+          <h2 className="section-title">How agencies use LeadMagnet</h2>
+          <p className="section-sub">A simple 5-step workflow that turns social engagement into organised, followed-up leads.</p>
+          <div className="steps-list">
+            {howItWorks.map(s => (
+              <div className="step-item" key={s.step}>
+                <div className="step-num">{s.step}</div>
+                <div>
+                  <div className="step-title">{s.title}</div>
+                  <div className="step-desc">{s.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="compliance-box">
+            <div className="compliance-title">⚠️ Responsible Use Notice</div>
+            <div className="compliance-text">Users are responsible for ensuring their campaigns comply with LinkedIn's, Instagram's, Gmail's, and applicable privacy regulations. LeadMagnet is designed to support responsible outreach workflows — not spam or unauthorised scraping. Always review the terms of service of each platform before running campaigns. LeadMagnet Inc. is not liable for account restrictions resulting from misuse.</div>
           </div>
         </div>
       </section>
@@ -257,7 +302,7 @@ export default function Home() {
         <div className="cta-glow" />
         <div className="container">
           <h2 className="cta-title">Start generating leads<br />on autopilot today</h2>
-          <p className="cta-sub">Join agencies and consultants across Europe turning LinkedIn comments into paying customers — automatically.</p>
+          <p className="cta-sub">Join agencies across Europe capturing qualified prospects from LinkedIn and Instagram — and following up automatically via Gmail.</p>
           <div className="btn-row">
             <a href="/signup" className="btn-primary">Start Your Free 7-Day Trial →</a>
           </div>
@@ -273,7 +318,7 @@ export default function Home() {
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
           <a href="/privacy">Privacy</a>
-          <a href="/terms">Voorwaarden</a>
+          <a href="/terms">Terms</a>
         </div>
         <div>© 2026 LeadMagnet Inc. All rights reserved.</div>
       </footer>
