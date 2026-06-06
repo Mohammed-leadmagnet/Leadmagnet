@@ -10,7 +10,7 @@ export default function Home() {
     { q: "What is a lead magnet exactly?", a: "A lead magnet is a free resource you offer in exchange for attention — a PDF guide, template, checklist, or video. You post about it on LinkedIn or Instagram and offer to send it to anyone who engages. LeadMagnet helps you organise and follow up with those engaged prospects from one dashboard." },
     { q: "How many DMs can I send per day?", a: "We recommend conservative limits and quality-first outreach. LeadMagnet is not designed for mass spam campaigns. Start with small volumes, monitor engagement quality, and scale responsibly. Your account safety is your responsibility." },
     { q: "Can I connect multiple client accounts?", a: "Yes. Pro and Agency plans are built for agencies managing multiple clients. Each client has a separate workspace, campaigns, and leads — fully isolated from each other." },
-    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. Connect your accounts in one click and manage all your outreach from one dashboard. Instagram automation is in beta." },
+    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. Connect Gmail via secure Google OAuth. Add LinkedIn and Instagram campaign sources through guided setup. Instagram automation is currently in beta." },
     { q: "Does LeadMagnet replace a CRM?", a: "No. LeadMagnet helps you capture and organise leads from social campaigns, then export or follow up via Gmail. You can use it alongside your existing CRM." },
     { q: "How does Gmail integration work?", a: "We use Google OAuth — you connect your Gmail account securely via Google's official login. Your password is never stored. We only request permission to send emails on your behalf for follow-up sequences." },
   ];
@@ -62,7 +62,7 @@ export default function Home() {
   ];
 
   const howItWorks = [
-    { step: "01", title: "Connect your platforms", desc: "Link your LinkedIn, Instagram, or Gmail account in one click via secure OAuth." },
+    { step: "01", title: "Connect your platforms", desc: "Connect Gmail via secure Google OAuth. Add LinkedIn and Instagram campaign sources through guided setup." },
     { step: "02", title: "Create a campaign", desc: "Add your post URL and follow-up message. Set which platform to track engagement on." },
     { step: "03", title: "Leads are captured automatically", desc: "Engaged prospects from your campaigns appear in your leads dashboard — organised and ready." },
     { step: "04", title: "Follow up with Gmail sequences", desc: "Set up automated follow-up emails that send on day 1, 7, 14, and 30 — personalised for each lead." },
@@ -171,6 +171,7 @@ export default function Home() {
         .footer-links { display: flex; gap: 1.5rem; }
         .footer-links a { color: #2a3d2e; text-decoration: none; font-weight: 500; transition: color 0.15s; }
         .footer-links a:hover { color: #4d6b54; }
+        .disclaimer { font-size: 0.72rem; color: #1e2b20; text-align: center; padding: 1rem 2rem; background: var(--bg2); border-top: 1px solid var(--border); line-height: 1.6; }
       `}</style>
 
       {/* NAV */}
@@ -246,7 +247,7 @@ export default function Home() {
           </div>
           <div className="compliance-box">
             <div className="compliance-title">⚠️ Responsible Use Notice</div>
-            <div className="compliance-text">Users are responsible for ensuring their campaigns comply with LinkedIn's, Instagram's, Gmail's, and applicable privacy regulations. LeadMagnet is designed to support responsible outreach workflows — not spam or unauthorised scraping. Always review the terms of service of each platform before running campaigns. LeadMagnet Inc. is not liable for account restrictions resulting from misuse.</div>
+            <div className="compliance-text">Users are responsible for ensuring their campaigns comply with LinkedIn's, Instagram's, Gmail's, and applicable privacy regulations. LeadMagnet is designed to support responsible outreach workflows — not spam or unauthorised scraping. Always review the terms of service of each platform before running campaigns. LeadMagnet Inc. is not affiliated with, endorsed by, or officially connected to LinkedIn, Instagram, Google, or Gmail.</div>
           </div>
         </div>
       </section>
@@ -301,7 +302,7 @@ export default function Home() {
       <div className="cta-surface">
         <div className="cta-glow" />
         <div className="container">
-          <h2 className="cta-title">Start generating leads<br />on autopilot today</h2>
+          <h2 className="cta-title">Turn campaign engagement into<br />qualified leads today</h2>
           <p className="cta-sub">Join agencies across Europe capturing qualified prospects from LinkedIn and Instagram — and following up automatically via Gmail.</p>
           <div className="btn-row">
             <a href="/signup" className="btn-primary">Start Your Free 7-Day Trial →</a>
@@ -322,6 +323,9 @@ export default function Home() {
         </div>
         <div>© 2026 LeadMagnet Inc. All rights reserved.</div>
       </footer>
+      <div className="disclaimer">
+        LeadMagnet is not affiliated with, endorsed by, or officially connected to LinkedIn, Instagram, Google, or Gmail. All trademarks belong to their respective owners.
+      </div>
     </main>
   );
 }
