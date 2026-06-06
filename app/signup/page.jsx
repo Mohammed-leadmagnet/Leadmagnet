@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -12,6 +12,10 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    document.title = "Start Free Trial — LeadMagnet";
+  }, []);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -57,7 +61,7 @@ export default function SignUp() {
         <a href="/" className="logo">⚡ LeadMagnet</a>
         <div className="trial-badge">🎉 7-day free trial — no card needed</div>
         <h1 className="title">Create your account</h1>
-        <p className="subtitle">Join agencies across the Netherlands automating their LinkedIn lead generation.</p>
+        <p className="subtitle">Join agencies capturing qualified prospects from LinkedIn and Instagram campaigns — and managing Gmail follow-ups from one dashboard.</p>
 
         <div className="perks">
           <div className="perk"><span>✓</span> Free for 7 days — no credit card</div>
@@ -69,24 +73,9 @@ export default function SignUp() {
 
         <form onSubmit={handleSignUp}>
           <label className="label">Email address</label>
-          <input
-            className="input"
-            type="email"
-            placeholder="you@company.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-          />
+          <input className="input" type="email" placeholder="you@agency.com" value={email} onChange={e => setEmail(e.target.value)} required />
           <label className="label">Password</label>
-          <input
-            className="input"
-            type="password"
-            placeholder="At least 8 characters"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            minLength={8}
-          />
+          <input className="input" type="password" placeholder="At least 8 characters" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
           <button className="btn" type="submit" disabled={loading}>
             {loading ? "Creating account..." : "Start Free Trial →"}
           </button>
