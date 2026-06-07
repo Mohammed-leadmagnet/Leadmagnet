@@ -317,6 +317,9 @@ export default function Dashboard() {
           <button className={`nav-item ${activeTab === "billing" ? "active" : ""}`} onClick={() => setActiveTab("billing")}>
             <span className="nav-icon">💳</span>Billing
           </button>
+          <button className="nav-item" onClick={() => window.location.href = "/contact"}>
+            <span className="nav-icon">💬</span>Support
+          </button>
 
           <div className="sidebar-footer">
             <div className="plan-pill">
