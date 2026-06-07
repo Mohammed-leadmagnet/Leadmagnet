@@ -134,8 +134,6 @@ export default function Home() {
         .plan-btn:hover { border-color: rgba(255,255,255,0.2); color: #c4d4c8; }
         .plan-card.popular .plan-btn { background: var(--green); color: #071209; border-color: var(--green); }
         .plan-card.popular .plan-btn:hover { background: #1db36c; }
-
-        /* FAQ - answers always in DOM, toggled with max-height for crawlability */
         .faq-list { display: flex; flex-direction: column; margin-top: 2.75rem; }
         .faq-item { border-bottom: 1px solid var(--border); }
         .faq-q { width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #94a3b8; font-family: 'Inter', sans-serif; font-size: 0.935rem; font-weight: 500; padding: 1.25rem 0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: color 0.15s; }
@@ -145,7 +143,6 @@ export default function Home() {
         .faq-a-wrap { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
         .faq-a-wrap.open { max-height: 400px; }
         .faq-a { font-size: 0.875rem; color: #2d4a33; padding-bottom: 1.25rem; line-height: 1.7; max-width: 720px; }
-
         .cta-surface { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); text-align: center; padding: 6rem 1.5rem; position: relative; overflow: hidden; }
         .cta-glow { position: absolute; bottom: -80px; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(34,201,122,0.07) 0%, transparent 70%); pointer-events: none; }
         .cta-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(1.875rem, 4.5vw, 3.25rem); font-weight: 800; color: #e8f4ec; letter-spacing: -0.04em; margin-bottom: 0.875rem; line-height: 1.1; }
@@ -153,13 +150,12 @@ export default function Home() {
         .cta-note { font-size: 0.755rem; color: #2a3d2e; margin-top: 1rem; }
         footer { border-top: 1px solid var(--border); padding: 1.75rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #2a3d2e; flex-wrap: wrap; gap: 1rem; background: var(--bg2); }
         .footer-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: var(--green); font-size: 0.975rem; }
-        .footer-links { display: flex; gap: 1.5rem; }
+        .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
         .footer-links a { color: #2a3d2e; text-decoration: none; font-weight: 500; transition: color 0.15s; }
         .footer-links a:hover { color: #4d6b54; }
         .disclaimer { font-size: 0.72rem; color: #1e2b20; text-align: center; padding: 1rem 2rem; background: var(--bg2); border-top: 1px solid var(--border); line-height: 1.6; }
       `}</style>
 
-      {/* NAV */}
       <nav className="nav">
         <div className="nav-logo">⚡ LeadMagnet</div>
         <ul className="nav-links">
@@ -171,7 +167,6 @@ export default function Home() {
         <a href="/signup" className="nav-cta">Start Free Trial</a>
       </nav>
 
-      {/* HERO */}
       <section className="hero">
         <div className="hero-glow" />
         <div className="hero-glow2" />
@@ -185,7 +180,6 @@ export default function Home() {
         <p className="hero-note">No credit card required · 7-day free trial · Built for agencies managing multiple clients</p>
       </section>
 
-      {/* STATS */}
       <div className="stats-bar">
         {stats.map(s => (
           <div className="stat-item" key={s.l}>
@@ -195,7 +189,6 @@ export default function Home() {
         ))}
       </div>
 
-      {/* FEATURES */}
       <section id="features">
         <div className="container">
           <div className="section-tag">Features</div>
@@ -213,7 +206,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
       <section id="how-it-works" className="how-it-works">
         <div className="container">
           <div className="section-tag">How it works</div>
@@ -237,7 +229,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRICING */}
       <section id="pricing" className="pricing-surface">
         <div className="container">
           <div className="section-tag">Pricing</div>
@@ -264,7 +255,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ — answers always in DOM for crawlability, toggled with CSS */}
       <section id="faq">
         <div className="container">
           <div className="section-tag">FAQ</div>
@@ -285,7 +275,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
       <div className="cta-surface">
         <div className="cta-glow" />
         <div className="container">
@@ -298,13 +287,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* FOOTER */}
       <footer>
         <div className="footer-logo">⚡ LeadMagnet</div>
         <div className="footer-links">
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
+          <a href="/contact">Contact</a>
           <a href="/privacy">Privacy</a>
           <a href="/terms">Terms</a>
         </div>
