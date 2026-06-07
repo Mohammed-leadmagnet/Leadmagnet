@@ -1,27 +1,40 @@
+import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe("sk_test_51TVUCcDeNM7EDvOY2QU23ZDAY7I1cEGaQyPbjyB87ZJwMKJGZHuXvuD4HqO9pakoBdLl4D38YCS1VIuGzTcbW63b00GK3YL3a7");
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const PRICE_IDS = {
+  starter: process.env.STRIPE_STARTER_PRICE_ID,
+  pro: process.env.STRIPE_PRO_PRICE_ID,
+  agency: process.env.STRIPE_AGENCY_PRICE_ID,
+};
 
 export async function POST(request) {
   try {
-    const { priceId, userEmail } = await request.json();
+    const { plan, userId, email } = await request.json();
+    const priceId = PRICE_IDS[plan];
+
+    if (!priceId) {
+      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
+    }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       mode: "subscription",
-      customer_email: userEmail,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/pricing`,
+      payment_method_types: ["card"],
+      line_items: [{ price: priceId, quantity: 1 }],
+      customer_email: email,
+      metadata: { userId, plan },
+      success_url: "https://leadmagnetinc.com/dashboard?subscribed=true",
+      cancel_url: "https://leadmagnetinc.com/pricing",
+      allow_promotion_codes: true,
+      subscription_data: {
+        trial_period_days: 7,
+        metadata: { userId, plan },
+      },
     });
 
-    return Response.json({ url: session.url });
+    return NextResponse.json({ url: session.url });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
