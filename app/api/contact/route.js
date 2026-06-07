@@ -15,7 +15,7 @@ export async function POST(request) {
 
     await transporter.sendMail({
       from: `LeadMagnet Support <${process.env.GMAIL_USER}>`,
-      to: "support@leadmagnetinc.com",
+      to: "m.marwan2003@gmail.com",
       replyTo: email,
       subject: `[Support] ${subject} — from ${name}`,
       html: `
