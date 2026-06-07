@@ -71,7 +71,7 @@ export default function Dashboard() {
         }).select().single();
         if (campaign) setCampaigns(prev => [campaign, ...prev]);
         setPostUrl(""); setDmMessage(""); setShowNewCampaign(false);
-        setSuccess(`🚀 ${campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} campaign started!`);
+        setSuccess(`${campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} campaign started successfully!`);
         setTimeout(() => setSuccess(""), 5000);
       } else {
         setError("Failed: " + (data.error || "Unknown error"));
@@ -120,6 +120,46 @@ export default function Dashboard() {
     return allLeads.filter(l => new Date(l.created_at) >= cutoff).length;
   };
 
+  const getCampaignName = (campaign, index) => {
+    const platform = campaign.platform === "instagram" ? "Instagram" : "LinkedIn";
+    try {
+      const url = new URL(campaign.post_url);
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (campaign.platform === "instagram" && parts.length >= 2) {
+        return `${platform} Campaign — Post ${parts[1]?.slice(0, 8)}`;
+      }
+      if (parts.length >= 2) {
+        const slug = parts[1]?.split("-").slice(0, 5).join(" ");
+        if (slug && slug.length > 3) {
+          return slug.charAt(0).toUpperCase() + slug.slice(1);
+        }
+      }
+    } catch {}
+    return `${platform} Campaign #${index + 1}`;
+  };
+
+  const getTimeAgo = (dateStr) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const days = Math.floor(diff / 86400000);
+    if (days === 0) return "Today";
+    if (days === 1) return "Yesterday";
+    if (days < 7) return `${days} days ago`;
+    if (days < 30) return `${Math.floor(days / 7)}w ago`;
+    return `${Math.floor(days / 30)}mo ago`;
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const getUserName = () => {
+    if (!user?.email) return "";
+    return user.email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  };
+
   const totalLeads = allLeads.length;
   const totalDms = campaigns.reduce((a, c) => a + (c.dms_sent || 0), 0);
   const filteredLeads = allLeads.filter(l => {
@@ -130,7 +170,7 @@ export default function Dashboard() {
   const dailyLeads = getDailyLeads();
   const maxCount = Math.max(...dailyLeads.map(d => d.count), 1);
 
-  const platformBtn = (id, icon, label) => ({
+  const platformBtn = (id) => ({
     type: "button",
     onClick: () => setCampaignPlatform(id),
     style: {
@@ -138,138 +178,183 @@ export default function Dashboard() {
       border: `1px solid ${campaignPlatform === id ? "rgba(34,201,122,0.5)" : "rgba(255,255,255,0.08)"}`,
       background: campaignPlatform === id ? "rgba(34,201,122,0.08)" : "transparent",
       color: campaignPlatform === id ? "#22c97a" : "#4d6b54",
-      cursor: "pointer", fontFamily: "'Inter',sans-serif", fontWeight: 600, fontSize: "0.875rem",
-      display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", transition: "all 0.15s"
+      cursor: "pointer", fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 600, fontSize: "0.875rem",
+      display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", transition: "all 0.2s"
     }
   });
 
   return (
-    <main style={{ minHeight: "100vh", background: "#080c09", fontFamily: "'Inter', sans-serif", color: "#d1e0d6", display: "flex", flexDirection: "column" }}>
+    <main style={{ minHeight: "100vh", background: "#060a07", fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", color: "#d1e0d6", display: "flex", flexDirection: "column" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;}
-        .nav{background:#0b120d;border-bottom:1px solid rgba(255,255,255,0.06);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:#22c97a;text-decoration:none;letter-spacing:-0.02em;}
+
+        .nav{background:rgba(8,14,10,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.05);padding:0 1.75rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#22c97a;text-decoration:none;letter-spacing:-0.03em;display:flex;align-items:center;gap:0.4rem;}
+        .logo-dot{width:8px;height:8px;background:#22c97a;border-radius:50%;box-shadow:0 0 10px rgba(34,201,122,0.5);}
         .nav-right{display:flex;align-items:center;gap:0.75rem;}
-        .user-pill{display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:0.3rem 0.75rem 0.3rem 0.3rem;}
-        .user-avatar{width:26px;height:26px;background:linear-gradient(135deg,#22c97a,#15803d);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:#fff;}
-        .user-email{font-size:0.78rem;color:#94a3b8;font-weight:500;}
-        .logout-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#64748b;font-size:0.78rem;padding:0.35rem 0.75rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .logout-btn:hover{border-color:rgba(255,255,255,0.15);color:#94a3b8;}
-        .layout{display:flex;flex:1;min-height:calc(100vh - 56px);}
-        .sidebar{width:232px;background:#0b120d;border-right:1px solid rgba(255,255,255,0.06);padding:1.25rem 0.875rem;display:flex;flex-direction:column;gap:2px;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;}
-        .sidebar-section{font-size:0.65rem;font-weight:600;color:#3d5240;text-transform:uppercase;letter-spacing:0.1em;padding:0.75rem 0.625rem 0.375rem;margin-top:0.25rem;}
-        .sidebar-section:first-child{margin-top:0;}
-        .nav-item{display:flex;align-items:center;gap:0.625rem;padding:0.5rem 0.625rem;border-radius:8px;cursor:pointer;font-size:0.845rem;color:#6b7f70;transition:all 0.12s;border:none;background:transparent;width:100%;text-align:left;font-family:'Inter',sans-serif;font-weight:500;position:relative;}
-        .nav-item:hover{background:rgba(255,255,255,0.04);color:#c4d4c8;}
-        .nav-item.active{background:rgba(34,201,122,0.1);color:#22c97a;font-weight:600;}
-        .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;background:#22c97a;border-radius:0 3px 3px 0;}
-        .nav-icon{font-size:0.9rem;width:18px;text-align:center;flex-shrink:0;}
-        .nav-badge{margin-left:auto;background:rgba(34,201,122,0.15);color:#22c97a;font-size:0.68rem;font-weight:600;padding:0.1rem 0.45rem;border-radius:100px;}
-        .sidebar-footer{margin-top:auto;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.06);}
-        .plan-pill{background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.15);border-radius:10px;padding:0.625rem 0.75rem;margin-top:0.5rem;}
-        .plan-name{font-size:0.78rem;font-weight:600;color:#22c97a;}
-        .plan-sub{font-size:0.68rem;color:#4d6b54;margin-top:1px;}
-        .content{flex:1;padding:2rem 2rem 3rem;max-width:1020px;}
+        .user-pill{display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:100px;padding:0.3rem 0.85rem 0.3rem 0.3rem;transition:all 0.2s;}
+        .user-pill:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
+        .user-avatar{width:28px;height:28px;background:linear-gradient(135deg,#22c97a,#0d9456);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;letter-spacing:-0.02em;}
+        .user-email{font-size:0.78rem;color:#6b7f70;font-weight:500;font-family:'Inter',sans-serif;}
+        .logout-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.375rem 0.85rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.2s;}
+        .logout-btn:hover{border-color:rgba(239,68,68,0.25);color:#f87171;}
+
+        .layout{display:flex;flex:1;min-height:calc(100vh - 58px);}
+
+        .sidebar{width:220px;background:rgba(8,14,10,0.6);border-right:1px solid rgba(255,255,255,0.04);padding:1.5rem 0.75rem;display:flex;flex-direction:column;gap:1px;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;}
+        .sidebar-section{font-size:0.6rem;font-weight:700;color:#2a3d2e;text-transform:uppercase;letter-spacing:0.14em;padding:1rem 0.75rem 0.4rem;margin-top:0.125rem;}
+        .sidebar-section:first-child{margin-top:0;padding-top:0.25rem;}
+        .nav-item{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.75rem;border-radius:9px;cursor:pointer;font-size:0.82rem;color:#4d6b54;transition:all 0.15s;border:none;background:transparent;width:100%;text-align:left;font-family:'Inter',sans-serif;font-weight:500;position:relative;}
+        .nav-item:hover{background:rgba(34,201,122,0.04);color:#8fa696;}
+        .nav-item.active{background:rgba(34,201,122,0.08);color:#22c97a;font-weight:600;}
+        .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;background:#22c97a;border-radius:0 4px 4px 0;}
+        .nav-icon{font-size:0.85rem;width:18px;text-align:center;flex-shrink:0;opacity:0.85;}
+        .nav-badge{margin-left:auto;background:rgba(34,201,122,0.12);color:#22c97a;font-size:0.65rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:100px;font-family:'Plus Jakarta Sans',sans-serif;}
+        .sidebar-footer{margin-top:auto;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.04);}
+        .plan-pill{background:linear-gradient(135deg,rgba(34,201,122,0.06),rgba(34,201,122,0.02));border:1px solid rgba(34,201,122,0.12);border-radius:11px;padding:0.7rem 0.85rem;margin-top:0.5rem;}
+        .plan-name{font-size:0.78rem;font-weight:700;color:#22c97a;font-family:'Plus Jakarta Sans',sans-serif;}
+        .plan-sub{font-size:0.65rem;color:#2a3d2e;margin-top:2px;font-family:'Inter',sans-serif;}
+
+        .content{flex:1;padding:2rem 2.25rem 3rem;max-width:1060px;}
+
+        .welcome-section{margin-bottom:2rem;}
+        .welcome-greeting{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:#f0f7f2;letter-spacing:-0.035em;line-height:1.2;}
+        .welcome-sub{font-size:0.85rem;color:#3d5240;font-weight:400;margin-top:0.35rem;font-family:'Inter',sans-serif;}
+
         .page-header{margin-bottom:1.75rem;}
-        .page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#f0f7f2;letter-spacing:-0.03em;margin-bottom:0.25rem;}
-        .page-sub{font-size:0.855rem;color:#4d6b54;font-weight:400;}
-        .success-bar{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.2);color:#22c97a;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;}
-        .error-bar{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.875rem;margin-bottom:2rem;}
-        .stat-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.125rem 1.25rem;position:relative;overflow:hidden;}
-        .stat-card::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;background:radial-gradient(circle at top right,rgba(34,201,122,0.06),transparent 70%);pointer-events:none;}
-        .stat-icon{font-size:1.1rem;margin-bottom:0.625rem;display:block;}
-        .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:700;color:#f0f7f2;line-height:1;margin-bottom:0.3rem;letter-spacing:-0.03em;}
-        .stat-lbl{font-size:0.72rem;color:#3d5240;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;}
-        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-        .section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.975rem;font-weight:700;color:#c4d4c8;letter-spacing:-0.01em;}
-        .btn-primary{background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.835rem;padding:0.55rem 1.1rem;border-radius:9px;border:none;cursor:pointer;transition:all 0.15s;letter-spacing:-0.01em;}
-        .btn-primary:hover{background:#1db36c;transform:translateY(-1px);}
-        .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-        .btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.1);color:#6b7f70;font-family:'Inter',sans-serif;font-weight:500;font-size:0.815rem;padding:0.45rem 0.875rem;border-radius:8px;cursor:pointer;transition:all 0.15s;}
-        .btn-outline:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
-        .btn-danger{background:transparent;border:1px solid rgba(239,68,68,0.2);color:#f87171;font-family:'Inter',sans-serif;font-weight:500;font-size:0.78rem;padding:0.3rem 0.65rem;border-radius:7px;cursor:pointer;transition:all 0.15s;}
-        .btn-danger:hover{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.4);}
-        .campaign-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.25rem;margin-bottom:0.75rem;transition:border-color 0.15s;}
-        .campaign-card:hover{border-color:rgba(34,201,122,0.15);}
-        .campaign-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
-        .campaign-url{font-size:0.815rem;color:#22c97a;font-weight:500;margin-bottom:0.35rem;word-break:break-all;line-height:1.4;}
-        .campaign-msg{font-size:0.775rem;color:#3d5240;font-weight:400;font-style:italic;}
-        .campaign-meta{display:flex;align-items:center;gap:1rem;flex-shrink:0;}
-        .meta-stat{text-align:center;}
-        .meta-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:#c4d4c8;display:block;}
-        .meta-lbl{font-size:0.65rem;color:#3d5240;text-transform:uppercase;letter-spacing:0.08em;}
-        .status-pill{font-size:0.7rem;padding:0.2rem 0.625rem;border-radius:100px;font-weight:600;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.2);color:#22c97a;letter-spacing:0.02em;}
-        .status-pill.paused{background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.2);color:#fbbf24;}
-        .platform-pill{font-size:0.68rem;padding:0.15rem 0.5rem;border-radius:100px;font-weight:600;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#6b7f70;}
-        .campaign-footer{display:flex;align-items:center;gap:0.5rem;margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.04);}
-        .empty-state{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:3rem 2rem;text-align:center;}
-        .empty-icon{font-size:2.25rem;margin-bottom:0.875rem;display:block;}
-        .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}
-        .empty-sub{font-size:0.835rem;color:#3d5240;font-weight:400;margin-bottom:1.5rem;line-height:1.5;}
-        .table-wrap{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden;}
+        .page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#f0f7f2;letter-spacing:-0.035em;margin-bottom:0.2rem;}
+        .page-sub{font-size:0.84rem;color:#3d5240;font-weight:400;font-family:'Inter',sans-serif;}
+
+        .success-bar{background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.15);color:#22c97a;font-size:0.82rem;padding:0.75rem 1rem;border-radius:11px;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;font-weight:500;}
+        .error-bar{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);color:#f87171;font-size:0.82rem;padding:0.75rem 1rem;border-radius:11px;margin-bottom:1.5rem;font-family:'Inter',sans-serif;}
+
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:2rem;}
+        .stat-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.25rem;position:relative;overflow:hidden;transition:border-color 0.2s;}
+        .stat-card:hover{border-color:rgba(34,201,122,0.12);}
+        .stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(34,201,122,0.05),transparent 70%);pointer-events:none;}
+        .stat-icon-wrap{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;margin-bottom:0.875rem;}
+        .stat-icon-green{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.12);}
+        .stat-icon-blue{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.12);}
+        .stat-icon-purple{background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.12);}
+        .stat-icon-amber{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.12);}
+        .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.85rem;font-weight:800;color:#f0f7f2;line-height:1;margin-bottom:0.25rem;letter-spacing:-0.04em;}
+        .stat-lbl{font-size:0.7rem;color:#3d5240;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',sans-serif;}
+
+        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.125rem;}
+        .section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#c4d4c8;letter-spacing:-0.02em;}
+
+        .btn-primary{background:linear-gradient(135deg,#22c97a,#1aae6a);color:#071209;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.82rem;padding:0.55rem 1.15rem;border-radius:9px;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:-0.01em;box-shadow:0 2px 8px rgba(34,201,122,0.15);}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,201,122,0.25);}
+        .btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+        .btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#6b7f70;font-family:'Inter',sans-serif;font-weight:500;font-size:0.8rem;padding:0.45rem 0.85rem;border-radius:8px;cursor:pointer;transition:all 0.15s;}
+        .btn-outline:hover{border-color:rgba(34,201,122,0.25);color:#22c97a;background:rgba(34,201,122,0.03);}
+        .btn-danger{background:transparent;border:1px solid rgba(239,68,68,0.15);color:#f87171;font-family:'Inter',sans-serif;font-weight:500;font-size:0.75rem;padding:0.3rem 0.65rem;border-radius:7px;cursor:pointer;transition:all 0.15s;}
+        .btn-danger:hover{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.3);}
+
+        .campaign-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.375rem;margin-bottom:0.625rem;transition:all 0.2s;}
+        .campaign-card:hover{border-color:rgba(34,201,122,0.1);background:linear-gradient(145deg,#0d1611,#0b130e);}
+        .campaign-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+        .campaign-info{flex:1;min-width:0;}
+        .campaign-header-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;}
+        .platform-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
+        .platform-icon.linkedin{background:rgba(10,102,194,0.1);border:1px solid rgba(10,102,194,0.2);}
+        .platform-icon.instagram{background:rgba(228,64,95,0.1);border:1px solid rgba(228,64,95,0.2);}
+        .campaign-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#e2ede7;line-height:1.3;letter-spacing:-0.01em;}
+        .campaign-dm-preview{font-size:0.78rem;color:#3d5240;font-weight:400;font-style:italic;margin-top:0.4rem;line-height:1.45;font-family:'Inter',sans-serif;}
+        .campaign-right{display:flex;align-items:center;gap:1.25rem;flex-shrink:0;}
+        .campaign-metric{text-align:center;}
+        .campaign-metric-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:800;color:#c4d4c8;display:block;letter-spacing:-0.03em;}
+        .campaign-metric-lbl{font-size:0.62rem;color:#2a3d2e;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;font-family:'Inter',sans-serif;}
+        .status-pill{font-size:0.68rem;padding:0.225rem 0.7rem;border-radius:100px;font-weight:700;letter-spacing:0.02em;font-family:'Plus Jakarta Sans',sans-serif;}
+        .status-active{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.18);color:#22c97a;}
+        .status-paused{background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.15);color:#fbbf24;}
+        .campaign-footer{display:flex;align-items:center;gap:0.5rem;margin-top:1rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.03);}
+        .campaign-date{font-size:0.7rem;color:#2a3d2e;margin-left:auto;font-family:'Inter',sans-serif;font-weight:500;}
+
+        .empty-state{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:3.5rem 2rem;text-align:center;}
+        .empty-icon{font-size:2.5rem;margin-bottom:1rem;display:block;}
+        .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;letter-spacing:-0.02em;}
+        .empty-sub{font-size:0.84rem;color:#3d5240;font-weight:400;margin-bottom:1.75rem;line-height:1.55;font-family:'Inter',sans-serif;max-width:360px;margin-left:auto;margin-right:auto;}
+
+        .table-wrap{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;overflow:hidden;}
         .leads-table{width:100%;border-collapse:collapse;}
-        .leads-table th{font-size:0.68rem;color:#3d5240;text-transform:uppercase;letter-spacing:0.09em;padding:0.75rem 1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);font-weight:600;background:#0b120d;}
-        .leads-table td{font-size:0.835rem;color:#c4d4c8;padding:0.875rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);}
+        .leads-table th{font-size:0.66rem;color:#2a3d2e;text-transform:uppercase;letter-spacing:0.1em;padding:0.75rem 1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.04);font-weight:700;background:rgba(0,0,0,0.2);font-family:'Inter',sans-serif;}
+        .leads-table td{font-size:0.82rem;color:#8fa696;padding:0.875rem 1rem;border-bottom:1px solid rgba(255,255,255,0.025);font-family:'Inter',sans-serif;}
         .leads-table tr:last-child td{border-bottom:none;}
-        .leads-table tr:hover td{background:rgba(34,201,122,0.03);}
-        .lead-name{font-weight:600;color:#e2ede7;}
-        .lead-sub{font-size:0.72rem;color:#3d5240;margin-top:2px;}
+        .leads-table tr:hover td{background:rgba(34,201,122,0.02);}
+        .lead-name{font-weight:600;color:#e2ede7;font-family:'Plus Jakarta Sans',sans-serif;}
+        .lead-sub{font-size:0.7rem;color:#2a3d2e;margin-top:2px;}
         .search-row{display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
-        .search-input{flex:1;min-width:200px;background:#0f1a11;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.65rem 1rem;color:#e2ede7;font-size:0.845rem;outline:none;font-family:'Inter',sans-serif;transition:border-color 0.15s;}
-        .search-input:focus{border-color:rgba(34,201,122,0.3);}
-        .search-input::placeholder{color:#2a3d2e;}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(4px);}
-        .modal{background:#0f1a11;border:1px solid rgba(255,255,255,0.09);border-radius:18px;padding:1.875rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
-        .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:#f0f7f2;margin-bottom:0.3rem;letter-spacing:-0.02em;}
-        .modal-sub{font-size:0.835rem;color:#3d5240;margin-bottom:1.5rem;line-height:1.5;}
-        .form-label{display:block;font-size:0.775rem;font-weight:600;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.02em;}
-        .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:border-color 0.15s;}
-        .form-input:focus{border-color:rgba(34,201,122,0.35);}
-        .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:110px;transition:border-color 0.15s;}
-        .form-textarea:focus{border-color:rgba(34,201,122,0.35);}
-        .modal-btns{display:flex;gap:0.75rem;margin-top:0.25rem;}
-        .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-family:'Inter',sans-serif;font-weight:500;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;}
-        .modal-cancel:hover{border-color:rgba(255,255,255,0.15);color:#6b7f70;}
-        .modal-submit{flex:2;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;transition:background 0.15s;}
-        .modal-submit:hover{background:#1db36c;}
-        .modal-submit:disabled{opacity:0.5;cursor:not-allowed;}
+        .search-input{flex:1;min-width:200px;background:rgba(12,21,16,0.8);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.65rem 1rem;color:#e2ede7;font-size:0.84rem;outline:none;font-family:'Inter',sans-serif;transition:all 0.2s;}
+        .search-input:focus{border-color:rgba(34,201,122,0.25);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
+        .search-input::placeholder{color:#1e2e22;}
+
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+        .modal{background:#0c1510;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,0.4);}
+        .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:800;color:#f0f7f2;margin-bottom:0.25rem;letter-spacing:-0.03em;}
+        .modal-sub{font-size:0.82rem;color:#3d5240;margin-bottom:1.75rem;line-height:1.5;font-family:'Inter',sans-serif;}
+        .form-label{display:block;font-size:0.75rem;font-weight:700;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.03em;text-transform:uppercase;font-family:'Inter',sans-serif;}
+        .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:all 0.2s;}
+        .form-input:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
+        .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:110px;transition:all 0.2s;}
+        .form-textarea:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
+        .modal-btns{display:flex;gap:0.75rem;margin-top:0.5rem;}
+        .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;transition:all 0.15s;}
+        .modal-cancel:hover{border-color:rgba(255,255,255,0.12);color:#6b7f70;}
+        .modal-submit{flex:2;background:linear-gradient(135deg,#22c97a,#1aae6a);color:#071209;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(34,201,122,0.15);}
+        .modal-submit:hover{box-shadow:0 4px 16px rgba(34,201,122,0.25);}
+        .modal-submit:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
         .var-tags{display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.625rem;}
-        .var-tag{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.18);color:#22c97a;font-size:0.72rem;padding:0.2rem 0.55rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:background 0.12s;}
-        .var-tag:hover{background:rgba(34,201,122,0.15);}
-        .range-tabs{display:flex;gap:0.375rem;margin-bottom:1.75rem;}
-        .range-tab{background:transparent;border:1px solid rgba(255,255,255,0.07);color:#3d5240;font-size:0.815rem;padding:0.4rem 0.875rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.15s;}
-        .range-tab.active{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.25);color:#22c97a;font-weight:600;}
-        .analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.875rem;margin-bottom:1.75rem;}
-        .analytics-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.125rem 1.25rem;}
-        .analytics-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.875rem;font-weight:700;color:#22c97a;line-height:1;margin-bottom:0.3rem;}
-        .analytics-lbl{font-size:0.72rem;color:#3d5240;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;}
-        .analytics-sub{font-size:0.72rem;color:#2a3d2e;margin-top:0.3rem;}
-        .chart-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.5rem;margin-bottom:1.25rem;}
-        .chart-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;font-weight:700;color:#c4d4c8;margin-bottom:1.5rem;}
-        .bar-chart{display:flex;align-items:flex-end;gap:0.375rem;height:140px;}
+        .var-tag{background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.12);color:#22c97a;font-size:0.72rem;padding:0.2rem 0.55rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:all 0.15s;}
+        .var-tag:hover{background:rgba(34,201,122,0.12);}
+
+        .range-tabs{display:flex;gap:0.35rem;margin-bottom:1.75rem;}
+        .range-tab{background:transparent;border:1px solid rgba(255,255,255,0.05);color:#2a3d2e;font-size:0.8rem;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all 0.15s;}
+        .range-tab.active{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.2);color:#22c97a;}
+        .analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1.75rem;}
+        .analytics-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.125rem 1.25rem;}
+        .analytics-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.85rem;font-weight:800;color:#22c97a;line-height:1;margin-bottom:0.25rem;letter-spacing:-0.04em;}
+        .analytics-lbl{font-size:0.7rem;color:#3d5240;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',sans-serif;}
+        .analytics-sub{font-size:0.7rem;color:#1e2e22;margin-top:0.3rem;font-family:'Inter',sans-serif;}
+        .chart-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.5rem;margin-bottom:1rem;}
+        .chart-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;font-weight:700;color:#c4d4c8;margin-bottom:1.5rem;letter-spacing:-0.01em;}
+        .bar-chart{display:flex;align-items:flex-end;gap:0.35rem;height:140px;}
         .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:0.35rem;}
-        .bar{width:100%;background:rgba(34,201,122,0.15);border-radius:5px 5px 0 0;min-height:4px;transition:background 0.15s;}
-        .bar:hover{background:rgba(34,201,122,0.4);}
-        .bar-val{font-size:0.65rem;color:#22c97a;font-weight:600;}
-        .bar-label{font-size:0.6rem;color:#2a3d2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:36px;text-align:center;}
-        .location-row{display:flex;align-items:center;gap:0.875rem;margin-bottom:0.75rem;}
-        .location-name{font-size:0.835rem;color:#c4d4c8;min-width:180px;}
-        .location-bar-wrap{flex:1;background:rgba(255,255,255,0.04);border-radius:4px;height:7px;overflow:hidden;}
-        .location-bar{background:linear-gradient(90deg,#22c97a,#15803d);height:100%;border-radius:4px;}
-        .location-count{font-size:0.78rem;color:#22c97a;font-weight:600;min-width:20px;text-align:right;}
-        .info-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.375rem 1.5rem;margin-bottom:0.75rem;}
-        .info-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#e2ede7;margin-bottom:0.875rem;}
-        .info-row{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+        .bar{width:100%;background:linear-gradient(180deg,rgba(34,201,122,0.2),rgba(34,201,122,0.08));border-radius:5px 5px 0 0;min-height:4px;transition:all 0.2s;}
+        .bar:hover{background:linear-gradient(180deg,rgba(34,201,122,0.4),rgba(34,201,122,0.15));}
+        .bar-val{font-size:0.62rem;color:#22c97a;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;}
+        .bar-label{font-size:0.58rem;color:#1e2e22;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:36px;text-align:center;font-family:'Inter',sans-serif;}
+        .location-row{display:flex;align-items:center;gap:0.875rem;margin-bottom:0.7rem;}
+        .location-name{font-size:0.82rem;color:#8fa696;min-width:180px;font-family:'Inter',sans-serif;}
+        .location-bar-wrap{flex:1;background:rgba(255,255,255,0.03);border-radius:4px;height:6px;overflow:hidden;}
+        .location-bar{background:linear-gradient(90deg,#22c97a,#0d9456);height:100%;border-radius:4px;}
+        .location-count{font-size:0.75rem;color:#22c97a;font-weight:700;min-width:20px;text-align:right;font-family:'Plus Jakarta Sans',sans-serif;}
+
+        .info-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.5rem;margin-bottom:0.75rem;}
+        .info-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#e2ede7;margin-bottom:1rem;letter-spacing:-0.01em;}
+        .info-row{display:flex;justify-content:space-between;align-items:center;padding:0.55rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}
         .info-row:last-child{border-bottom:none;}
-        .info-key{font-size:0.815rem;color:#3d5240;font-weight:500;}
-        .info-val{font-size:0.815rem;color:#94a3b8;font-weight:500;}
-        .no-leads{font-size:0.815rem;color:#2a3d2e;padding:1.25rem;text-align:center;font-style:italic;}
+        .info-key{font-size:0.82rem;color:#3d5240;font-weight:500;font-family:'Inter',sans-serif;}
+        .info-val{font-size:0.82rem;color:#8fa696;font-weight:500;font-family:'Inter',sans-serif;}
+        .no-leads{font-size:0.82rem;color:#2a3d2e;padding:1.25rem;text-align:center;font-style:italic;font-family:'Inter',sans-serif;}
+
+        @media(max-width:900px){
+          .sidebar{display:none;}
+          .stats-grid{grid-template-columns:repeat(2,1fr);}
+          .content{padding:1.5rem 1rem 2rem;}
+        }
+        @media(max-width:600px){
+          .stats-grid{grid-template-columns:1fr 1fr;}
+          .campaign-top{flex-direction:column;}
+          .campaign-right{flex-direction:row;justify-content:flex-start;}
+          .nav{padding:0 1rem;}
+          .user-email{display:none;}
+        }
       `}</style>
 
       <nav className="nav">
-        <a href="/" className="logo">⚡ LeadMagnet</a>
+        <a href="/" className="logo"><span className="logo-dot"></span> LeadMagnet</a>
         <div className="nav-right">
           <div className="user-pill">
             <div className="user-avatar">{user?.email?.charAt(0).toUpperCase()}</div>
@@ -333,51 +418,79 @@ export default function Dashboard() {
           {success && <div className="success-bar">✓ {success}</div>}
           {error && <div className="error-bar">⚠ {error}</div>}
 
-          {/* CAMPAIGNS */}
           {activeTab === "campaigns" && (
             <>
-              <div className="page-header">
-                <h1 className="page-title">Campaigns</h1>
-                <p className="page-sub">Manage your LinkedIn and Instagram lead generation automations</p>
+              <div className="welcome-section">
+                <h1 className="welcome-greeting">{getGreeting()}, {getUserName()}</h1>
+                <p className="welcome-sub">Here&apos;s what&apos;s happening with your lead generation today.</p>
               </div>
+
               <div className="stats-grid">
-                <div className="stat-card"><span className="stat-icon">⚡</span><div className="stat-val">{campaigns.length}</div><div className="stat-lbl">Active Campaigns</div></div>
-                <div className="stat-card"><span className="stat-icon">👥</span><div className="stat-val">{totalLeads}</div><div className="stat-lbl">Total Leads</div></div>
-                <div className="stat-card"><span className="stat-icon">💬</span><div className="stat-val">{totalDms}</div><div className="stat-lbl">DMs Sent</div></div>
-                <div className="stat-card"><span className="stat-icon">⏳</span><div className="stat-val">7</div><div className="stat-lbl">Trial Days Left</div></div>
+                <div className="stat-card">
+                  <div className="stat-icon-wrap stat-icon-green">⚡</div>
+                  <div className="stat-val">{campaigns.length}</div>
+                  <div className="stat-lbl">Campaigns</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon-wrap stat-icon-blue">👥</div>
+                  <div className="stat-val">{totalLeads}</div>
+                  <div className="stat-lbl">Total Leads</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon-wrap stat-icon-purple">💬</div>
+                  <div className="stat-val">{totalDms}</div>
+                  <div className="stat-lbl">DMs Sent</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-icon-wrap stat-icon-amber">⏳</div>
+                  <div className="stat-val">7</div>
+                  <div className="stat-lbl">Trial Days</div>
+                </div>
               </div>
+
               <div className="section-header">
                 <span className="section-title">Your Campaigns</span>
                 <button className="btn-primary" onClick={() => setShowNewCampaign(true)}>+ New Campaign</button>
               </div>
+
               {campaigns.length === 0 ? (
                 <div className="empty-state">
                   <span className="empty-icon">🚀</span>
-                  <div className="empty-title">No campaigns yet</div>
-                  <div className="empty-sub">Create your first campaign to start automating your LinkedIn or Instagram lead magnet DMs.</div>
-                  <button className="btn-primary" onClick={() => setShowNewCampaign(true)}>Create your first campaign</button>
+                  <div className="empty-title">Launch your first campaign</div>
+                  <div className="empty-sub">Start automating your LinkedIn or Instagram lead magnet DMs in under 2 minutes.</div>
+                  <button className="btn-primary" onClick={() => setShowNewCampaign(true)}>Create Campaign</button>
                 </div>
-              ) : campaigns.map(c => (
+              ) : campaigns.map((c, idx) => (
                 <div className="campaign-card" key={c.id}>
                   <div className="campaign-top">
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.35rem" }}>
-                        <span className="platform-pill">{c.platform === "instagram" ? "📸 Instagram" : "💼 LinkedIn"}</span>
+                    <div className="campaign-info">
+                      <div className="campaign-header-row">
+                        <div className={`platform-icon ${c.platform === "instagram" ? "instagram" : "linkedin"}`}>
+                          {c.platform === "instagram" ? "📸" : "💼"}
+                        </div>
+                        <div>
+                          <div className="campaign-name">{getCampaignName(c, idx)}</div>
+                        </div>
                       </div>
-                      <div className="campaign-url">{c.post_url}</div>
-                      <div className="campaign-msg">"{c.dm_message?.slice(0, 70)}..."</div>
+                      <div className="campaign-dm-preview">&ldquo;{c.dm_message?.slice(0, 80)}{c.dm_message?.length > 80 ? "..." : ""}&rdquo;</div>
                     </div>
-                    <div className="campaign-meta">
-                      <div className="meta-stat"><span className="meta-val">{c.leads_count || 0}</span><span className="meta-lbl">Leads</span></div>
-                      <div className="meta-stat"><span className="meta-val">{c.dms_sent || 0}</span><span className="meta-lbl">DMs</span></div>
-                      <span className={`status-pill ${c.status === "Paused" ? "paused" : ""}`}>{c.status}</span>
+                    <div className="campaign-right">
+                      <div className="campaign-metric">
+                        <span className="campaign-metric-val">{c.leads_count || 0}</span>
+                        <span className="campaign-metric-lbl">Leads</span>
+                      </div>
+                      <div className="campaign-metric">
+                        <span className="campaign-metric-val">{c.dms_sent || 0}</span>
+                        <span className="campaign-metric-lbl">DMs</span>
+                      </div>
+                      <span className={`status-pill ${c.status === "Paused" ? "status-paused" : "status-active"}`}>{c.status}</span>
                     </div>
                   </div>
                   <div className="campaign-footer">
                     <button className="btn-outline" onClick={() => handleViewLeads(c)}>
                       {selectedCampaign?.id === c.id ? "Hide leads ▲" : "View leads ▼"}
                     </button>
-                    <span style={{ fontSize: "0.72rem", color: "#2a3d2e", marginLeft: "auto" }}>Created {new Date(c.created_at).toLocaleDateString()}</span>
+                    <span className="campaign-date">{getTimeAgo(c.created_at)}</span>
                   </div>
                   {selectedCampaign?.id === c.id && (
                     leads.length === 0 ? (
@@ -391,8 +504,8 @@ export default function Dashboard() {
                               <tr key={lead.id}>
                                 <td className="lead-name">{lead.name}</td>
                                 <td style={{ fontSize: "0.775rem", color: "#3d5240", maxWidth: "220px" }}>{lead.headline?.slice(0, 55)}...</td>
-                                <td><a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem" }}>View →</a></td>
-                                <td style={{ fontSize: "0.72rem", color: "#2a3d2e" }}>{new Date(lead.created_at).toLocaleDateString()}</td>
+                                <td><a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem", fontWeight: 600 }}>View →</a></td>
+                                <td style={{ fontSize: "0.7rem", color: "#2a3d2e" }}>{getTimeAgo(lead.created_at)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -405,7 +518,6 @@ export default function Dashboard() {
             </>
           )}
 
-          {/* ALL LEADS */}
           {activeTab === "leads" && (
             <>
               <div className="page-header">
@@ -420,7 +532,7 @@ export default function Dashboard() {
                 <div className="empty-state">
                   <span className="empty-icon">👥</span>
                   <div className="empty-title">No leads yet</div>
-                  <div className="empty-sub">Create a campaign to start collecting leads.</div>
+                  <div className="empty-sub">Create a campaign to start collecting leads automatically.</div>
                 </div>
               ) : (
                 <div className="table-wrap" style={{ overflowX: "auto" }}>
@@ -431,10 +543,10 @@ export default function Dashboard() {
                         <tr key={lead.id}>
                           <td><div className="lead-name">{lead.name}</div>{lead.email && <div className="lead-sub">{lead.email}</div>}</td>
                           <td style={{ maxWidth: "200px", fontSize: "0.775rem", color: "#4d6b54" }}>{lead.headline?.slice(0, 55)}{lead.headline?.length > 55 ? "..." : ""}</td>
-                          <td style={{ fontSize: "0.815rem", color: "#4d6b54" }}>{lead.company || "—"}</td>
-                          <td style={{ fontSize: "0.815rem", color: "#4d6b54" }}>{lead.location || "—"}</td>
-                          <td>{lead.linkedin_url ? <a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem" }}>View →</a> : "—"}</td>
-                          <td style={{ fontSize: "0.72rem", color: "#2a3d2e", whiteSpace: "nowrap" }}>{new Date(lead.created_at).toLocaleDateString()}</td>
+                          <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.company || "—"}</td>
+                          <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.location || "—"}</td>
+                          <td>{lead.linkedin_url ? <a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem", fontWeight: 600 }}>View →</a> : "—"}</td>
+                          <td style={{ fontSize: "0.7rem", color: "#2a3d2e", whiteSpace: "nowrap" }}>{getTimeAgo(lead.created_at)}</td>
                           <td><div style={{ display: "flex", gap: "0.375rem" }}><button className="btn-outline" style={{ fontSize: "0.72rem", padding: "0.25rem 0.55rem" }} onClick={() => window.open(lead.linkedin_url, "_blank")}>DM</button><button className="btn-danger" onClick={() => archiveLead(lead.id)}>Archive</button></div></td>
                         </tr>
                       ))}
@@ -445,7 +557,6 @@ export default function Dashboard() {
             </>
           )}
 
-          {/* ANALYTICS */}
           {activeTab === "analytics" && (
             <>
               <div className="page-header">
@@ -479,7 +590,7 @@ export default function Dashboard() {
               </div>
               <div className="chart-card">
                 <div className="chart-title">Leads by Location</div>
-                {allLeads.length === 0 ? <div style={{ color: "#2a3d2e", fontSize: "0.835rem" }}>No data yet</div> : (() => {
+                {allLeads.length === 0 ? <div style={{ color: "#2a3d2e", fontSize: "0.82rem" }}>No data yet</div> : (() => {
                   const lc = {};
                   allLeads.forEach(l => { const loc = l.location || "Unknown"; lc[loc] = (lc[loc] || 0) + 1; });
                   return Object.entries(lc).sort((a, b) => b[1] - a[1]).map(([loc, count]) => (
@@ -494,7 +605,6 @@ export default function Dashboard() {
             </>
           )}
 
-          {/* SETTINGS */}
           {activeTab === "settings" && (
             <>
               <div className="page-header"><h1 className="page-title">Settings</h1><p className="page-sub">Manage your account and preferences</p></div>
@@ -507,7 +617,6 @@ export default function Dashboard() {
             </>
           )}
 
-          {/* BILLING */}
           {activeTab === "billing" && (
             <>
               <div className="page-header"><h1 className="page-title">Billing</h1><p className="page-sub">Manage your subscription and payment details</p></div>
@@ -523,17 +632,16 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* NEW CAMPAIGN MODAL */}
       {showNewCampaign && (
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">New Campaign</div>
-            <div className="modal-sub">Choose your platform and write the DM message your leads will receive automatically.</div>
+            <div className="modal-sub">Choose your platform and write the DM your leads will receive automatically.</div>
             <form onSubmit={handleCreateCampaign}>
               <label className="form-label">Platform</label>
               <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
-                <button {...platformBtn("linkedin", "💼", "LinkedIn")} type="button">💼 LinkedIn</button>
-                <button {...platformBtn("instagram", "📸", "Instagram")} type="button">📸 Instagram</button>
+                <button {...platformBtn("linkedin")} type="button">💼 LinkedIn</button>
+                <button {...platformBtn("instagram")} type="button">📸 Instagram</button>
               </div>
               <label className="form-label">{campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} Post URL</label>
               <input className="form-input" type="url" placeholder={campaignPlatform === "linkedin" ? "https://linkedin.com/posts/..." : "https://instagram.com/p/..."} value={postUrl} onChange={e => setPostUrl(e.target.value)} required />
@@ -546,7 +654,7 @@ export default function Dashboard() {
               <textarea className="form-textarea" placeholder="Hey [Name], thanks for commenting! Here's the resource I promised: [Link]" value={dmMessage} onChange={e => setDmMessage(e.target.value)} required />
               <div className="modal-btns">
                 <button type="button" className="modal-cancel" onClick={() => { setShowNewCampaign(false); setCampaignPlatform("linkedin"); }}>Cancel</button>
-                <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Starting..." : `Start ${campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} Campaign →`}</button>
+                <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Starting..." : "Launch Campaign →"}</button>
               </div>
             </form>
           </div>
