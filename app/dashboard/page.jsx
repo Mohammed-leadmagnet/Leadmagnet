@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [campaigns, setCampaigns] = useState([]);
   const [leads, setLeads] = useState([]);
   const [allLeads, setAllLeads] = useState([]);
+  const [agencyClients, setAgencyClients] = useState([]);
   const [leadSearch, setLeadSearch] = useState("");
   const [scoreFilter, setScoreFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const [postUrl, setPostUrl] = useState("");
   const [dmMessage, setDmMessage] = useState("");
   const [campaignPlatform, setCampaignPlatform] = useState("linkedin");
+  const [selectedClientId, setSelectedClientId] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -31,6 +33,7 @@ export default function Dashboard() {
       setUser(data.user);
       loadCampaigns(data.user.id);
       loadAllLeads(data.user.id);
+      loadAgencyClients(data.user.id);
     });
   }, []);
 
@@ -47,6 +50,11 @@ export default function Dashboard() {
   const loadAllLeads = async (userId) => {
     const { data } = await supabase.from("leads").select("*").eq("user_id", userId).order("created_at", { ascending: false });
     if (data) setAllLeads(data);
+  };
+
+  const loadAgencyClients = async (userId) => {
+    const { data } = await supabase.from("agency_clients").select("*").eq("agency_user_id", userId).order("name", { ascending: true });
+    if (data) setAgencyClients(data);
   };
 
   const handleLogout = async () => {
@@ -66,12 +74,15 @@ export default function Dashboard() {
       });
       const data = await response.json();
       if (data.success) {
-        const { data: campaign } = await supabase.from("campaigns").insert({
+        const insertData = {
           user_id: user.id, post_url: postUrl, dm_message: dmMessage,
           status: "Active", container_id: data.containerId, platform: campaignPlatform
-        }).select().single();
+        };
+        if (selectedClientId) insertData.client_id = selectedClientId;
+
+        const { data: campaign } = await supabase.from("campaigns").insert(insertData).select().single();
         if (campaign) setCampaigns(prev => [campaign, ...prev]);
-        setPostUrl(""); setDmMessage(""); setShowNewCampaign(false);
+        setPostUrl(""); setDmMessage(""); setShowNewCampaign(false); setSelectedClientId("");
         setSuccess(`${campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} campaign started successfully!`);
         setTimeout(() => setSuccess(""), 5000);
       } else {
@@ -89,8 +100,11 @@ export default function Dashboard() {
   };
 
   const exportLeadsCSV = () => {
-    const headers = ["Name", "Headline", "Company", "Location", "Email", "Score", "Score Reason", "LinkedIn", "Collected"];
-    const rows = allLeads.map(l => [l.name, l.headline, l.company, l.location, l.email, l.lead_score || "—", l.lead_score_reason || "—", l.linkedin_url, new Date(l.created_at).toLocaleDateString()]);
+    const headers = ["Name", "Headline", "Company", "Location", "Email", "Score", "Score Reason", "Client", "LinkedIn", "Collected"];
+    const rows = allLeads.map(l => {
+      const client = agencyClients.find(c => c.id === l.client_id);
+      return [l.name, l.headline, l.company, l.location, l.email, l.lead_score || "—", l.lead_score_reason || "—", client?.name || "—", l.linkedin_url, new Date(l.created_at).toLocaleDateString()];
+    });
     const csv = [headers, ...rows].map(r => r.map(v => `"${v || ""}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -137,6 +151,12 @@ export default function Dashboard() {
       }
     } catch {}
     return `${platform} Campaign #${index + 1}`;
+  };
+
+  const getClientName = (clientId) => {
+    if (!clientId) return null;
+    const client = agencyClients.find(c => c.id === clientId);
+    return client?.name || null;
   };
 
   const getTimeAgo = (dateStr) => {
@@ -250,9 +270,8 @@ export default function Dashboard() {
         .stat-icon-wrap{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;margin-bottom:0.875rem;}
         .stat-icon-green{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.12);}
         .stat-icon-blue{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.12);}
-        .stat-icon-purple{background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.12);}
-        .stat-icon-amber{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.12);}
         .stat-icon-red{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.12);}
+        .stat-icon-amber{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.12);}
         .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.85rem;font-weight:800;color:#f0f7f2;line-height:1;margin-bottom:0.25rem;letter-spacing:-0.04em;}
         .stat-lbl{font-size:0.7rem;color:#3d5240;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',sans-serif;}
 
@@ -277,11 +296,13 @@ export default function Dashboard() {
         .score-filter-btn.active{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.2);color:#22c97a;}
         .score-filter-btn .filter-count{font-size:0.65rem;opacity:0.7;}
 
+        .client-tag{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.68rem;font-weight:600;padding:0.15rem 0.55rem;border-radius:100px;background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.18);color:#a78bfa;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;margin-left:0.4rem;}
+
         .campaign-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.375rem;margin-bottom:0.625rem;transition:all 0.2s;}
         .campaign-card:hover{border-color:rgba(34,201,122,0.1);background:linear-gradient(145deg,#0d1611,#0b130e);}
         .campaign-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
         .campaign-info{flex:1;min-width:0;}
-        .campaign-header-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;}
+        .campaign-header-row{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;flex-wrap:wrap;}
         .platform-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
         .platform-icon.linkedin{background:rgba(10,102,194,0.1);border:1px solid rgba(10,102,194,0.2);}
         .platform-icon.instagram{background:rgba(228,64,95,0.1);border:1px solid rgba(228,64,95,0.2);}
@@ -323,6 +344,9 @@ export default function Dashboard() {
         .form-label{display:block;font-size:0.75rem;font-weight:700;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.03em;text-transform:uppercase;font-family:'Inter',sans-serif;}
         .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:all 0.2s;}
         .form-input:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
+        .form-select{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:all 0.2s;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234d6b54' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;}
+        .form-select:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
+        .form-select option{background:#080c09;color:#e2ede7;}
         .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:110px;transition:all 0.2s;}
         .form-textarea:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
         .modal-btns{display:flex;gap:0.75rem;margin-top:0.5rem;}
@@ -496,7 +520,10 @@ export default function Dashboard() {
                           {c.platform === "instagram" ? "📸" : "💼"}
                         </div>
                         <div>
-                          <div className="campaign-name">{getCampaignName(c, idx)}</div>
+                          <div className="campaign-name">
+                            {getCampaignName(c, idx)}
+                            {getClientName(c.client_id) && <span className="client-tag">🏢 {getClientName(c.client_id)}</span>}
+                          </div>
                         </div>
                       </div>
                       <div className="campaign-dm-preview">&ldquo;{c.dm_message?.slice(0, 80)}{c.dm_message?.length > 80 ? "..." : ""}&rdquo;</div>
@@ -589,15 +616,16 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <div className="table-wrap" style={{ overflowX: "auto" }}>
-                  <table className="leads-table" style={{ minWidth: "900px" }}>
-                    <thead><tr><th>Name</th><th>Headline</th><th>Company</th><th>Score</th><th>Location</th><th>LinkedIn</th><th>Collected</th><th>Actions</th></tr></thead>
+                  <table className="leads-table" style={{ minWidth: "950px" }}>
+                    <thead><tr><th>Name</th><th>Headline</th><th>Company</th><th>Score</th><th>Client</th><th>Location</th><th>LinkedIn</th><th>Collected</th><th>Actions</th></tr></thead>
                     <tbody>
                       {filteredLeads.map(lead => {
                         const badge = getScoreBadge(lead.lead_score);
+                        const clientName = getClientName(lead.client_id);
                         return (
                           <tr key={lead.id}>
                             <td><div className="lead-name">{lead.name}</div>{lead.email && <div className="lead-sub">{lead.email}</div>}</td>
-                            <td style={{ maxWidth: "200px", fontSize: "0.775rem", color: "#4d6b54" }}>{lead.headline?.slice(0, 55)}{lead.headline?.length > 55 ? "..." : ""}</td>
+                            <td style={{ maxWidth: "180px", fontSize: "0.775rem", color: "#4d6b54" }}>{lead.headline?.slice(0, 50)}{lead.headline?.length > 50 ? "..." : ""}</td>
                             <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.company || "—"}</td>
                             <td>
                               <div className="score-badge-tooltip">
@@ -607,6 +635,7 @@ export default function Dashboard() {
                                 {lead.lead_score_reason && <div className="score-tooltip">{lead.lead_score_reason}</div>}
                               </div>
                             </td>
+                            <td>{clientName ? <span className="client-tag">🏢 {clientName}</span> : <span style={{ color: "#2a3d2e" }}>—</span>}</td>
                             <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.location || "—"}</td>
                             <td>{lead.linkedin_url ? <a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem", fontWeight: 600 }}>View →</a> : "—"}</td>
                             <td style={{ fontSize: "0.7rem", color: "#2a3d2e", whiteSpace: "nowrap" }}>{getTimeAgo(lead.created_at)}</td>
@@ -704,13 +733,22 @@ export default function Dashboard() {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">New Campaign</div>
-            <div className="modal-sub">Choose your platform and write the DM your leads will receive automatically.</div>
+            <div className="modal-sub">Choose your platform, assign a client, and write the DM your leads will receive.</div>
             <form onSubmit={handleCreateCampaign}>
               <label className="form-label">Platform</label>
               <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
                 <button {...platformBtn("linkedin")} type="button">💼 LinkedIn</button>
                 <button {...platformBtn("instagram")} type="button">📸 Instagram</button>
               </div>
+
+              <label className="form-label">Assign to Client <span style={{ opacity: 0.5, textTransform: "none", fontWeight: 400 }}>(optional)</span></label>
+              <select className="form-select" value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}>
+                <option value="">No client — personal campaign</option>
+                {agencyClients.map(client => (
+                  <option key={client.id} value={client.id}>🏢 {client.name}{client.company ? ` — ${client.company}` : ""}</option>
+                ))}
+              </select>
+
               <label className="form-label">{campaignPlatform === "linkedin" ? "LinkedIn" : "Instagram"} Post URL</label>
               <input className="form-input" type="url" placeholder={campaignPlatform === "linkedin" ? "https://linkedin.com/posts/..." : "https://instagram.com/p/..."} value={postUrl} onChange={e => setPostUrl(e.target.value)} required />
               <label className="form-label">DM Message</label>
@@ -721,7 +759,7 @@ export default function Dashboard() {
               </div>
               <textarea className="form-textarea" placeholder="Hey [Name], thanks for commenting! Here's the resource I promised: [Link]" value={dmMessage} onChange={e => setDmMessage(e.target.value)} required />
               <div className="modal-btns">
-                <button type="button" className="modal-cancel" onClick={() => { setShowNewCampaign(false); setCampaignPlatform("linkedin"); }}>Cancel</button>
+                <button type="button" className="modal-cancel" onClick={() => { setShowNewCampaign(false); setCampaignPlatform("linkedin"); setSelectedClientId(""); }}>Cancel</button>
                 <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Starting..." : "Launch Campaign →"}</button>
               </div>
             </form>
