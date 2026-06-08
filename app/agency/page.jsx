@@ -9,10 +9,10 @@ const supabase = createClient(
 
 const TIERS = ["VIP", "Standard", "Trial", "Inactive"];
 const TIER_COLORS = {
-  VIP: { bg: "rgba(251,191,36,0.1)", border: "rgba(251,191,36,0.3)", color: "#fbbf24" },
-  Standard: { bg: "rgba(34,201,122,0.1)", border: "rgba(34,201,122,0.3)", color: "#22c97a" },
-  Trial: { bg: "rgba(99,179,237,0.1)", border: "rgba(99,179,237,0.3)", color: "#63b3ed" },
-  Inactive: { bg: "rgba(160,160,160,0.1)", border: "rgba(160,160,160,0.3)", color: "#a0a0a0" },
+  VIP: { bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.2)", color: "#fbbf24" },
+  Standard: { bg: "rgba(34,201,122,0.08)", border: "rgba(34,201,122,0.2)", color: "#22c97a" },
+  Trial: { bg: "rgba(99,179,237,0.08)", border: "rgba(99,179,237,0.2)", color: "#63b3ed" },
+  Inactive: { bg: "rgba(160,160,160,0.08)", border: "rgba(160,160,160,0.2)", color: "#a0a0a0" },
 };
 const PLATFORMS = ["LinkedIn", "Instagram", "Gmail"];
 const REPORT_FREQUENCIES = [
@@ -24,6 +24,7 @@ const REPORT_FREQUENCIES = [
 export default function Agency() {
   const [user, setUser] = useState(null);
   const [clients, setClients] = useState([]);
+  const [expandedClient, setExpandedClient] = useState(null);
   const [showAddClient, setShowAddClient] = useState(false);
   const [showEditClient, setShowEditClient] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -64,12 +65,24 @@ export default function Agency() {
         .select("*", { count: "exact", head: true })
         .eq("client_id", c.id);
 
-      const { count: leadsCount } = await supabase
+      const { data: clientLeads } = await supabase
         .from("leads")
-        .select("*", { count: "exact", head: true })
+        .select("lead_score")
         .eq("client_id", c.id);
 
-      return { ...c, campaigns_count: campaignsCount || 0, leads_count: leadsCount || 0 };
+      const leadsCount = clientLeads?.length || 0;
+      const hotLeads = clientLeads?.filter(l => l.lead_score === "hot").length || 0;
+      const warmLeads = clientLeads?.filter(l => l.lead_score === "warm").length || 0;
+      const coldLeads = clientLeads?.filter(l => l.lead_score === "cold").length || 0;
+
+      return {
+        ...c,
+        campaigns_count: campaignsCount || 0,
+        leads_count: leadsCount,
+        hot_leads: hotLeads,
+        warm_leads: warmLeads,
+        cold_leads: coldLeads,
+      };
     }));
 
     setClients(enriched);
@@ -86,7 +99,6 @@ export default function Agency() {
           .update({ ...form, mrr: parseFloat(form.mrr) || 0 })
           .eq("id", selectedClient.id);
         if (dbError) throw dbError;
-        setClients(prev => prev.map(c => c.id === selectedClient.id ? { ...c, ...form, mrr: parseFloat(form.mrr) || 0 } : c));
         setSuccess("Client updated!");
       } else {
         const { data: client, error: dbError } = await supabase
@@ -96,23 +108,25 @@ export default function Agency() {
             ...form,
             mrr: parseFloat(form.mrr) || 0,
             status: "Active",
-            leads_count: 0,
-            dms_sent: 0,
-            campaigns_count: 0,
           })
           .select().single();
         if (dbError) throw dbError;
-        if (client) setClients(prev => [{ ...client, campaigns_count: 0, leads_count: 0 }, ...prev]);
+        if (client) setClients(prev => [{ ...client, campaigns_count: 0, leads_count: 0, hot_leads: 0, warm_leads: 0, cold_leads: 0 }, ...prev]);
         setSuccess("Client added!");
       }
       setShowAddClient(false);
       setShowEditClient(false);
-      setForm({ name: "", email: "", company: "", phone: "", tier: "Standard", platforms: [], mrr: "", notes: "", health_score: 75, auto_report: false, report_frequency: "monthly" });
+      resetForm();
+      if (user) loadClients(user.id);
       setTimeout(() => setSuccess(""), 4000);
     } catch (err) {
       setError("Error: " + err.message);
     }
     setLoading(false);
+  };
+
+  const resetForm = () => {
+    setForm({ name: "", email: "", company: "", phone: "", tier: "Standard", platforms: [], mrr: "", notes: "", health_score: 75, auto_report: false, report_frequency: "monthly" });
   };
 
   const handleSendReport = async (client, e) => {
@@ -126,33 +140,25 @@ export default function Agency() {
       });
       const data = await res.json();
       if (data.success) {
-        setSuccess(`📊 Report sent to ${client.email}!`);
+        setSuccess(`Report sent to ${client.email}!`);
         setClients(prev => prev.map(c => c.id === client.id ? { ...c, last_report_sent: new Date().toISOString() } : c));
       } else {
-        setError("Failed to send report: " + (data.error || "Unknown error"));
+        setError("Failed: " + (data.error || "Unknown error"));
       }
     } catch (err) {
       setError("Error: " + err.message);
     }
     setSendingReport(null);
-    setTimeout(() => setSuccess(""), 5000);
-    setTimeout(() => setError(""), 5000);
+    setTimeout(() => { setSuccess(""); setError(""); }, 5000);
   };
 
   const openEdit = (client, e) => {
     e.stopPropagation();
     setForm({
-      name: client.name || "",
-      email: client.email || "",
-      company: client.company || "",
-      phone: client.phone || "",
-      tier: client.tier || "Standard",
-      platforms: client.platforms || [],
-      mrr: client.mrr || "",
-      notes: client.notes || "",
-      health_score: client.health_score || 75,
-      auto_report: client.auto_report || false,
-      report_frequency: client.report_frequency || "monthly",
+      name: client.name || "", email: client.email || "", company: client.company || "",
+      phone: client.phone || "", tier: client.tier || "Standard", platforms: client.platforms || [],
+      mrr: client.mrr || "", notes: client.notes || "", health_score: client.health_score || 75,
+      auto_report: client.auto_report || false, report_frequency: client.report_frequency || "monthly",
     });
     setSelectedClient(client);
     setShowEditClient(true);
@@ -160,6 +166,7 @@ export default function Agency() {
 
   const deleteClient = async (id, e) => {
     e.stopPropagation();
+    if (!confirm("Delete this client? This cannot be undone.")) return;
     await supabase.from("agency_clients").delete().eq("id", id);
     setClients(prev => prev.filter(c => c.id !== id));
   };
@@ -185,107 +192,149 @@ export default function Agency() {
       if (sortBy === "mrr") return (b.mrr || 0) - (a.mrr || 0);
       if (sortBy === "leads") return (b.leads_count || 0) - (a.leads_count || 0);
       if (sortBy === "health") return (b.health_score || 0) - (a.health_score || 0);
+      if (sortBy === "hot") return (b.hot_leads || 0) - (a.hot_leads || 0);
       return new Date(b.created_at) - new Date(a.created_at);
     });
 
   const totalMRR = clients.reduce((a, c) => a + (c.mrr || 0), 0);
   const totalLeads = clients.reduce((a, c) => a + (c.leads_count || 0), 0);
-  const activeClients = clients.filter(c => c.status === "Active").length;
-  const vipClients = clients.filter(c => c.tier === "VIP").length;
+  const totalHot = clients.reduce((a, c) => a + (c.hot_leads || 0), 0);
+  const activeClients = clients.filter(c => c.tier !== "Inactive").length;
 
   return (
-    <main style={{ minHeight: "100vh", background: "#080c09", fontFamily: "'Inter', sans-serif", color: "#d1e0d6" }}>
+    <main style={{ minHeight: "100vh", background: "#060a07", fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", color: "#d1e0d6" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;}
-        .nav{background:#0b120d;border-bottom:1px solid rgba(255,255,255,0.06);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:#22c97a;text-decoration:none;}
-        .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.835rem;padding:0.4rem 0.875rem;border-radius:8px;cursor:pointer;text-decoration:none;transition:all 0.15s;}
-        .back-btn:hover{border-color:rgba(255,255,255,0.15);color:#94a3b8;}
-        .container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem;}
-        .page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#f0f7f2;letter-spacing:-0.03em;margin-bottom:0.25rem;}
-        .page-sub{font-size:0.855rem;color:#4d6b54;margin-bottom:2rem;}
-        .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
-        .stat-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.25rem;}
-        .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;color:#22c97a;letter-spacing:-0.03em;}
-        .stat-lbl{font-size:0.72rem;color:#3d5240;margin-top:0.25rem;text-transform:uppercase;letter-spacing:0.08em;}
-        .controls{display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;}
-        .filter-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.875rem;border-radius:100px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .filter-btn.active{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.3);color:#22c97a;}
-        .sort-select{background:#0f1a11;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.875rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;outline:none;}
-        .add-btn{background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.835rem;padding:0.55rem 1.1rem;border-radius:9px;border:none;cursor:pointer;margin-left:auto;transition:all 0.15s;}
-        .add-btn:hover{background:#1db36c;transform:translateY(-1px);}
-        .client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;}
-        .client-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.5rem;transition:all 0.15s;position:relative;}
-        .client-card:hover{border-color:rgba(34,201,122,0.2);transform:translateY(-1px);}
-        .card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;}
-        .client-avatar{width:42px;height:42px;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#22c97a;font-size:1rem;}
-        .tier-badge{font-size:0.68rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:100px;letter-spacing:0.04em;}
-        .client-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.975rem;font-weight:700;color:#e2ede7;margin-bottom:0.15rem;}
-        .client-company{font-size:0.78rem;color:#4d6b54;margin-bottom:0.125rem;}
-        .client-email{font-size:0.75rem;color:#2d4a33;margin-bottom:1rem;}
-        .health-bar-wrap{margin-bottom:1rem;}
-        .health-label{display:flex;justify-content:space-between;font-size:0.72rem;color:#3d5240;margin-bottom:0.3rem;}
-        .health-bar{height:4px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;}
-        .health-fill{height:100%;border-radius:100px;transition:width 0.3s;}
-        .client-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem;}
-        .metric{background:#080c09;border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:0.5rem;text-align:center;}
-        .metric-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.975rem;font-weight:700;color:#c4d4c8;}
-        .metric-lbl{font-size:0.62rem;color:#2d4a33;text-transform:uppercase;letter-spacing:0.06em;margin-top:0.15rem;}
-        .platforms-row{display:flex;gap:0.375rem;margin-bottom:1rem;flex-wrap:wrap;}
-        .platform-tag{font-size:0.68rem;padding:0.2rem 0.5rem;border-radius:5px;background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.12);color:#4d6b54;}
-        .card-actions{display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;}
-        .report-btn{flex:2;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.25);color:#22c97a;font-size:0.775rem;padding:0.4rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;font-weight:600;}
-        .report-btn:hover{background:rgba(34,201,122,0.2);}
-        .report-btn:disabled{opacity:0.5;cursor:not-allowed;}
-        .edit-btn{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.775rem;padding:0.4rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;}
-        .edit-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
-        .del-btn{background:transparent;border:1px solid rgba(239,68,68,0.15);color:#f87171;font-size:0.775rem;padding:0.4rem 0.65rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .del-btn:hover{background:rgba(239,68,68,0.08);}
-        .mrr-badge{position:absolute;top:1rem;right:1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:700;color:#22c97a;}
-        .auto-report-tag{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.68rem;color:#63b3ed;background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.2);border-radius:5px;padding:0.15rem 0.5rem;margin-top:0.5rem;}
-        .last-report{font-size:0.68rem;color:#2d4a33;margin-top:0.375rem;}
-        .empty-state{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:3rem 2rem;text-align:center;}
-        .empty-icon{font-size:2.25rem;margin-bottom:0.875rem;display:block;}
-        .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}
-        .empty-sub{font-size:0.835rem;color:#3d5240;margin-bottom:1.5rem;line-height:1.5;}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(4px);}
-        .modal{background:#0f1a11;border:1px solid rgba(255,255,255,0.09);border-radius:18px;padding:1.875rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;}
-        .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:#f0f7f2;margin-bottom:0.3rem;}
-        .modal-sub{font-size:0.835rem;color:#3d5240;margin-bottom:1.5rem;}
-        .form-label{display:block;font-size:0.775rem;font-weight:600;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.02em;}
-        .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:border-color 0.15s;}
-        .form-input:focus{border-color:rgba(34,201,122,0.35);}
-        .form-select{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;}
-        .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:80px;}
+
+        .nav{background:rgba(8,14,10,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.05);padding:0 1.75rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#22c97a;text-decoration:none;display:flex;align-items:center;gap:0.4rem;}
+        .logo-dot{width:8px;height:8px;background:#22c97a;border-radius:50%;box-shadow:0 0 10px rgba(34,201,122,0.5);}
+        .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.82rem;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;text-decoration:none;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.2s;}
+        .back-btn:hover{border-color:rgba(34,201,122,0.25);color:#22c97a;}
+
+        .container{max-width:1120px;margin:0 auto;padding:2rem 1.5rem 3rem;}
+        .page-header{margin-bottom:2rem;}
+        .page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:#f0f7f2;letter-spacing:-0.035em;margin-bottom:0.2rem;}
+        .page-sub{font-size:0.84rem;color:#3d5240;font-family:'Inter',sans-serif;}
+
+        .success-bar{background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.15);color:#22c97a;font-size:0.82rem;padding:0.75rem 1rem;border-radius:11px;margin-bottom:1.5rem;font-family:'Inter',sans-serif;font-weight:500;}
+        .error-bar{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);color:#f87171;font-size:0.82rem;padding:0.75rem 1rem;border-radius:11px;margin-bottom:1.5rem;font-family:'Inter',sans-serif;}
+
+        .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:2rem;}
+        .stat-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.15rem 1.25rem;transition:border-color 0.2s;}
+        .stat-card:hover{border-color:rgba(34,201,122,0.12);}
+        .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;color:#22c97a;letter-spacing:-0.04em;line-height:1;}
+        .stat-lbl{font-size:0.68rem;color:#3d5240;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',sans-serif;font-weight:600;}
+
+        .controls{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;}
+        .filter-btn{background:transparent;border:1px solid rgba(255,255,255,0.05);color:#2a3d2e;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:100px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all 0.15s;}
+        .filter-btn.active{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.2);color:#22c97a;}
+        .sort-select{background:rgba(12,21,16,0.8);border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;outline:none;transition:all 0.2s;}
+        .sort-select:focus{border-color:rgba(34,201,122,0.25);}
+        .add-btn{background:linear-gradient(135deg,#22c97a,#1aae6a);color:#071209;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.82rem;padding:0.55rem 1.15rem;border-radius:9px;border:none;cursor:pointer;margin-left:auto;transition:all 0.2s;box-shadow:0 2px 8px rgba(34,201,122,0.15);}
+        .add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,201,122,0.25);}
+
+        .client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0.875rem;}
+
+        .client-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:1.5rem;transition:all 0.2s;position:relative;cursor:pointer;}
+        .client-card:hover{border-color:rgba(34,201,122,0.12);transform:translateY(-1px);}
+        .mrr-badge{position:absolute;top:1.25rem;right:1.25rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:800;color:#22c97a;letter-spacing:-0.02em;}
+
+        .card-top{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;}
+        .client-avatar{width:40px;height:40px;background:linear-gradient(135deg,rgba(34,201,122,0.12),rgba(34,201,122,0.04));border:1px solid rgba(34,201,122,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#22c97a;font-size:0.95rem;}
+        .card-top-info{flex:1;min-width:0;}
+        .client-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#e2ede7;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .client-company{font-size:0.75rem;color:#3d5240;font-family:'Inter',sans-serif;}
+        .tier-badge{font-size:0.65rem;font-weight:700;padding:0.175rem 0.55rem;border-radius:100px;letter-spacing:0.03em;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;}
+
+        .client-email-row{font-size:0.72rem;color:#2a3d2e;margin-bottom:1rem;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;}
+
+        .health-wrap{margin-bottom:1rem;}
+        .health-top{display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:0.3rem;font-family:'Inter',sans-serif;}
+        .health-lbl{color:#2a3d2e;font-weight:500;}
+        .health-bar{height:4px;background:rgba(255,255,255,0.04);border-radius:100px;overflow:hidden;}
+        .health-fill{height:100%;border-radius:100px;transition:width 0.4s;}
+
+        .score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:1rem;}
+        .score-box{background:#080c09;border:1px solid rgba(255,255,255,0.03);border-radius:9px;padding:0.55rem 0.4rem;text-align:center;}
+        .score-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;line-height:1;letter-spacing:-0.03em;}
+        .score-lbl{font-size:0.58rem;color:#2a3d2e;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.2rem;font-family:'Inter',sans-serif;font-weight:600;}
+
+        .platforms-row{display:flex;gap:0.3rem;margin-bottom:0.75rem;flex-wrap:wrap;}
+        .platform-tag{font-size:0.66rem;padding:0.15rem 0.45rem;border-radius:5px;background:rgba(34,201,122,0.04);border:1px solid rgba(34,201,122,0.1);color:#3d5240;font-family:'Inter',sans-serif;font-weight:500;}
+
+        .auto-row{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;}
+        .auto-tag{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:5px;font-family:'Inter',sans-serif;}
+        .auto-tag.report{background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.15);color:#63b3ed;}
+        .auto-tag.routing{background:rgba(147,51,234,0.06);border:1px solid rgba(147,51,234,0.15);color:#a78bfa;}
+        .last-report{font-size:0.65rem;color:#1e2e22;font-family:'Inter',sans-serif;margin-bottom:0.5rem;}
+
+        .card-actions{display:flex;gap:0.4rem;margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.03);}
+        .act-btn{flex:1;font-size:0.75rem;padding:0.45rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;text-align:center;transition:all 0.15s;border:none;}
+        .act-report{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.15);color:#22c97a;}
+        .act-report:hover{background:rgba(34,201,122,0.15);}
+        .act-report:disabled{opacity:0.4;cursor:not-allowed;}
+        .act-edit{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;}
+        .act-edit:hover{border-color:rgba(34,201,122,0.2);color:#22c97a;}
+        .act-del{background:transparent;border:1px solid rgba(239,68,68,0.1);color:#f87171;flex:0.5;}
+        .act-del:hover{background:rgba(239,68,68,0.05);}
+
+        .expanded-section{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.04);}
+        .expanded-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:700;color:#8fa696;margin-bottom:0.75rem;letter-spacing:-0.01em;}
+        .notes-box{background:#080c09;border:1px solid rgba(255,255,255,0.03);border-radius:8px;padding:0.65rem 0.75rem;font-size:0.78rem;color:#3d5240;line-height:1.5;font-family:'Inter',sans-serif;}
+
+        .empty-state{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:3.5rem 2rem;text-align:center;}
+        .empty-icon{font-size:2.5rem;margin-bottom:1rem;display:block;}
+        .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}
+        .empty-sub{font-size:0.84rem;color:#3d5240;margin-bottom:1.75rem;line-height:1.55;font-family:'Inter',sans-serif;}
+
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+        .modal{background:#0c1510;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,0.4);}
+        .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:800;color:#f0f7f2;margin-bottom:0.25rem;letter-spacing:-0.03em;}
+        .modal-sub{font-size:0.82rem;color:#3d5240;margin-bottom:1.75rem;font-family:'Inter',sans-serif;}
+        .form-label{display:block;font-size:0.72rem;font-weight:700;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.03em;text-transform:uppercase;font-family:'Inter',sans-serif;}
+        .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:all 0.2s;}
+        .form-input:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
+        .form-select{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;}
+        .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:80px;transition:all 0.2s;}
+        .form-textarea:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+        .divider{border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;}
         .platforms-select{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;}
-        .platform-toggle{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.875rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .platform-toggle.selected{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.3);color:#22c97a;}
-        .freq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem;}
-        .freq-btn{background:#080c09;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.6rem;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;text-align:center;}
-        .freq-btn.selected{background:rgba(34,201,122,0.1);border-color:rgba(34,201,122,0.35);color:#22c97a;font-weight:600;}
-        .toggle-row{display:flex;align-items:center;justify-content:space-between;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;}
-        .toggle-label{font-size:0.835rem;color:#c4d4c8;}
-        .toggle-sub{font-size:0.72rem;color:#3d5240;margin-top:0.1rem;}
-        .toggle-switch{width:40px;height:22px;background:rgba(255,255,255,0.08);border-radius:100px;position:relative;cursor:pointer;transition:background 0.2s;border:none;outline:none;}
+        .platform-toggle{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.15s;}
+        .platform-toggle.selected{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.25);color:#22c97a;font-weight:600;}
+        .health-input{width:100%;accent-color:#22c97a;margin-bottom:1rem;}
+        .toggle-row{display:flex;align-items:center;justify-content:space-between;background:#080c09;border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;}
+        .toggle-label{font-size:0.82rem;color:#c4d4c8;font-family:'Inter',sans-serif;}
+        .toggle-sub{font-size:0.7rem;color:#2a3d2e;margin-top:2px;font-family:'Inter',sans-serif;}
+        .toggle-switch{width:40px;height:22px;background:rgba(255,255,255,0.06);border-radius:100px;position:relative;cursor:pointer;transition:background 0.2s;border:none;outline:none;}
         .toggle-switch.on{background:#22c97a;}
         .toggle-knob{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left 0.2s;}
         .toggle-switch.on .toggle-knob{left:21px;}
+        .freq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem;}
+        .freq-btn{background:#080c09;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.6rem;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.15s;text-align:center;}
+        .freq-btn.selected{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.25);color:#22c97a;font-weight:600;}
         .modal-btns{display:flex;gap:0.75rem;margin-top:0.5rem;}
-        .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-family:'Inter',sans-serif;font-weight:500;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;}
-        .modal-submit{flex:2;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;}
-        .modal-submit:disabled{opacity:0.5;cursor:not-allowed;}
-        .success-bar{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.2);color:#22c97a;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
-        .error-bar{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
-        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
-        .divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:1rem 0;}
-        .health-input{width:100%;accent-color:#22c97a;margin-bottom:1rem;}
-        .notes-card{background:#080c09;border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:0.75rem;margin-top:0.75rem;}
-        .notes-text{font-size:0.78rem;color:#3d5240;line-height:1.6;}
+        .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;transition:all 0.15s;}
+        .modal-cancel:hover{border-color:rgba(255,255,255,0.12);color:#6b7f70;}
+        .modal-submit{flex:2;background:linear-gradient(135deg,#22c97a,#1aae6a);color:#071209;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(34,201,122,0.15);}
+        .modal-submit:hover{box-shadow:0 4px 16px rgba(34,201,122,0.25);}
+        .modal-submit:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
+
+        @media(max-width:900px){
+          .stats-row{grid-template-columns:repeat(3,1fr);}
+          .client-grid{grid-template-columns:1fr;}
+        }
+        @media(max-width:600px){
+          .stats-row{grid-template-columns:repeat(2,1fr);}
+          .container{padding:1.5rem 1rem;}
+          .form-row{grid-template-columns:1fr;}
+        }
       `}</style>
 
       <nav className="nav">
-        <a href="/" className="logo">⚡ LeadMagnet</a>
+        <a href="/" className="logo"><span className="logo-dot"></span> LeadMagnet</a>
         <a href="/dashboard" className="back-btn">← Dashboard</a>
       </nav>
 
@@ -293,13 +342,15 @@ export default function Agency() {
         {success && <div className="success-bar">✓ {success}</div>}
         {error && <div className="error-bar">⚠ {error}</div>}
 
-        <h1 className="page-title">🏢 Agency Client Manager</h1>
-        <p className="page-sub">Segment, track and manage all your clients from one place.</p>
+        <div className="page-header">
+          <h1 className="page-title">Client Manager</h1>
+          <p className="page-sub">Your automation command center — manage clients, track leads, and send reports.</p>
+        </div>
 
         <div className="stats-row">
           <div className="stat-card"><div className="stat-val">{clients.length}</div><div className="stat-lbl">Total Clients</div></div>
-          <div className="stat-card"><div className="stat-val">{activeClients}</div><div className="stat-lbl">Active Clients</div></div>
-          <div className="stat-card"><div className="stat-val">{vipClients}</div><div className="stat-lbl">VIP Clients</div></div>
+          <div className="stat-card"><div className="stat-val">{activeClients}</div><div className="stat-lbl">Active</div></div>
+          <div className="stat-card"><div className="stat-val" style={{ color: "#f87171" }}>{totalHot}</div><div className="stat-lbl">Hot Leads</div></div>
           <div className="stat-card"><div className="stat-val">€{totalMRR.toLocaleString()}</div><div className="stat-lbl">Total MRR</div></div>
           <div className="stat-card"><div className="stat-val">{totalLeads}</div><div className="stat-lbl">Total Leads</div></div>
         </div>
@@ -312,6 +363,7 @@ export default function Agency() {
             <option value="created_at">Sort: Recent</option>
             <option value="mrr">Sort: MRR</option>
             <option value="leads">Sort: Leads</option>
+            <option value="hot">Sort: Hot Leads</option>
             <option value="health">Sort: Health</option>
           </select>
           <button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add Client</button>
@@ -321,8 +373,8 @@ export default function Agency() {
           <div className="empty-state">
             <span className="empty-icon">🏢</span>
             <div className="empty-title">No clients {filterTier !== "All" ? `in ${filterTier} tier` : "yet"}</div>
-            <div className="empty-sub">Add your first client to start managing their automation from this dashboard.</div>
-            <button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add your first client</button>
+            <div className="empty-sub">Add your first client to start managing their campaigns and automation.</div>
+            <button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add Client</button>
           </div>
         ) : (
           <div className="client-grid">
@@ -330,70 +382,84 @@ export default function Agency() {
               const tier = c.tier || "Standard";
               const tierStyle = TIER_COLORS[tier] || TIER_COLORS.Standard;
               const health = c.health_score || 75;
+              const isExpanded = expandedClient === c.id;
+
               return (
-                <div className="client-card" key={c.id}>
+                <div className="client-card" key={c.id} onClick={() => setExpandedClient(isExpanded ? null : c.id)}>
                   {c.mrr > 0 && <div className="mrr-badge">€{c.mrr}/mo</div>}
+
                   <div className="card-top">
                     <div className="client-avatar">{c.name?.charAt(0).toUpperCase()}</div>
+                    <div className="card-top-info">
+                      <div className="client-name">{c.name}</div>
+                      {c.company && <div className="client-company">{c.company}</div>}
+                    </div>
                     <div className="tier-badge" style={{ background: tierStyle.bg, border: `1px solid ${tierStyle.border}`, color: tierStyle.color }}>
                       {tier === "VIP" ? "⭐ VIP" : tier}
                     </div>
                   </div>
-                  <div className="client-name">{c.name}</div>
-                  {c.company && <div className="client-company">🏢 {c.company}</div>}
-                  <div className="client-email">✉️ {c.email}</div>
 
-                  <div className="health-bar-wrap">
-                    <div className="health-label">
-                      <span>Client Health</span>
-                      <span style={{ color: getHealthColor(health) }}>{health}/100</span>
+                  <div className="client-email-row">✉️ {c.email}</div>
+
+                  <div className="health-wrap">
+                    <div className="health-top">
+                      <span className="health-lbl">Client Health</span>
+                      <span style={{ color: getHealthColor(health), fontWeight: 700 }}>{health}/100</span>
                     </div>
                     <div className="health-bar">
                       <div className="health-fill" style={{ width: `${health}%`, background: getHealthColor(health) }} />
                     </div>
                   </div>
 
-                  <div className="client-metrics">
-                    <div className="metric"><div className="metric-val">{c.leads_count || 0}</div><div className="metric-lbl">Leads</div></div>
-                    <div className="metric"><div className="metric-val">{c.dms_sent || 0}</div><div className="metric-lbl">DMs</div></div>
-                    <div className="metric"><div className="metric-val">{c.campaigns_count || 0}</div><div className="metric-lbl">Campaigns</div></div>
+                  <div className="score-row">
+                    <div className="score-box">
+                      <div className="score-val" style={{ color: "#e2ede7" }}>{c.leads_count || 0}</div>
+                      <div className="score-lbl">Leads</div>
+                    </div>
+                    <div className="score-box">
+                      <div className="score-val" style={{ color: "#f87171" }}>{c.hot_leads || 0}</div>
+                      <div className="score-lbl">🔥 Hot</div>
+                    </div>
+                    <div className="score-box">
+                      <div className="score-val" style={{ color: "#fbbf24" }}>{c.warm_leads || 0}</div>
+                      <div className="score-lbl">🟡 Warm</div>
+                    </div>
+                    <div className="score-box">
+                      <div className="score-val" style={{ color: "#60a5fa" }}>{c.cold_leads || 0}</div>
+                      <div className="score-lbl">🔵 Cold</div>
+                    </div>
                   </div>
 
                   {c.platforms?.length > 0 && (
                     <div className="platforms-row">
                       {c.platforms.map(p => <span key={p} className="platform-tag">{p}</span>)}
+                      <span className="platform-tag" style={{ color: "#2a3d2e" }}>{c.campaigns_count || 0} campaigns</span>
                     </div>
                   )}
 
-                  {c.auto_report && (
-                    <div className="auto-report-tag">
-                      📊 Auto-report: {c.report_frequency || "monthly"}
-                    </div>
-                  )}
+                  <div className="auto-row">
+                    {c.auto_report && <span className="auto-tag report">📊 Auto-report: {c.report_frequency || "monthly"}</span>}
+                    {c.campaigns_count > 0 && <span className="auto-tag routing">🔀 Lead routing active</span>}
+                  </div>
 
                   {c.last_report_sent && (
-                    <div className="last-report">
-                      Last report: {new Date(c.last_report_sent).toLocaleDateString()}
-                    </div>
-                  )}
-
-                  {c.notes && (
-                    <div className="notes-card" style={{ marginTop: "0.75rem" }}>
-                      <div className="notes-text">📝 {c.notes}</div>
-                    </div>
+                    <div className="last-report">Last report: {new Date(c.last_report_sent).toLocaleDateString()}</div>
                   )}
 
                   <div className="card-actions">
-                    <button
-                      className="report-btn"
-                      onClick={(e) => handleSendReport(c, e)}
-                      disabled={sendingReport === c.id}
-                    >
+                    <button className="act-btn act-report" onClick={(e) => handleSendReport(c, e)} disabled={sendingReport === c.id}>
                       {sendingReport === c.id ? "Sending..." : "📊 Send Report"}
                     </button>
-                    <button className="edit-btn" onClick={(e) => openEdit(c, e)}>✏️ Edit</button>
-                    <button className="del-btn" onClick={(e) => deleteClient(c.id, e)}>Delete</button>
+                    <button className="act-btn act-edit" onClick={(e) => openEdit(c, e)}>Edit</button>
+                    <button className="act-btn act-del" onClick={(e) => deleteClient(c.id, e)}>✕</button>
                   </div>
+
+                  {isExpanded && c.notes && (
+                    <div className="expanded-section">
+                      <div className="expanded-title">📝 Notes</div>
+                      <div className="notes-box">{c.notes}</div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -401,29 +467,30 @@ export default function Agency() {
         )}
       </div>
 
+      {/* ADD / EDIT MODAL */}
       {(showAddClient || showEditClient) && (
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-title">{showEditClient ? "Edit Client" : "Add New Client"}</div>
-            <div className="modal-sub">Fill in the client details, set their tier and platforms.</div>
+            <div className="modal-sub">Fill in client details, set their tier and configure automation.</div>
             <form onSubmit={handleSubmit}>
               <div className="form-row">
                 <div>
-                  <label className="form-label">CLIENT NAME</label>
+                  <label className="form-label">Client Name</label>
                   <input className="form-input" placeholder="e.g. John Smith" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required />
                 </div>
                 <div>
-                  <label className="form-label">COMPANY</label>
+                  <label className="form-label">Company</label>
                   <input className="form-input" placeholder="e.g. Acme Corp" value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} />
                 </div>
               </div>
               <div className="form-row">
                 <div>
-                  <label className="form-label">EMAIL</label>
+                  <label className="form-label">Email</label>
                   <input className="form-input" type="email" placeholder="client@company.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required />
                 </div>
                 <div>
-                  <label className="form-label">PHONE</label>
+                  <label className="form-label">Phone</label>
                   <input className="form-input" placeholder="+31 6 12345678" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} />
                 </div>
               </div>
@@ -432,66 +499,55 @@ export default function Agency() {
 
               <div className="form-row">
                 <div>
-                  <label className="form-label">CLIENT TIER</label>
+                  <label className="form-label">Client Tier</label>
                   <select className="form-select" value={form.tier} onChange={e => setForm(p => ({ ...p, tier: e.target.value }))}>
                     {TIERS.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">MONTHLY REVENUE (€)</label>
+                  <label className="form-label">Monthly Revenue (€)</label>
                   <input className="form-input" type="number" placeholder="0" value={form.mrr} onChange={e => setForm(p => ({ ...p, mrr: e.target.value }))} />
                 </div>
               </div>
 
-              <label className="form-label">PLATFORMS</label>
+              <label className="form-label">Platforms</label>
               <div className="platforms-select">
                 {PLATFORMS.map(p => (
                   <button key={p} type="button" className={`platform-toggle ${form.platforms.includes(p) ? "selected" : ""}`} onClick={() => togglePlatform(p)}>{p}</button>
                 ))}
               </div>
 
-              <label className="form-label">HEALTH SCORE: {form.health_score}/100</label>
+              <label className="form-label">Health Score: {form.health_score}/100</label>
               <input type="range" min="0" max="100" value={form.health_score} onChange={e => setForm(p => ({ ...p, health_score: parseInt(e.target.value) }))} className="health-input" />
 
               <hr className="divider" />
 
               <div className="toggle-row">
                 <div>
-                  <div className="toggle-label">📊 Auto-send performance reports</div>
-                  <div className="toggle-sub">Automatically send reports to this client via Gmail</div>
+                  <div className="toggle-label">Auto-send performance reports</div>
+                  <div className="toggle-sub">Automatically email reports to this client</div>
                 </div>
-                <button
-                  type="button"
-                  className={`toggle-switch ${form.auto_report ? "on" : ""}`}
-                  onClick={() => setForm(p => ({ ...p, auto_report: !p.auto_report }))}
-                >
+                <button type="button" className={`toggle-switch ${form.auto_report ? "on" : ""}`} onClick={() => setForm(p => ({ ...p, auto_report: !p.auto_report }))}>
                   <div className="toggle-knob" />
                 </button>
               </div>
 
               {form.auto_report && (
                 <>
-                  <label className="form-label">REPORT FREQUENCY</label>
+                  <label className="form-label">Report Frequency</label>
                   <div className="freq-grid">
                     {REPORT_FREQUENCIES.map(f => (
-                      <button
-                        key={f.value}
-                        type="button"
-                        className={`freq-btn ${form.report_frequency === f.value ? "selected" : ""}`}
-                        onClick={() => setForm(p => ({ ...p, report_frequency: f.value }))}
-                      >
-                        {f.label}
-                      </button>
+                      <button key={f.value} type="button" className={`freq-btn ${form.report_frequency === f.value ? "selected" : ""}`} onClick={() => setForm(p => ({ ...p, report_frequency: f.value }))}>{f.label}</button>
                     ))}
                   </div>
                 </>
               )}
 
-              <label className="form-label">NOTES</label>
-              <textarea className="form-textarea" placeholder="Any notes about this client..." value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
+              <label className="form-label">Notes</label>
+              <textarea className="form-textarea" placeholder="Notes about this client..." value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
 
               <div className="modal-btns">
-                <button type="button" className="modal-cancel" onClick={() => { setShowAddClient(false); setShowEditClient(false); }}>Cancel</button>
+                <button type="button" className="modal-cancel" onClick={() => { setShowAddClient(false); setShowEditClient(false); resetForm(); }}>Cancel</button>
                 <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Saving..." : showEditClient ? "Save Changes →" : "Add Client →"}</button>
               </div>
             </form>
