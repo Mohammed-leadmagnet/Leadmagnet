@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [leads, setLeads] = useState([]);
   const [allLeads, setAllLeads] = useState([]);
   const [leadSearch, setLeadSearch] = useState("");
+  const [scoreFilter, setScoreFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("campaigns");
   const [showNewCampaign, setShowNewCampaign] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
@@ -88,8 +89,8 @@ export default function Dashboard() {
   };
 
   const exportLeadsCSV = () => {
-    const headers = ["Name", "Headline", "Company", "Location", "Email", "LinkedIn", "Collected"];
-    const rows = allLeads.map(l => [l.name, l.headline, l.company, l.location, l.email, l.linkedin_url, new Date(l.created_at).toLocaleDateString()]);
+    const headers = ["Name", "Headline", "Company", "Location", "Email", "Score", "Score Reason", "LinkedIn", "Collected"];
+    const rows = allLeads.map(l => [l.name, l.headline, l.company, l.location, l.email, l.lead_score || "—", l.lead_score_reason || "—", l.linkedin_url, new Date(l.created_at).toLocaleDateString()]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${v || ""}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -160,13 +161,26 @@ export default function Dashboard() {
     return user.email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase());
   };
 
+  const getScoreBadge = (score) => {
+    if (score === "hot") return { emoji: "🔥", label: "Hot", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)", color: "#f87171" };
+    if (score === "warm") return { emoji: "🟡", label: "Warm", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)", color: "#fbbf24" };
+    if (score === "cold") return { emoji: "🔵", label: "Cold", bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.2)", color: "#60a5fa" };
+    return { emoji: "—", label: "N/A", bg: "rgba(255,255,255,0.03)", border: "rgba(255,255,255,0.06)", color: "#3d5240" };
+  };
+
+  const hotCount = allLeads.filter(l => l.lead_score === "hot").length;
+  const warmCount = allLeads.filter(l => l.lead_score === "warm").length;
+  const coldCount = allLeads.filter(l => l.lead_score === "cold").length;
   const totalLeads = allLeads.length;
   const totalDms = campaigns.reduce((a, c) => a + (c.dms_sent || 0), 0);
+
   const filteredLeads = allLeads.filter(l => {
+    if (scoreFilter !== "all" && l.lead_score !== scoreFilter) return false;
     if (!leadSearch) return true;
     const s = leadSearch.toLowerCase();
     return l.name?.toLowerCase().includes(s) || l.headline?.toLowerCase().includes(s) || l.company?.toLowerCase().includes(s) || l.location?.toLowerCase().includes(s);
   });
+
   const dailyLeads = getDailyLeads();
   const maxCount = Math.max(...dailyLeads.map(d => d.count), 1);
 
@@ -195,7 +209,7 @@ export default function Dashboard() {
         .nav-right{display:flex;align-items:center;gap:0.75rem;}
         .user-pill{display:flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:100px;padding:0.3rem 0.85rem 0.3rem 0.3rem;transition:all 0.2s;}
         .user-pill:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);}
-        .user-avatar{width:28px;height:28px;background:linear-gradient(135deg,#22c97a,#0d9456);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;letter-spacing:-0.02em;}
+        .user-avatar{width:28px;height:28px;background:linear-gradient(135deg,#22c97a,#0d9456);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:#fff;}
         .user-email{font-size:0.78rem;color:#6b7f70;font-weight:500;font-family:'Inter',sans-serif;}
         .logout-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.375rem 0.85rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.2s;}
         .logout-btn:hover{border-color:rgba(239,68,68,0.25);color:#f87171;}
@@ -238,6 +252,7 @@ export default function Dashboard() {
         .stat-icon-blue{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.12);}
         .stat-icon-purple{background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.12);}
         .stat-icon-amber{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.12);}
+        .stat-icon-red{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.12);}
         .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.85rem;font-weight:800;color:#f0f7f2;line-height:1;margin-bottom:0.25rem;letter-spacing:-0.04em;}
         .stat-lbl{font-size:0.7rem;color:#3d5240;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',sans-serif;}
 
@@ -251,6 +266,16 @@ export default function Dashboard() {
         .btn-outline:hover{border-color:rgba(34,201,122,0.25);color:#22c97a;background:rgba(34,201,122,0.03);}
         .btn-danger{background:transparent;border:1px solid rgba(239,68,68,0.15);color:#f87171;font-family:'Inter',sans-serif;font-weight:500;font-size:0.75rem;padding:0.3rem 0.65rem;border-radius:7px;cursor:pointer;transition:all 0.15s;}
         .btn-danger:hover{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.3);}
+
+        .score-badge{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:100px;font-family:'Plus Jakarta Sans',sans-serif;cursor:default;white-space:nowrap;}
+        .score-badge-tooltip{position:relative;}
+        .score-badge-tooltip .score-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0c1510;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:0.5rem 0.7rem;font-size:0.72rem;color:#8fa696;font-weight:400;white-space:normal;width:220px;text-align:center;z-index:20;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-family:'Inter',sans-serif;line-height:1.4;}
+        .score-badge-tooltip:hover .score-tooltip{display:block;}
+
+        .score-filters{display:flex;gap:0.35rem;flex-wrap:wrap;}
+        .score-filter-btn{background:transparent;border:1px solid rgba(255,255,255,0.05);color:#2a3d2e;font-size:0.78rem;padding:0.375rem 0.8rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all 0.15s;display:flex;align-items:center;gap:0.3rem;}
+        .score-filter-btn.active{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.2);color:#22c97a;}
+        .score-filter-btn .filter-count{font-size:0.65rem;opacity:0.7;}
 
         .campaign-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.375rem;margin-bottom:0.625rem;transition:all 0.2s;}
         .campaign-card:hover{border-color:rgba(34,201,122,0.1);background:linear-gradient(145deg,#0d1611,#0b130e);}
@@ -285,10 +310,11 @@ export default function Dashboard() {
         .leads-table tr:hover td{background:rgba(34,201,122,0.02);}
         .lead-name{font-weight:600;color:#e2ede7;font-family:'Plus Jakarta Sans',sans-serif;}
         .lead-sub{font-size:0.7rem;color:#2a3d2e;margin-top:2px;}
-        .search-row{display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+        .search-row{display:flex;gap:0.75rem;margin-bottom:0.875rem;flex-wrap:wrap;}
         .search-input{flex:1;min-width:200px;background:rgba(12,21,16,0.8);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.65rem 1rem;color:#e2ede7;font-size:0.84rem;outline:none;font-family:'Inter',sans-serif;transition:all 0.2s;}
         .search-input:focus{border-color:rgba(34,201,122,0.25);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}
         .search-input::placeholder{color:#1e2e22;}
+        .filter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;}
 
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
         .modal{background:#0c1510;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,0.4);}
@@ -418,6 +444,7 @@ export default function Dashboard() {
           {success && <div className="success-bar">✓ {success}</div>}
           {error && <div className="error-bar">⚠ {error}</div>}
 
+          {/* CAMPAIGNS */}
           {activeTab === "campaigns" && (
             <>
               <div className="welcome-section">
@@ -437,9 +464,9 @@ export default function Dashboard() {
                   <div className="stat-lbl">Total Leads</div>
                 </div>
                 <div className="stat-card">
-                  <div className="stat-icon-wrap stat-icon-purple">💬</div>
-                  <div className="stat-val">{totalDms}</div>
-                  <div className="stat-lbl">DMs Sent</div>
+                  <div className="stat-icon-wrap stat-icon-red">🔥</div>
+                  <div className="stat-val">{hotCount}</div>
+                  <div className="stat-lbl">Hot Leads</div>
                 </div>
                 <div className="stat-card">
                   <div className="stat-icon-wrap stat-icon-amber">⏳</div>
@@ -498,16 +525,27 @@ export default function Dashboard() {
                     ) : (
                       <div className="table-wrap" style={{ marginTop: "1rem" }}>
                         <table className="leads-table">
-                          <thead><tr><th>Name</th><th>Headline</th><th>LinkedIn</th><th>Collected</th></tr></thead>
+                          <thead><tr><th>Name</th><th>Headline</th><th>Score</th><th>LinkedIn</th><th>Collected</th></tr></thead>
                           <tbody>
-                            {leads.map(lead => (
-                              <tr key={lead.id}>
-                                <td className="lead-name">{lead.name}</td>
-                                <td style={{ fontSize: "0.775rem", color: "#3d5240", maxWidth: "220px" }}>{lead.headline?.slice(0, 55)}...</td>
-                                <td><a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem", fontWeight: 600 }}>View →</a></td>
-                                <td style={{ fontSize: "0.7rem", color: "#2a3d2e" }}>{getTimeAgo(lead.created_at)}</td>
-                              </tr>
-                            ))}
+                            {leads.map(lead => {
+                              const badge = getScoreBadge(lead.lead_score);
+                              return (
+                                <tr key={lead.id}>
+                                  <td className="lead-name">{lead.name}</td>
+                                  <td style={{ fontSize: "0.775rem", color: "#3d5240", maxWidth: "220px" }}>{lead.headline?.slice(0, 55)}{lead.headline?.length > 55 ? "..." : ""}</td>
+                                  <td>
+                                    <div className="score-badge-tooltip">
+                                      <span className="score-badge" style={{ background: badge.bg, border: `1px solid ${badge.border}`, color: badge.color }}>
+                                        {badge.emoji} {badge.label}
+                                      </span>
+                                      {lead.lead_score_reason && <div className="score-tooltip">{lead.lead_score_reason}</div>}
+                                    </div>
+                                  </td>
+                                  <td><a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem", fontWeight: 600 }}>View →</a></td>
+                                  <td style={{ fontSize: "0.7rem", color: "#2a3d2e" }}>{getTimeAgo(lead.created_at)}</td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
@@ -518,6 +556,7 @@ export default function Dashboard() {
             </>
           )}
 
+          {/* ALL LEADS */}
           {activeTab === "leads" && (
             <>
               <div className="page-header">
@@ -528,28 +567,53 @@ export default function Dashboard() {
                 <input className="search-input" placeholder="Search by name, headline, company or location..." value={leadSearch} onChange={e => setLeadSearch(e.target.value)} />
                 <button className="btn-primary" onClick={exportLeadsCSV}>↓ Export CSV</button>
               </div>
+              <div className="filter-row">
+                <div className="score-filters">
+                  {[
+                    { id: "all", label: "All", count: totalLeads },
+                    { id: "hot", label: "🔥 Hot", count: hotCount },
+                    { id: "warm", label: "🟡 Warm", count: warmCount },
+                    { id: "cold", label: "🔵 Cold", count: coldCount },
+                  ].map(f => (
+                    <button key={f.id} className={`score-filter-btn ${scoreFilter === f.id ? "active" : ""}`} onClick={() => setScoreFilter(f.id)}>
+                      {f.label} <span className="filter-count">{f.count}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
               {filteredLeads.length === 0 ? (
                 <div className="empty-state">
                   <span className="empty-icon">👥</span>
-                  <div className="empty-title">No leads yet</div>
-                  <div className="empty-sub">Create a campaign to start collecting leads automatically.</div>
+                  <div className="empty-title">{scoreFilter !== "all" ? `No ${scoreFilter} leads yet` : "No leads yet"}</div>
+                  <div className="empty-sub">{scoreFilter !== "all" ? "Try a different filter or wait for more leads to come in." : "Create a campaign to start collecting leads automatically."}</div>
                 </div>
               ) : (
                 <div className="table-wrap" style={{ overflowX: "auto" }}>
-                  <table className="leads-table" style={{ minWidth: "800px" }}>
-                    <thead><tr><th>Name</th><th>Headline</th><th>Company</th><th>Location</th><th>LinkedIn</th><th>Collected</th><th>Actions</th></tr></thead>
+                  <table className="leads-table" style={{ minWidth: "900px" }}>
+                    <thead><tr><th>Name</th><th>Headline</th><th>Company</th><th>Score</th><th>Location</th><th>LinkedIn</th><th>Collected</th><th>Actions</th></tr></thead>
                     <tbody>
-                      {filteredLeads.map(lead => (
-                        <tr key={lead.id}>
-                          <td><div className="lead-name">{lead.name}</div>{lead.email && <div className="lead-sub">{lead.email}</div>}</td>
-                          <td style={{ maxWidth: "200px", fontSize: "0.775rem", color: "#4d6b54" }}>{lead.headline?.slice(0, 55)}{lead.headline?.length > 55 ? "..." : ""}</td>
-                          <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.company || "—"}</td>
-                          <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.location || "—"}</td>
-                          <td>{lead.linkedin_url ? <a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem", fontWeight: 600 }}>View →</a> : "—"}</td>
-                          <td style={{ fontSize: "0.7rem", color: "#2a3d2e", whiteSpace: "nowrap" }}>{getTimeAgo(lead.created_at)}</td>
-                          <td><div style={{ display: "flex", gap: "0.375rem" }}><button className="btn-outline" style={{ fontSize: "0.72rem", padding: "0.25rem 0.55rem" }} onClick={() => window.open(lead.linkedin_url, "_blank")}>DM</button><button className="btn-danger" onClick={() => archiveLead(lead.id)}>Archive</button></div></td>
-                        </tr>
-                      ))}
+                      {filteredLeads.map(lead => {
+                        const badge = getScoreBadge(lead.lead_score);
+                        return (
+                          <tr key={lead.id}>
+                            <td><div className="lead-name">{lead.name}</div>{lead.email && <div className="lead-sub">{lead.email}</div>}</td>
+                            <td style={{ maxWidth: "200px", fontSize: "0.775rem", color: "#4d6b54" }}>{lead.headline?.slice(0, 55)}{lead.headline?.length > 55 ? "..." : ""}</td>
+                            <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.company || "—"}</td>
+                            <td>
+                              <div className="score-badge-tooltip">
+                                <span className="score-badge" style={{ background: badge.bg, border: `1px solid ${badge.border}`, color: badge.color }}>
+                                  {badge.emoji} {badge.label}
+                                </span>
+                                {lead.lead_score_reason && <div className="score-tooltip">{lead.lead_score_reason}</div>}
+                              </div>
+                            </td>
+                            <td style={{ fontSize: "0.82rem", color: "#4d6b54" }}>{lead.location || "—"}</td>
+                            <td>{lead.linkedin_url ? <a href={lead.linkedin_url} target="_blank" style={{ color: "#22c97a", fontSize: "0.775rem", fontWeight: 600 }}>View →</a> : "—"}</td>
+                            <td style={{ fontSize: "0.7rem", color: "#2a3d2e", whiteSpace: "nowrap" }}>{getTimeAgo(lead.created_at)}</td>
+                            <td><div style={{ display: "flex", gap: "0.375rem" }}><button className="btn-outline" style={{ fontSize: "0.72rem", padding: "0.25rem 0.55rem" }} onClick={() => window.open(lead.linkedin_url, "_blank")}>DM</button><button className="btn-danger" onClick={() => archiveLead(lead.id)}>Archive</button></div></td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -557,6 +621,7 @@ export default function Dashboard() {
             </>
           )}
 
+          {/* ANALYTICS */}
           {activeTab === "analytics" && (
             <>
               <div className="page-header">
@@ -572,9 +637,9 @@ export default function Dashboard() {
               </div>
               <div className="analytics-grid">
                 <div className="analytics-card"><div className="analytics-val">{getLeadsInRange(analyticsRange === "7d" ? 7 : analyticsRange === "14d" ? 14 : 30)}</div><div className="analytics-lbl">New Leads</div><div className="analytics-sub">in selected period</div></div>
-                <div className="analytics-card"><div className="analytics-val">{campaigns.length}</div><div className="analytics-lbl">Campaigns</div><div className="analytics-sub">running automations</div></div>
-                <div className="analytics-card"><div className="analytics-val">{totalLeads}</div><div className="analytics-lbl">Total Leads</div><div className="analytics-sub">all time</div></div>
-                <div className="analytics-card"><div className="analytics-val">{totalDms}</div><div className="analytics-lbl">DMs Sent</div><div className="analytics-sub">all time</div></div>
+                <div className="analytics-card"><div className="analytics-val" style={{ color: "#f87171" }}>{hotCount}</div><div className="analytics-lbl">Hot Leads</div><div className="analytics-sub">high priority</div></div>
+                <div className="analytics-card"><div className="analytics-val" style={{ color: "#fbbf24" }}>{warmCount}</div><div className="analytics-lbl">Warm Leads</div><div className="analytics-sub">worth following up</div></div>
+                <div className="analytics-card"><div className="analytics-val" style={{ color: "#60a5fa" }}>{coldCount}</div><div className="analytics-lbl">Cold Leads</div><div className="analytics-sub">low priority</div></div>
               </div>
               <div className="chart-card">
                 <div className="chart-title">Daily New Leads</div>
@@ -605,6 +670,7 @@ export default function Dashboard() {
             </>
           )}
 
+          {/* SETTINGS */}
           {activeTab === "settings" && (
             <>
               <div className="page-header"><h1 className="page-title">Settings</h1><p className="page-sub">Manage your account and preferences</p></div>
@@ -617,6 +683,7 @@ export default function Dashboard() {
             </>
           )}
 
+          {/* BILLING */}
           {activeTab === "billing" && (
             <>
               <div className="page-header"><h1 className="page-title">Billing</h1><p className="page-sub">Manage your subscription and payment details</p></div>
@@ -632,6 +699,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* NEW CAMPAIGN MODAL */}
       {showNewCampaign && (
         <div className="modal-overlay">
           <div className="modal">
