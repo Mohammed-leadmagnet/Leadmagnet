@@ -32,6 +32,7 @@ export default function Agency() {
   const [sortBy, setSortBy] = useState("created_at");
   const [loading, setLoading] = useState(false);
   const [sendingReport, setSendingReport] = useState(null);
+  const [onboardingClient, setOnboardingClient] = useState(null);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
@@ -149,6 +150,29 @@ export default function Agency() {
       setError("Error: " + err.message);
     }
     setSendingReport(null);
+    setTimeout(() => { setSuccess(""); setError(""); }, 5000);
+  };
+
+  const handleOnboard = async (client, e) => {
+    e.stopPropagation();
+    setOnboardingClient(client.id);
+    try {
+      const res = await fetch("/api/onboard-client", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: client.id, userId: user.id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSuccess(`🎉 ${client.name} onboarded! Welcome email sent, sequence created, auto-reports enabled.`);
+        if (user) loadClients(user.id);
+      } else {
+        setError("Onboarding failed: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      setError("Error: " + err.message);
+    }
+    setOnboardingClient(null);
     setTimeout(() => { setSuccess(""); setError(""); }, 5000);
   };
 
@@ -271,7 +295,10 @@ export default function Agency() {
         .last-report{font-size:0.65rem;color:#1e2e22;font-family:'Inter',sans-serif;margin-bottom:0.5rem;}
 
         .card-actions{display:flex;gap:0.4rem;margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.03);}
-        .act-btn{flex:1;font-size:0.75rem;padding:0.45rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;text-align:center;transition:all 0.15s;border:none;}
+        .act-btn{flex:1;font-size:0.72rem;padding:0.45rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;text-align:center;transition:all 0.15s;border:none;}
+        .act-onboard{background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.15);color:#a78bfa;}
+        .act-onboard:hover{background:rgba(147,51,234,0.15);}
+        .act-onboard:disabled{opacity:0.4;cursor:not-allowed;}
         .act-report{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.15);color:#22c97a;}
         .act-report:hover{background:rgba(34,201,122,0.15);}
         .act-report:disabled{opacity:0.4;cursor:not-allowed;}
@@ -447,8 +474,11 @@ export default function Agency() {
                   )}
 
                   <div className="card-actions">
+                    <button className="act-btn act-onboard" onClick={(e) => handleOnboard(c, e)} disabled={onboardingClient === c.id}>
+                      {onboardingClient === c.id ? "Setting up..." : "🚀 Onboard"}
+                    </button>
                     <button className="act-btn act-report" onClick={(e) => handleSendReport(c, e)} disabled={sendingReport === c.id}>
-                      {sendingReport === c.id ? "Sending..." : "📊 Send Report"}
+                      {sendingReport === c.id ? "Sending..." : "📊 Report"}
                     </button>
                     <button className="act-btn act-edit" onClick={(e) => openEdit(c, e)}>Edit</button>
                     <button className="act-btn act-del" onClick={(e) => deleteClient(c.id, e)}>✕</button>
