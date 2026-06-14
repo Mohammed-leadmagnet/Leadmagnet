@@ -1,161 +1,220 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import nodemailer from "nodemailer";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
 
+async function scoreLead(lead) {
+  try {
+    const prompt = `You are a B2B lead scoring expert for a marketing agency lead generation platform. Score this lead based on their likelihood of being a valuable prospect for a marketing agency.
+
+Lead data:
+- Name: ${lead.name || "Unknown"}
+- Job Title: ${lead.job_title || "Unknown"}
+- Headline: ${lead.headline || "Unknown"}
+- Company: ${lead.company || "Unknown"}
+- Industry: ${lead.industry || "Unknown"}
+- Location: ${lead.location || "Unknown"}
+- Followers: ${lead.followers || "Unknown"}
+
+Score as exactly one of: hot, warm, or cold
+
+hot = Decision maker (CEO, CMO, founder, director, head of marketing, VP, owner) at a company that likely needs marketing services.
+warm = Mid-level professional (manager, coordinator, specialist) with some buying influence.
+cold = Junior role (intern, assistant, student), irrelevant industry, or not enough data.
+
+Respond ONLY in this exact JSON format, nothing else:
+{"score":"hot","reason":"One sentence explanation"}`;
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
+      body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }], max_tokens: 100, temperature: 0.3 }),
+    });
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content?.trim();
+    const parsed = JSON.parse(text);
+    if (["hot", "warm", "cold"].includes(parsed.score)) return { score: parsed.score, reason: parsed.reason || "" };
+    return { score: "cold", reason: "Could not determine lead quality" };
+  } catch (err) {
+    console.error("Lead scoring error:", err);
+    return { score: "cold", reason: "Scoring unavailable" };
+  }
+}
+
 export async function POST(request) {
   try {
-    const { clientId, userId } = await request.json();
+    // Verify webhook secret via query param or header
+    const url = new URL(request.url);
+    const secret = url.searchParams.get("secret") || request.headers.get("x-webhook-secret");
 
-    // Get client
-    const { data: client } = await supabase
-      .from("agency_clients")
-      .select("*")
-      .eq("id", clientId)
-      .single();
-
-    if (!client) return NextResponse.json({ error: "Client not found" }, { status: 404 });
-
-    // Get agency profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("agency_name")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    const agencyName = profile?.agency_name || "Your Agency";
-
-    // 1. Create default email sequence for this client
-    const defaultSequence = {
-      user_id: userId,
-      client_id: clientId,
-      name: `${client.name} — Welcome Sequence`,
-      status: "Active",
-      send_frequency: "medium",
-      emails: [
-        {
-          day: 0,
-          subject: "Welcome [Name] — excited to work together!",
-          body: `Hi [Name],\n\nThanks for connecting! We're thrilled to have you on board.\n\nOver the next few days, we'll be sharing some valuable resources to help you get the most out of our partnership.\n\nFeel free to reply to this email with any questions.\n\nBest,\n${agencyName}`,
-        },
-        {
-          day: 3,
-          subject: "[Name], here's how we'll grow your pipeline",
-          body: `Hi [Name],\n\nI wanted to share a quick overview of our approach:\n\n1. We identify your ideal prospects on LinkedIn\n2. Engage them through targeted content\n3. Automatically capture and qualify leads\n4. Deliver hot leads directly to you\n\nWe're already setting things up on our end. You'll start seeing results soon.\n\nBest,\n${agencyName}`,
-        },
-        {
-          day: 7,
-          subject: "Your first week update — [Name]",
-          body: `Hi [Name],\n\nIt's been one week since we started working together. Here's a quick check-in.\n\nWe'll be sending you a detailed performance report soon with lead counts, engagement metrics, and next steps.\n\nIf you have any questions or want to adjust our strategy, just reply to this email.\n\nLooking forward to growing together!\n\nBest,\n${agencyName}`,
-        },
-      ],
-    };
-
-    const { data: sequence, error: seqError } = await supabase
-      .from("email_sequences")
-      .insert(defaultSequence)
-      .select()
-      .single();
-
-    if (seqError) console.error("Sequence creation error:", seqError.message);
-
-    // 2. Enable auto-reports for this client
-    await supabase
-      .from("agency_clients")
-      .update({
-        auto_report: true,
-        report_frequency: "monthly",
-        health_score: 80,
-      })
-      .eq("id", clientId);
-
-    // 3. Send welcome email to client
-    const { data: gmail } = await supabase
-      .from("gmail_accounts")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    let welcomeSent = false;
-
-    if (gmail?.email && gmail?.app_password && client.email) {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: { user: gmail.email, pass: gmail.app_password },
-      });
-
-      const welcomeHtml = `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f6f4;font-family:'Helvetica Neue',Arial,sans-serif;">
-  <div style="max-width:600px;margin:0 auto;padding:2rem 1rem;">
-    <div style="background:#080c09;border-radius:16px 16px 0 0;padding:2rem;text-align:center;">
-      <div style="font-size:1.1rem;font-weight:800;color:#22c97a;">⚡ ${agencyName}</div>
-      <div style="font-size:1.4rem;font-weight:700;color:#f0f7f2;margin-top:0.75rem;">Welcome Aboard! 🎉</div>
-    </div>
-    <div style="background:#ffffff;padding:2rem;">
-      <div style="font-size:0.95rem;color:#1a1a1a;line-height:1.7;margin-bottom:1.5rem;">
-        Hi ${client.name},<br><br>
-        We're excited to start working with you${client.company ? ` at ${client.company}` : ""}! Your account has been set up and we're ready to start generating leads for you.
-      </div>
-      <div style="font-size:0.875rem;font-weight:700;color:#1a1a1a;margin-bottom:0.75rem;">Here's what happens next:</div>
-      <div style="margin-bottom:1.5rem;">
-        <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
-          <div style="width:28px;height:28px;background:#22c97a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:800;flex-shrink:0;">1</div>
-          <div style="font-size:0.85rem;color:#3d5240;padding-top:0.25rem;">We set up targeted campaigns on your preferred platforms</div>
-        </div>
-        <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
-          <div style="width:28px;height:28px;background:#22c97a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:800;flex-shrink:0;">2</div>
-          <div style="font-size:0.85rem;color:#3d5240;padding-top:0.25rem;">Leads are automatically captured and scored by AI</div>
-        </div>
-        <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;">
-          <div style="width:28px;height:28px;background:#22c97a;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.75rem;font-weight:800;flex-shrink:0;">3</div>
-          <div style="font-size:0.85rem;color:#3d5240;padding-top:0.25rem;">You receive regular performance reports with all your data</div>
-        </div>
-      </div>
-      ${client.platforms?.length > 0 ? `
-      <div style="background:#f8faf8;border:1px solid #e0e8e0;border-radius:10px;padding:1rem;margin-bottom:1.5rem;">
-        <div style="font-size:0.78rem;color:#6b7c73;margin-bottom:0.3rem;">YOUR PLATFORMS</div>
-        <div style="font-size:0.9rem;color:#22c97a;font-weight:600;">${client.platforms.join(" • ")}</div>
-      </div>` : ""}
-      <div style="text-align:center;padding:1.25rem;background:#080c09;border-radius:10px;">
-        <div style="font-size:0.82rem;color:#4d6b54;margin-bottom:0.875rem;">Questions? Reply directly to this email.</div>
-        <a href="mailto:${gmail.email}" style="background:#22c97a;color:#071209;font-weight:700;font-size:0.82rem;padding:0.65rem 1.25rem;border-radius:8px;text-decoration:none;display:inline-block;">Get in Touch →</a>
-      </div>
-    </div>
-    <div style="background:#080c09;border-radius:0 0 16px 16px;padding:1.25rem;text-align:center;">
-      <div style="font-size:0.72rem;color:#2d4a33;">Powered by LeadMagnet · leadmagnetinc.com</div>
-    </div>
-  </div>
-</body>
-</html>`;
-
-      try {
-        await transporter.sendMail({
-          from: `${agencyName} <${gmail.email}>`,
-          to: client.email,
-          subject: `Welcome to ${agencyName}! 🎉`,
-          html: welcomeHtml,
-        });
-        welcomeSent = true;
-      } catch (emailErr) {
-        console.error("Welcome email failed:", emailErr.message);
-      }
+    if (process.env.WEBHOOK_SECRET && secret !== process.env.WEBHOOK_SECRET) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json({
-      success: true,
-      sequenceCreated: !!sequence,
-      welcomeEmailSent: welcomeSent,
-      autoReportEnabled: true,
-    });
+    const body = await request.json();
+    const leads = Array.isArray(body) ? body : body.results || [];
+
+    if (leads.length === 0) return NextResponse.json({ message: "No leads to process" });
+
+    const containerId = body.containerId || body.agentId || null;
+    let campaignId = null, userId = null, clientId = null;
+
+    if (containerId) {
+      const { data: campaign } = await supabase.from("campaigns").select("id, user_id, client_id").eq("container_id", containerId).single();
+      if (campaign) { campaignId = campaign.id; userId = campaign.user_id; clientId = campaign.client_id || null; }
+    }
+
+    const leadsToInsert = [];
+    for (const lead of leads) {
+      const leadData = {
+        campaign_id: campaignId, user_id: userId, client_id: clientId,
+        name: `${lead.firstName || ""} ${lead.lastName || ""}`.trim(),
+        first_name: lead.firstName || null, last_name: lead.lastName || null,
+        linkedin_url: lead.profileUrl || lead.linkedInUrl || null,
+        headline: lead.headline || null, company: lead.companyName || null,
+        company_linkedin: lead.companyLinkedInUrl || null,
+        job_title: lead.currentJobTitle || lead.title || null,
+        industry: lead.companyIndustry || null, location: lead.location || null,
+        followers: lead.linkedInFollowers || null,
+        email: lead.professionalEmail || lead.email || null,
+        phone: lead.phoneNumbers || null, website: lead.websites || null,
+        commented_at: lead.commentedAt || new Date().toISOString(),
+      };
+      const { score, reason } = await scoreLead(leadData);
+      leadData.lead_score = score;
+      leadData.lead_score_reason = reason;
+      leadsToInsert.push(leadData);
+    }
+
+    const { error } = await supabase.from("leads").upsert(leadsToInsert, { onConflict: "linkedin_url" });
+    if (error) throw error;
+
+    if (campaignId) {
+      const { count } = await supabase.from("leads").select("*", { count: "exact", head: true }).eq("campaign_id", campaignId);
+      await supabase.from("campaigns").update({ leads_count: count }).eq("id", campaignId);
+    }
+
+    const hot = leadsToInsert.filter(l => l.lead_score === "hot").length;
+    const warm = leadsToInsert.filter(l => l.lead_score === "warm").length;
+    const cold = leadsToInsert.filter(l => l.lead_score === "cold").length;
+
+    return NextResponse.json({ success: true, count: leadsToInsert.length, scores: { hot, warm, cold } });
   } catch (error) {
-    console.error("Onboarding error:", error);
+    console.error("Webhook error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
+
+async function scoreLead(lead) {
+  try {
+    const prompt = `You are a B2B lead scoring expert for a marketing agency lead generation platform. Score this lead based on their likelihood of being a valuable prospect for a marketing agency.
+
+Lead data:
+- Name: ${lead.name || "Unknown"}
+- Job Title: ${lead.job_title || "Unknown"}
+- Headline: ${lead.headline || "Unknown"}
+- Company: ${lead.company || "Unknown"}
+- Industry: ${lead.industry || "Unknown"}
+- Location: ${lead.location || "Unknown"}
+- Followers: ${lead.followers || "Unknown"}
+
+Score as exactly one of: hot, warm, or cold
+
+hot = Decision maker (CEO, CMO, founder, director, head of marketing, VP, owner) at a company that likely needs marketing services.
+warm = Mid-level professional (manager, coordinator, specialist) with some buying influence.
+cold = Junior role (intern, assistant, student), irrelevant industry, or not enough data.
+
+Respond ONLY in this exact JSON format, nothing else:
+{"score":"hot","reason":"One sentence explanation"}`;
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
+      body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: prompt }], max_tokens: 100, temperature: 0.3 }),
+    });
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content?.trim();
+    const parsed = JSON.parse(text);
+    if (["hot", "warm", "cold"].includes(parsed.score)) return { score: parsed.score, reason: parsed.reason || "" };
+    return { score: "cold", reason: "Could not determine lead quality" };
+  } catch (err) {
+    console.error("Lead scoring error:", err);
+    return { score: "cold", reason: "Scoring unavailable" };
+  }
+}
+
+export async function POST(request) {
+  try {
+    // Verify webhook secret via query param or header
+    const url = new URL(request.url);
+    const secret = url.searchParams.get("secret") || request.headers.get("x-webhook-secret");
+
+    if (process.env.WEBHOOK_SECRET && secret !== process.env.WEBHOOK_SECRET) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const leads = Array.isArray(body) ? body : body.results || [];
+
+    if (leads.length === 0) return NextResponse.json({ message: "No leads to process" });
+
+    const containerId = body.containerId || body.agentId || null;
+    let campaignId = null, userId = null, clientId = null;
+
+    if (containerId) {
+      const { data: campaign } = await supabase.from("campaigns").select("id, user_id, client_id").eq("container_id", containerId).single();
+      if (campaign) { campaignId = campaign.id; userId = campaign.user_id; clientId = campaign.client_id || null; }
+    }
+
+    const leadsToInsert = [];
+    for (const lead of leads) {
+      const leadData = {
+        campaign_id: campaignId, user_id: userId, client_id: clientId,
+        name: `${lead.firstName || ""} ${lead.lastName || ""}`.trim(),
+        first_name: lead.firstName || null, last_name: lead.lastName || null,
+        linkedin_url: lead.profileUrl || lead.linkedInUrl || null,
+        headline: lead.headline || null, company: lead.companyName || null,
+        company_linkedin: lead.companyLinkedInUrl || null,
+        job_title: lead.currentJobTitle || lead.title || null,
+        industry: lead.companyIndustry || null, location: lead.location || null,
+        followers: lead.linkedInFollowers || null,
+        email: lead.professionalEmail || lead.email || null,
+        phone: lead.phoneNumbers || null, website: lead.websites || null,
+        commented_at: lead.commentedAt || new Date().toISOString(),
+      };
+      const { score, reason } = await scoreLead(leadData);
+      leadData.lead_score = score;
+      leadData.lead_score_reason = reason;
+      leadsToInsert.push(leadData);
+    }
+
+    const { error } = await supabase.from("leads").upsert(leadsToInsert, { onConflict: "linkedin_url" });
+    if (error) throw error;
+
+    if (campaignId) {
+      const { count } = await supabase.from("leads").select("*", { count: "exact", head: true }).eq("campaign_id", campaignId);
+      await supabase.from("campaigns").update({ leads_count: count }).eq("id", campaignId);
+    }
+
+    const hot = leadsToInsert.filter(l => l.lead_score === "hot").length;
+    const warm = leadsToInsert.filter(l => l.lead_score === "warm").length;
+    const cold = leadsToInsert.filter(l => l.lead_score === "cold").length;
+
+    return NextResponse.json({ success: true, count: leadsToInsert.length, scores: { hot, warm, cold } });
+  } catch (error) {
+    console.error("Webhook error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
