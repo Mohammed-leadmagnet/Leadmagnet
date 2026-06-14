@@ -7,6 +7,7 @@ const PRICE_IDS = {
   starter: process.env.STRIPE_STARTER_PRICE_ID,
   pro: process.env.STRIPE_PRO_PRICE_ID,
   agency: process.env.STRIPE_AGENCY_PRICE_ID,
+  scale: process.env.STRIPE_SCALE_PRICE_ID,
 };
 
 export async function POST(request) {
