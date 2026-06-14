@@ -62,21 +62,12 @@ export default function Agency() {
     if (!clientsData) return;
 
     const enriched = await Promise.all(clientsData.map(async (c) => {
-      const { count: campaignsCount } = await supabase
-        .from("campaigns")
-        .select("*", { count: "exact", head: true })
-        .eq("client_id", c.id);
-
-      const { data: clientLeads } = await supabase
-        .from("leads")
-        .select("lead_score")
-        .eq("client_id", c.id);
-
+      const { count: campaignsCount } = await supabase.from("campaigns").select("*", { count: "exact", head: true }).eq("client_id", c.id);
+      const { data: clientLeads } = await supabase.from("leads").select("lead_score").eq("client_id", c.id);
       const leadsCount = clientLeads?.length || 0;
       const hotLeads = clientLeads?.filter(l => l.lead_score === "hot").length || 0;
       const warmLeads = clientLeads?.filter(l => l.lead_score === "warm").length || 0;
       const coldLeads = clientLeads?.filter(l => l.lead_score === "cold").length || 0;
-
       return { ...c, campaigns_count: campaignsCount || 0, leads_count: leadsCount, hot_leads: hotLeads, warm_leads: warmLeads, cold_leads: coldLeads };
     }));
 
@@ -93,7 +84,13 @@ export default function Agency() {
         if (dbError) throw dbError;
         setSuccess("Client updated!");
       } else {
-        const { data: client, error: dbError } = await supabase.from("agency_clients").insert({ agency_user_id: user.id, ...form, mrr: parseFloat(form.mrr) || 0, status: "Active" }).select().single();
+        const { data: client, error: dbError } = await supabase.from("agency_clients").insert({
+          agency_user_id: user.id,
+          ...form,
+          mrr: parseFloat(form.mrr) || 0,
+          status: "Active",
+          portal_token: crypto.randomUUID(),
+        }).select().single();
         if (dbError) throw dbError;
         if (client) setClients(prev => [{ ...client, campaigns_count: 0, leads_count: 0, hot_leads: 0, warm_leads: 0, cold_leads: 0 }, ...prev]);
         setSuccess("Client added!");
@@ -135,6 +132,14 @@ export default function Agency() {
     setTimeout(() => { setSuccess(""); setError(""); }, 5000);
   };
 
+  const copyPortalLink = (client, e) => {
+    e.stopPropagation();
+    if (!client.portal_token) { setError("No portal token — edit and re-save this client."); setTimeout(() => setError(""), 3000); return; }
+    navigator.clipboard.writeText(`https://leadmagnetinc.com/portal/${client.portal_token}`);
+    setSuccess(`Portal link copied for ${client.name}!`);
+    setTimeout(() => setSuccess(""), 3000);
+  };
+
   const openEdit = (client, e) => {
     e.stopPropagation();
     setForm({ name: client.name || "", email: client.email || "", company: client.company || "", phone: client.phone || "", tier: client.tier || "Standard", platforms: client.platforms || [], mrr: client.mrr || "", notes: client.notes || "", health_score: client.health_score || 75, auto_report: client.auto_report || false, report_frequency: client.report_frequency || "monthly" });
@@ -165,7 +170,6 @@ export default function Agency() {
   const totalHot = clients.reduce((a, c) => a + (c.hot_leads || 0), 0);
   const activeClients = clients.filter(c => c.tier !== "Inactive").length;
 
-  // Revenue calculations
   const mrrByTier = {};
   const clientsByTier = {};
   TIERS.forEach(t => { mrrByTier[t] = 0; clientsByTier[t] = 0; });
@@ -233,17 +237,19 @@ export default function Agency() {
         .auto-tag.report{background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.15);color:#63b3ed;}
         .auto-tag.routing{background:rgba(147,51,234,0.06);border:1px solid rgba(147,51,234,0.15);color:#a78bfa;}
         .last-report{font-size:0.65rem;color:#1e2e22;font-family:'Inter',sans-serif;margin-bottom:0.5rem;}
-        .card-actions{display:flex;gap:0.4rem;margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.03);}
-        .act-btn{flex:1;font-size:0.72rem;padding:0.45rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;text-align:center;transition:all 0.15s;border:none;}
+        .card-actions{display:flex;gap:0.35rem;margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.03);}
+        .act-btn{flex:1;font-size:0.7rem;padding:0.425rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;text-align:center;transition:all 0.15s;border:none;}
         .act-onboard{background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.15);color:#a78bfa;}
         .act-onboard:hover{background:rgba(147,51,234,0.15);}
         .act-onboard:disabled{opacity:0.4;cursor:not-allowed;}
+        .act-portal{background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.15);color:#63b3ed;}
+        .act-portal:hover{background:rgba(99,179,237,0.15);}
         .act-report{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.15);color:#22c97a;}
         .act-report:hover{background:rgba(34,201,122,0.15);}
         .act-report:disabled{opacity:0.4;cursor:not-allowed;}
         .act-edit{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;}
         .act-edit:hover{border-color:rgba(34,201,122,0.2);color:#22c97a;}
-        .act-del{background:transparent;border:1px solid rgba(239,68,68,0.1);color:#f87171;flex:0.5;}
+        .act-del{background:transparent;border:1px solid rgba(239,68,68,0.1);color:#f87171;flex:0.4;}
         .act-del:hover{background:rgba(239,68,68,0.05);}
         .expanded-section{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.04);}
         .expanded-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:700;color:#8fa696;margin-bottom:0.75rem;}
@@ -252,8 +258,6 @@ export default function Agency() {
         .empty-icon{font-size:2.5rem;margin-bottom:1rem;display:block;}
         .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}
         .empty-sub{font-size:0.84rem;color:#3d5240;margin-bottom:1.75rem;line-height:1.55;font-family:'Inter',sans-serif;}
-
-        /* === REVENUE DASHBOARD === */
         .rev-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:2rem;}
         .rev-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.25rem;}
         .rev-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.85rem;font-weight:800;letter-spacing:-0.04em;line-height:1;}
@@ -284,8 +288,6 @@ export default function Agency() {
         .risk-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.84rem;font-weight:700;color:#e2ede7;}
         .risk-reason{font-size:0.7rem;color:#f87171;font-family:'Inter',sans-serif;}
         .risk-mrr{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:800;color:#f87171;}
-
-        /* === MODAL === */
         .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(8px);}
         .modal{background:#0c1510;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,0.4);}
         .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:800;color:#f0f7f2;margin-bottom:0.25rem;}
@@ -338,7 +340,6 @@ export default function Agency() {
           <button className={`view-btn ${activeView === "revenue" ? "active" : ""}`} onClick={() => setActiveView("revenue")}>💰 Revenue</button>
         </div>
 
-        {/* ============ CLIENTS VIEW ============ */}
         {activeView === "clients" && (
           <>
             <div className="stats-row">
@@ -348,28 +349,15 @@ export default function Agency() {
               <div className="stat-card"><div className="stat-val">€{totalMRR.toLocaleString()}</div><div className="stat-lbl">Total MRR</div></div>
               <div className="stat-card"><div className="stat-val">{totalLeads}</div><div className="stat-lbl">Total Leads</div></div>
             </div>
-
             <div className="controls">
-              {["All", ...TIERS].map(t => (
-                <button key={t} className={`filter-btn ${filterTier === t ? "active" : ""}`} onClick={() => setFilterTier(t)}>{t}</button>
-              ))}
+              {["All", ...TIERS].map(t => (<button key={t} className={`filter-btn ${filterTier === t ? "active" : ""}`} onClick={() => setFilterTier(t)}>{t}</button>))}
               <select className="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                <option value="created_at">Sort: Recent</option>
-                <option value="mrr">Sort: MRR</option>
-                <option value="leads">Sort: Leads</option>
-                <option value="hot">Sort: Hot Leads</option>
-                <option value="health">Sort: Health</option>
+                <option value="created_at">Sort: Recent</option><option value="mrr">Sort: MRR</option><option value="leads">Sort: Leads</option><option value="hot">Sort: Hot Leads</option><option value="health">Sort: Health</option>
               </select>
               <button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add Client</button>
             </div>
-
             {filteredClients.length === 0 ? (
-              <div className="empty-state">
-                <span className="empty-icon">🏢</span>
-                <div className="empty-title">No clients {filterTier !== "All" ? `in ${filterTier} tier` : "yet"}</div>
-                <div className="empty-sub">Add your first client to start managing their campaigns and automation.</div>
-                <button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add Client</button>
-              </div>
+              <div className="empty-state"><span className="empty-icon">🏢</span><div className="empty-title">No clients {filterTier !== "All" ? `in ${filterTier} tier` : "yet"}</div><div className="empty-sub">Add your first client to start managing their campaigns and automation.</div><button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add Client</button></div>
             ) : (
               <div className="client-grid">
                 {filteredClients.map(c => {
@@ -382,10 +370,7 @@ export default function Agency() {
                       {c.mrr > 0 && <div className="mrr-badge">€{c.mrr}/mo</div>}
                       <div className="card-top">
                         <div className="client-avatar">{c.name?.charAt(0).toUpperCase()}</div>
-                        <div className="card-top-info">
-                          <div className="client-name">{c.name}</div>
-                          {c.company && <div className="client-company">{c.company}</div>}
-                        </div>
+                        <div className="card-top-info"><div className="client-name">{c.name}</div>{c.company && <div className="client-company">{c.company}</div>}</div>
                         <div className="tier-badge" style={{ background: tierStyle.bg, border: `1px solid ${tierStyle.border}`, color: tierStyle.color }}>{tier === "VIP" ? "⭐ VIP" : tier}</div>
                       </div>
                       <div className="client-email-row">✉️ {c.email}</div>
@@ -407,6 +392,7 @@ export default function Agency() {
                       {c.last_report_sent && <div className="last-report">Last report: {new Date(c.last_report_sent).toLocaleDateString()}</div>}
                       <div className="card-actions">
                         <button className="act-btn act-onboard" onClick={(e) => handleOnboard(c, e)} disabled={onboardingClient === c.id}>{onboardingClient === c.id ? "Setting up..." : "🚀 Onboard"}</button>
+                        <button className="act-btn act-portal" onClick={(e) => copyPortalLink(c, e)}>🔗 Portal</button>
                         <button className="act-btn act-report" onClick={(e) => handleSendReport(c, e)} disabled={sendingReport === c.id}>{sendingReport === c.id ? "Sending..." : "📊 Report"}</button>
                         <button className="act-btn act-edit" onClick={(e) => openEdit(c, e)}>Edit</button>
                         <button className="act-btn act-del" onClick={(e) => deleteClient(c.id, e)}>✕</button>
@@ -420,7 +406,6 @@ export default function Agency() {
           </>
         )}
 
-        {/* ============ REVENUE VIEW ============ */}
         {activeView === "revenue" && (
           <>
             <div className="rev-stats">
@@ -429,68 +414,35 @@ export default function Agency() {
               <div className="rev-card"><div className="rev-val" style={{ color: "#22c97a" }}>€{avgMRR}</div><div className="rev-lbl">Avg per Client</div><div className="rev-sub">{clients.length} total clients</div></div>
               <div className="rev-card"><div className="rev-val" style={{ color: atRiskMRR > 0 ? "#f87171" : "#22c97a" }}>€{atRiskMRR.toLocaleString()}</div><div className="rev-lbl">At-Risk MRR</div><div className="rev-sub">{atRiskClients.length} client{atRiskClients.length !== 1 ? "s" : ""} flagged</div></div>
             </div>
-
-            {/* Revenue by Client */}
             <div className="rev-section">
               <div className="rev-section-title">Revenue by Client</div>
               {clients.length === 0 ? <div style={{ color: "#2a3d2e", fontSize: "0.82rem" }}>No clients yet</div> :
                 [...clients].sort((a, b) => (b.mrr || 0) - (a.mrr || 0)).map(c => (
                   <div className="rev-client-row" key={c.id}>
                     <div className="rev-client-avatar">{c.name?.charAt(0).toUpperCase()}</div>
-                    <div className="rev-client-info">
-                      <div className="rev-client-name">{c.name}</div>
-                      <div className="rev-client-tier">{c.tier || "Standard"} · {c.leads_count || 0} leads</div>
-                    </div>
+                    <div className="rev-client-info"><div className="rev-client-name">{c.name}</div><div className="rev-client-tier">{c.tier || "Standard"} · {c.leads_count || 0} leads</div></div>
                     <div className="rev-client-bar-wrap"><div className="rev-client-bar" style={{ width: `${((c.mrr || 0) / maxClientMRR) * 100}%` }} /></div>
                     <div className="rev-client-mrr">€{(c.mrr || 0).toLocaleString()}</div>
                   </div>
-                ))
-              }
+                ))}
             </div>
-
-            {/* Revenue by Tier */}
             <div className="rev-section">
               <div className="rev-section-title">Revenue by Tier</div>
               {TIERS.map(t => {
                 const tierStyle = TIER_COLORS[t];
-                return (
-                  <div className="tier-row" key={t}>
-                    <div className="tier-dot" style={{ background: tierStyle.color }} />
-                    <div className="tier-name">{t}</div>
-                    <div className="tier-clients">{clientsByTier[t]} client{clientsByTier[t] !== 1 ? "s" : ""}</div>
-                    <div className="tier-bar-wrap"><div className="tier-bar" style={{ width: totalMRR > 0 ? `${(mrrByTier[t] / totalMRR) * 100}%` : "0%", background: tierStyle.color }} /></div>
-                    <div className="tier-mrr">€{mrrByTier[t].toLocaleString()}</div>
-                  </div>
-                );
+                return (<div className="tier-row" key={t}><div className="tier-dot" style={{ background: tierStyle.color }} /><div className="tier-name">{t}</div><div className="tier-clients">{clientsByTier[t]} client{clientsByTier[t] !== 1 ? "s" : ""}</div><div className="tier-bar-wrap"><div className="tier-bar" style={{ width: totalMRR > 0 ? `${(mrrByTier[t] / totalMRR) * 100}%` : "0%", background: tierStyle.color }} /></div><div className="tier-mrr">€{mrrByTier[t].toLocaleString()}</div></div>);
               })}
             </div>
-
-            {/* At-Risk Clients */}
             <div className="rev-section">
               <div className="rev-section-title">⚠️ At-Risk Clients</div>
-              {atRiskClients.length === 0 ? (
-                <div style={{ color: "#22c97a", fontSize: "0.84rem", fontFamily: "Inter, sans-serif" }}>All clients are healthy — no churn risk detected.</div>
-              ) : atRiskClients.map(c => {
-                const reason = c.health_score < 40 ? `Health score: ${c.health_score}/100` : "No leads or campaigns";
-                return (
-                  <div className="risk-card" key={c.id}>
-                    <div className="risk-info">
-                      <div className="risk-avatar">{c.name?.charAt(0).toUpperCase()}</div>
-                      <div>
-                        <div className="risk-name">{c.name}</div>
-                        <div className="risk-reason">{reason}</div>
-                      </div>
-                    </div>
-                    <div className="risk-mrr">€{(c.mrr || 0).toLocaleString()}/mo</div>
-                  </div>
-                );
-              })}
+              {atRiskClients.length === 0 ? (<div style={{ color: "#22c97a", fontSize: "0.84rem", fontFamily: "Inter,sans-serif" }}>All clients are healthy — no churn risk detected.</div>) :
+                atRiskClients.map(c => (<div className="risk-card" key={c.id}><div className="risk-info"><div className="risk-avatar">{c.name?.charAt(0).toUpperCase()}</div><div><div className="risk-name">{c.name}</div><div className="risk-reason">{c.health_score < 40 ? `Health: ${c.health_score}/100` : "No leads or campaigns"}</div></div></div><div className="risk-mrr">€{(c.mrr || 0).toLocaleString()}/mo</div></div>))
+              }
             </div>
           </>
         )}
       </div>
 
-      {/* ADD / EDIT MODAL */}
       {(showAddClient || showEditClient) && (
         <div className="modal-overlay">
           <div className="modal">
