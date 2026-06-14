@@ -12,6 +12,11 @@ const PRICE_IDS = {
 export async function POST(request) {
   try {
     const { plan, userId, email } = await request.json();
+
+    if (!plan || !userId || !email) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
     const priceId = PRICE_IDS[plan];
 
     if (!priceId) {
@@ -23,6 +28,7 @@ export async function POST(request) {
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: email,
+      client_reference_id: userId,
       metadata: { userId, plan },
       success_url: "https://leadmagnetinc.com/dashboard?subscribed=true",
       cancel_url: "https://leadmagnetinc.com/pricing",
