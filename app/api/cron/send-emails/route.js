@@ -8,7 +8,6 @@ const supabase = createClient(
 );
 
 export async function GET(request) {
-  // Security check
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,7 +17,7 @@ export async function GET(request) {
     // Get all active sequences
     const { data: sequences } = await supabase
       .from("email_sequences")
-      .select("*, gmail_accounts(*)")
+      .select("*")
       .eq("status", "Active");
 
     if (!sequences || sequences.length === 0) {
@@ -26,29 +25,41 @@ export async function GET(request) {
     }
 
     let totalSent = 0;
+    let errors = 0;
 
     for (const seq of sequences) {
-      const gmailAccount = seq.gmail_accounts;
+      // Get Gmail account for this user
+      const { data: gmailAccount } = await supabase
+        .from("gmail_accounts")
+        .select("*")
+        .eq("user_id", seq.user_id)
+        .maybeSingle();
+
       if (!gmailAccount?.email || !gmailAccount?.app_password) continue;
 
-      // Get leads for this user that haven't received this sequence yet
-      const { data: leads } = await supabase
+      // Get leads — filter by client_id if sequence is client-specific
+      let leadsQuery = supabase
         .from("leads")
         .select("*")
-        .eq("user_id", seq.user_id);
+        .eq("user_id", seq.user_id)
+        .not("email", "is", null);
 
+      if (seq.client_id) {
+        leadsQuery = leadsQuery.eq("client_id", seq.client_id);
+      }
+
+      const { data: leads } = await leadsQuery;
       if (!leads || leads.length === 0) continue;
 
-      // Create Gmail transporter
+      // Create transporter
       const transporter = nodemailer.createTransport({
         service: "gmail",
-        auth: {
-          user: gmailAccount.email,
-          pass: gmailAccount.app_password,
-        },
+        auth: { user: gmailAccount.email, pass: gmailAccount.app_password },
       });
 
       for (const lead of leads) {
+        if (!lead.email) continue;
+
         for (const email of seq.emails || []) {
           // Check if already sent
           const { data: alreadySent } = await supabase
@@ -61,24 +72,40 @@ export async function GET(request) {
 
           if (alreadySent) continue;
 
-          // Check if enough days have passed since lead was added
+          // Check if enough days have passed
           const leadDate = new Date(lead.created_at);
           const sendDate = new Date(leadDate.getTime() + email.day * 24 * 60 * 60 * 1000);
           const now = new Date();
 
           if (now < sendDate) continue;
 
-          // Personalise email
+          // Check send frequency limits
+          if (seq.send_frequency) {
+            const { count: sentToday } = await supabase
+              .from("email_send_log")
+              .select("*", { count: "exact", head: true })
+              .eq("sequence_id", seq.id)
+              .gte("created_at", new Date(now.setHours(0, 0, 0, 0)).toISOString());
+
+            const dailyLimit = seq.send_frequency === "slow" ? 10 : seq.send_frequency === "medium" ? 25 : 50;
+            if (sentToday >= dailyLimit) break;
+          }
+
+          // Personalise
           const firstName = lead.first_name || lead.name?.split(" ")[0] || "there";
           const company = lead.company || "";
-          const subject = email.subject
-            .replace(/\[Name\]/g, firstName)
-            .replace(/\[Company\]/g, company);
-          const body = email.body
-            .replace(/\[Name\]/g, firstName)
-            .replace(/\[Company\]/g, company);
+          const headline = lead.headline || "";
 
-          // Send email
+          const subject = (email.subject || "")
+            .replace(/\[Name\]/g, firstName)
+            .replace(/\[Company\]/g, company)
+            .replace(/\[Headline\]/g, headline);
+
+          const body = (email.body || "")
+            .replace(/\[Name\]/g, firstName)
+            .replace(/\[Company\]/g, company)
+            .replace(/\[Headline\]/g, headline);
+
           try {
             await transporter.sendMail({
               from: gmailAccount.email,
@@ -87,7 +114,6 @@ export async function GET(request) {
               text: body,
             });
 
-            // Log it
             await supabase.from("email_send_log").insert({
               user_id: seq.user_id,
               sequence_id: seq.id,
@@ -98,14 +124,16 @@ export async function GET(request) {
 
             totalSent++;
           } catch (emailErr) {
-            console.error("Failed to send email:", emailErr.message);
+            console.error("Email send failed:", emailErr.message);
+            errors++;
           }
         }
       }
     }
 
-    return NextResponse.json({ success: true, totalSent });
+    return NextResponse.json({ success: true, totalSent, errors });
   } catch (error) {
+    console.error("Cron error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
