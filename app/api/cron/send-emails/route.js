@@ -13,6 +13,11 @@ export async function GET(request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // System Gmail must be configured
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    return NextResponse.json({ error: "System Gmail not configured" }, { status: 500 });
+  }
+
   try {
     // Get all active sequences
     const { data: sequences } = await supabase
@@ -24,19 +29,16 @@ export async function GET(request) {
       return NextResponse.json({ message: "No active sequences" });
     }
 
+    // Create system Gmail transporter (used for all sending)
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD },
+    });
+
     let totalSent = 0;
     let errors = 0;
 
     for (const seq of sequences) {
-      // Get Gmail account for this user
-      const { data: gmailAccount } = await supabase
-        .from("gmail_accounts")
-        .select("*")
-        .eq("user_id", seq.user_id)
-        .maybeSingle();
-
-      if (!gmailAccount?.email || !gmailAccount?.app_password) continue;
-
       // Get leads — filter by client_id if sequence is client-specific
       let leadsQuery = supabase
         .from("leads")
@@ -51,11 +53,7 @@ export async function GET(request) {
       const { data: leads } = await leadsQuery;
       if (!leads || leads.length === 0) continue;
 
-      // Create transporter
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: { user: gmailAccount.email, pass: gmailAccount.app_password },
-      });
+      const now = new Date();
 
       for (const lead of leads) {
         if (!lead.email) continue;
@@ -75,17 +73,19 @@ export async function GET(request) {
           // Check if enough days have passed
           const leadDate = new Date(lead.created_at);
           const sendDate = new Date(leadDate.getTime() + email.day * 24 * 60 * 60 * 1000);
-          const now = new Date();
 
           if (now < sendDate) continue;
 
           // Check send frequency limits
           if (seq.send_frequency) {
+            const todayStart = new Date(now);
+            todayStart.setHours(0, 0, 0, 0);
+
             const { count: sentToday } = await supabase
               .from("email_send_log")
               .select("*", { count: "exact", head: true })
               .eq("sequence_id", seq.id)
-              .gte("created_at", new Date(now.setHours(0, 0, 0, 0)).toISOString());
+              .gte("created_at", todayStart.toISOString());
 
             const dailyLimit = seq.send_frequency === "slow" ? 10 : seq.send_frequency === "medium" ? 25 : 50;
             if (sentToday >= dailyLimit) break;
@@ -108,7 +108,7 @@ export async function GET(request) {
 
           try {
             await transporter.sendMail({
-              from: gmailAccount.email,
+              from: `LeadMagnet <${process.env.GMAIL_USER}>`,
               to: lead.email,
               subject,
               text: body,
