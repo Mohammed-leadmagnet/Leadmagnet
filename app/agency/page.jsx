@@ -282,9 +282,12 @@ export default function Agency() {
             <p className="page-sub">Your automation command center — manage clients, track leads, and monitor revenue.</p>
           </div>
 
-          <div className="view-toggle">
-            <button className={`view-btn ${activeView === "clients" ? "active" : ""}`} onClick={() => setActiveView("clients")}>👥 Clients</button>
-            <button className={`view-btn ${activeView === "revenue" ? "active" : ""}`} onClick={() => setActiveView("revenue")}>💰 Revenue</button>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.75rem", flexWrap: "wrap", gap: "0.75rem" }}>
+            <div className="view-toggle" style={{ marginBottom: 0 }}>
+              <button className={`view-btn ${activeView === "clients" ? "active" : ""}`} onClick={() => setActiveView("clients")}>👥 Clients</button>
+              <button className={`view-btn ${activeView === "revenue" ? "active" : ""}`} onClick={() => setActiveView("revenue")}>💰 Revenue</button>
+            </div>
+            <button onClick={() => window.location.href = "/agency/lead-radar"} style={{ background: "linear-gradient(135deg,rgba(147,51,234,0.1),rgba(147,51,234,0.05))", border: "1px solid rgba(147,51,234,0.2)", color: "#a78bfa", fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 700, fontSize: "0.82rem", padding: "0.5rem 1.1rem", borderRadius: "9px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", transition: "all 0.2s" }}>🛰️ Lead Radar</button>
           </div>
 
           {activeView === "clients" && (
