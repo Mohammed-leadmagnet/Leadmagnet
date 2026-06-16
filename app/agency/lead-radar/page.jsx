@@ -44,6 +44,7 @@ export default function LeadRadar() {
   const [leads, setLeads] = useState([]);
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [scoring, setScoring] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [showAddLead, setShowAddLead] = useState(false);
   const [addingLead, setAddingLead] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -161,6 +162,18 @@ export default function LeadRadar() {
     setScoring(false); setTimeout(() => { setSuccess(""); setError(""); }, 5000);
   };
 
+  const handleSync = async () => {
+    if (!user || !selectedClientId) return;
+    setSyncing(true);
+    try {
+      const r = await fetch("/api/lead-radar/sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user.id, clientId: selectedClientId }) });
+      const d = await r.json();
+      if (d.success) { setSuccess(`Synced ${d.synced} campaign leads (${d.skipped || 0} already existed)`); loadLeads(selectedClientId); }
+      else setError(d.error || "Sync failed");
+    } catch (e) { setError(e.message); }
+    setSyncing(false); setTimeout(() => { setSuccess(""); setError(""); }, 5000);
+  };
+
   const updateStatus = async (leadId, status) => {
     try {
       const r = await fetch("/api/lead-radar/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user.id, leadId, status }) });
@@ -230,7 +243,6 @@ export default function LeadRadar() {
         .btn-s{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.15);color:#22c97a;box-shadow:none;}.btn-s:hover{background:rgba(34,201,122,0.15);}
         .btn-p{background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.15);color:#a78bfa;box-shadow:none;}.btn-p:hover{background:rgba(147,51,234,0.15);}
         .btn-d{background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.15);color:#63b3ed;box-shadow:none;}.btn-d:hover{background:rgba(99,179,237,0.15);}
-        .btn-g{background:rgba(160,160,160,0.08);border:1px solid rgba(160,160,160,0.15);color:#a0a0a0;box-shadow:none;}
         .fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
         .hr{border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1.25rem 0;}
         .sts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.75rem;margin-bottom:1.5rem;}
@@ -304,6 +316,7 @@ export default function LeadRadar() {
                 <div className="acts">
                   <button className="btn" onClick={() => setShowAddLead(true)}>+ Add Lead</button>
                   <label className="btn btn-d" style={{ cursor: "pointer" }}>{importing ? "Importing..." : "📁 Import CSV"}<input type="file" accept=".csv" ref={csvRef} onChange={handleCSV} style={{ display: "none" }} /></label>
+                  <button className="btn btn-s" onClick={handleSync} disabled={syncing}>{syncing ? "Syncing..." : "🔄 Sync Campaign Leads"}</button>
                   <button className="btn btn-p" onClick={handleScore} disabled={scoring || leads.length === 0}>{scoring ? "Scoring..." : `⚡ Run Scoring (${leads.length})`}</button>
                   <div style={{ marginLeft: "auto", display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
                     {["All", "Hot", "Warm", "Cold"].map(t => <button key={t} className={`fi ${filterTemp === t ? "on" : ""}`} onClick={() => setFilterTemp(t)}>{t}</button>)}
@@ -313,7 +326,7 @@ export default function LeadRadar() {
 
                 {leadsLoading ? <div style={{ textAlign: "center", padding: "2rem", color: "#3d5240" }}>Loading leads...</div> :
                   filteredLeads.length === 0 ? (
-                    <div className="sec"><div className="emp"><span className="emp-i">👥</span><div className="emp-t">{leads.length === 0 ? "No leads yet" : "No leads match filters"}</div><div className="emp-s">{leads.length === 0 ? "Add leads manually, import a CSV, or run Lead Radar scoring." : "Try adjusting your filters."}</div></div></div>
+                    <div className="sec"><div className="emp"><span className="emp-i">👥</span><div className="emp-t">{leads.length === 0 ? "No leads yet" : "No leads match filters"}</div><div className="emp-s">{leads.length === 0 ? "Add leads manually, import a CSV, sync campaign leads, or run Lead Radar scoring." : "Try adjusting your filters."}</div></div></div>
                   ) : (
                     <div className="tbw" style={{ overflowX: "auto" }}>
                       <table className="tb" style={{ minWidth: "850px" }}>

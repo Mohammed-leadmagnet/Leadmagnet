@@ -47,7 +47,7 @@ Respond ONLY in this exact JSON format, nothing else:
 
 export async function POST(request) {
   try {
-    // Verify webhook secret via query param or header
+    // Verify webhook secret
     const url = new URL(request.url);
     const secret = url.searchParams.get("secret") || request.headers.get("x-webhook-secret");
 
@@ -69,6 +69,8 @@ export async function POST(request) {
     }
 
     const leadsToInsert = [];
+    const leadCandidates = [];
+
     for (const lead of leads) {
       const leadData = {
         campaign_id: campaignId, user_id: userId, client_id: clientId,
@@ -88,11 +90,69 @@ export async function POST(request) {
       leadData.lead_score = score;
       leadData.lead_score_reason = reason;
       leadsToInsert.push(leadData);
+
+      // Also prepare for Lead Radar (lead_candidates table)
+      if (userId && clientId) {
+        leadCandidates.push({
+          user_id: userId,
+          client_id: clientId,
+          source_type: "campaign_engagement",
+          source_name: "Phantombuster webhook",
+          name: leadData.name,
+          first_name: lead.firstName || null,
+          last_name: lead.lastName || null,
+          title: lead.currentJobTitle || lead.title || null,
+          company: lead.companyName || null,
+          industry: lead.companyIndustry || null,
+          location: lead.location || null,
+          email: lead.professionalEmail || lead.email || null,
+          website: lead.websites || null,
+          linkedin_url: lead.profileUrl || lead.linkedInUrl || null,
+          company_domain: lead.companyLinkedInUrl || null,
+          status: "new",
+        });
+      }
     }
 
+    // Insert into leads table
     const { error } = await supabase.from("leads").upsert(leadsToInsert, { onConflict: "linkedin_url" });
     if (error) throw error;
 
+    // Auto-sync to Lead Radar (lead_candidates)
+    if (leadCandidates.length > 0) {
+      try {
+        // Get existing to avoid duplicates
+        const linkedinUrls = leadCandidates.map(l => l.linkedin_url).filter(Boolean);
+        const emails = leadCandidates.map(l => l.email).filter(Boolean);
+
+        let existingUrls = new Set();
+        let existingEmails = new Set();
+
+        if (linkedinUrls.length > 0) {
+          const { data: existing } = await supabase.from("lead_candidates").select("linkedin_url").eq("user_id", userId).eq("client_id", clientId).in("linkedin_url", linkedinUrls);
+          existingUrls = new Set((existing || []).map(e => e.linkedin_url?.toLowerCase()).filter(Boolean));
+        }
+
+        if (emails.length > 0) {
+          const { data: existing } = await supabase.from("lead_candidates").select("email").eq("user_id", userId).eq("client_id", clientId).in("email", emails);
+          existingEmails = new Set((existing || []).map(e => e.email?.toLowerCase()).filter(Boolean));
+        }
+
+        const newCandidates = leadCandidates.filter(l => {
+          if (l.linkedin_url && existingUrls.has(l.linkedin_url.toLowerCase())) return false;
+          if (l.email && existingEmails.has(l.email.toLowerCase())) return false;
+          return true;
+        });
+
+        if (newCandidates.length > 0) {
+          await supabase.from("lead_candidates").insert(newCandidates);
+        }
+      } catch (syncErr) {
+        console.error("Lead Radar sync error (non-fatal):", syncErr.message);
+      }
+    }
+
+    // Update campaign lead count
     if (campaignId) {
       const { count } = await supabase.from("leads").select("*", { count: "exact", head: true }).eq("campaign_id", campaignId);
       await supabase.from("campaigns").update({ leads_count: count }).eq("id", campaignId);
@@ -102,7 +162,7 @@ export async function POST(request) {
     const warm = leadsToInsert.filter(l => l.lead_score === "warm").length;
     const cold = leadsToInsert.filter(l => l.lead_score === "cold").length;
 
-    return NextResponse.json({ success: true, count: leadsToInsert.length, scores: { hot, warm, cold } });
+    return NextResponse.json({ success: true, count: leadsToInsert.length, scores: { hot, warm, cold }, leadRadarSynced: leadCandidates.length });
   } catch (error) {
     console.error("Webhook error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
