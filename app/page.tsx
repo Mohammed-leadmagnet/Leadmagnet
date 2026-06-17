@@ -6,39 +6,45 @@ export default function Home() {
 
   const faqs = [
     { q: "Do I need a credit card to start the trial?", a: "No. Your 7-day free trial starts immediately with just your email. No payment info required. At the end of the trial, you choose to subscribe or walk away — no strings attached." },
-    { q: "Is this allowed by LinkedIn?", a: "LeadMagnet is designed to support responsible lead organisation and follow-up workflows. Users are responsible for complying with LinkedIn's terms of service and for avoiding spam or unauthorised automation. We recommend conservative outreach limits and quality-first campaigns. Always review LinkedIn's guidelines before running campaigns." },
+    { q: "Is this allowed by LinkedIn?", a: "LeadMagnet is designed to support responsible lead organisation and follow-up workflows. Users are responsible for complying with LinkedIn's terms of service and for avoiding spam or unauthorised activity. We recommend conservative outreach limits and quality-first campaigns. Always review LinkedIn's guidelines before running campaigns." },
     { q: "What is a lead magnet exactly?", a: "A lead magnet is a free resource you offer in exchange for attention — a PDF guide, template, checklist, or video. You post about it on LinkedIn or Instagram and offer to send it to anyone who engages. LeadMagnet helps you organise and follow up with those engaged prospects from one dashboard." },
-    { q: "How many DMs can I send per day?", a: "We recommend conservative limits and quality-first outreach. LeadMagnet is not designed for mass spam campaigns. Start with small volumes, monitor engagement quality, and scale responsibly. Your account safety is your responsibility." },
+    { q: "How does outreach work?", a: "LeadMagnet captures engaged prospects from your campaigns and organises them in your dashboard. You can then follow up via personalised Gmail sequences with daily send limits and quality controls. We recommend conservative volumes and genuine, value-driven messages." },
     { q: "Can I connect multiple client accounts?", a: "Yes. Pro and Agency plans are built for agencies managing multiple clients. Each client has a separate workspace, campaigns, and leads — fully isolated from each other." },
-    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. Connect Gmail via secure Google OAuth. Add LinkedIn and Instagram campaign sources through guided setup. Instagram automation is currently in beta." },
+    { q: "Which platforms does LeadMagnet support?", a: "LeadMagnet supports LinkedIn, Instagram, and Gmail. Connect Gmail via secure Google OAuth. Add LinkedIn and Instagram campaign sources through guided setup. Instagram integration is currently in beta." },
     { q: "Does LeadMagnet replace a CRM?", a: "No. LeadMagnet helps you capture and organise leads from social campaigns, then export or follow up via Gmail. You can use it alongside your existing CRM." },
     { q: "How does Gmail integration work?", a: "We use Google OAuth — you connect your Gmail account securely via Google's official login. Your password is never stored. We only request permission to send emails on your behalf for follow-up sequences." },
+    { q: "What is Lead Radar?", a: "Lead Radar is a Scale-plan feature that helps agencies discover, score, and prioritise high-potential prospects. It includes ICP profile building, AI-powered scoring, recommendations, duplicate detection, and a monthly credit system. It turns your campaign data into qualified opportunities." },
   ];
 
   const features = [
     { icon: "🔗", title: "Campaign Manager", desc: "Create LinkedIn and Instagram campaigns in one click. Set your post URL and follow-up message — LeadMagnet organises engaged prospects into your dashboard automatically." },
-    { icon: "📧", title: "Gmail Sequences", desc: "Connect Gmail securely via Google OAuth. Send automated follow-up emails on day 1, 7, 14, and 30 — personalised with [Name] and [Company]. No password stored." },
-    { icon: "📊", title: "Leads Dashboard", desc: "All your prospects in one place. Search, filter, export to CSV, and archive leads. See name, company, headline, location and more at a glance." },
-    { icon: "📈", title: "Analytics", desc: "Daily leads chart, location breakdown, and campaign performance. Know exactly which campaigns are driving the most qualified prospects." },
-    { icon: "🏢", title: "Agency Client Manager", desc: "Manage multiple clients from one dashboard. Add clients, track their campaigns, set tiers, and send automated performance reports via Gmail." },
-    { icon: "📋", title: "Performance Reports", desc: "Send branded performance reports directly to clients via Gmail — automatically. Include leads, campaigns, health score, and monthly progress." },
+    { icon: "📧", title: "Gmail Sequences", desc: "Connect Gmail securely via Google OAuth. Send personalised follow-up emails on a schedule — with [Name] and [Company] variables. No password stored." },
+    { icon: "📊", title: "Leads Dashboard", desc: "All your prospects in one place. Search, filter by AI score, export to CSV, and archive leads. See name, company, headline, location and more at a glance." },
+    { icon: "🤖", title: "AI Lead Scoring", desc: "Every lead is automatically scored as Hot, Warm, or Cold based on their job title, company, industry, and engagement signals. Focus on the leads most likely to convert." },
+    { icon: "🏢", title: "Agency Client Manager", desc: "Manage multiple clients from one dashboard. Track campaigns, send automated reports, monitor client health, and give each client a branded portal." },
+    { icon: "🛰️", title: "Lead Radar", desc: "Our Scale-plan intelligence engine. Build ICP profiles, score prospects with AI, detect duplicates, and get personalised outreach recommendations for every lead." },
   ];
 
   const plans = [
     {
-      name: "Starter", price: "€49", period: "/ month", desc: "For consultants & small agencies",
-      features: ["1 workspace", "5 active campaigns", "LinkedIn automation", "Leads dashboard", "CSV export", "Basic analytics", "Email support"],
-      popular: false, cta: "Start Free Trial",
+      name: "Starter", price: "€49", period: "/ month", desc: "For consultants & freelancers",
+      features: ["1 client workspace", "5 active campaigns", "LinkedIn lead capture", "Leads dashboard", "CSV export", "Basic analytics", "Email support"],
+      popular: false, isScale: false,
     },
     {
       name: "Pro", price: "€99", period: "/ month", desc: "For growing agencies",
-      features: ["5 client workspaces", "25 active campaigns", "Everything in Starter", "Instagram automation", "Gmail sequences", "Advanced analytics", "Priority support"],
-      popular: true, cta: "Start Free Trial",
+      features: ["5 client workspaces", "25 active campaigns", "Everything in Starter", "Instagram lead capture", "Gmail follow-up sequences", "AI lead score filters", "Priority support"],
+      popular: true, isScale: false,
     },
     {
       name: "Agency", price: "€199", period: "/ month", desc: "For full-scale agencies",
-      features: ["15 client workspaces", "75 active campaigns", "Everything in Pro", "Agency client manager", "Automated client reports", "White-label dashboard", "Dedicated account manager"],
-      popular: false, cta: "Start Free Trial",
+      features: ["15 client workspaces", "Unlimited campaigns", "Everything in Pro", "Client Manager", "Automated PDF reports", "White-label client portal", "Client health alerts"],
+      popular: false, isScale: false,
+    },
+    {
+      name: "Scale", price: "€399", period: "/ month", desc: "For high-volume agencies",
+      features: ["Unlimited workspaces", "Everything in Agency", "Lead Radar", "ICP profile builder", "AI recommendations", "Lead scoring engine", "2,000 monthly credits"],
+      popular: false, isScale: true,
     },
   ];
 
@@ -51,10 +57,10 @@ export default function Home() {
 
   const howItWorks = [
     { step: "01", title: "Connect your platforms", desc: "Connect Gmail via secure Google OAuth. Add LinkedIn and Instagram campaign sources through guided setup." },
-    { step: "02", title: "Create a campaign", desc: "Add your post URL and follow-up message. Set which platform to track engagement on." },
-    { step: "03", title: "Leads are captured automatically", desc: "Engaged prospects from your campaigns appear in your leads dashboard — organised and ready." },
-    { step: "04", title: "Follow up with Gmail sequences", desc: "Set up automated follow-up emails that send on day 1, 7, 14, and 30 — personalised for each lead." },
-    { step: "05", title: "Report results to clients", desc: "Send branded performance reports directly to clients via Gmail — weekly, monthly, or on demand." },
+    { step: "02", title: "Create a campaign", desc: "Add your post URL and follow-up message. Choose which platform to track engagement on." },
+    { step: "03", title: "Leads are organised automatically", desc: "Engaged prospects from your campaigns appear in your leads dashboard — organised, scored, and ready." },
+    { step: "04", title: "Follow up with Gmail sequences", desc: "Send personalised follow-up emails that go out on a schedule — tailored for each lead with dynamic variables." },
+    { step: "05", title: "Report results to clients", desc: "Send branded performance reports directly to clients — weekly, monthly, or on demand. Show leads, scores, and ROI." },
   ];
 
   return (
@@ -62,13 +68,11 @@ export default function Home() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-          --green: #22c97a; --green-dim: rgba(34,201,122,0.1); --green-border: rgba(34,201,122,0.2);
-          --bg: #080c09; --bg2: #0b120d; --bg3: #0f1a11; --border: rgba(255,255,255,0.07);
-        }
+        :root { --green: #22c97a; --green-dim: rgba(34,201,122,0.1); --green-border: rgba(34,201,122,0.2); --bg: #080c09; --bg2: #0b120d; --bg3: #0f1a11; --border: rgba(255,255,255,0.07); }
         html { scroll-behavior: smooth; }
         .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 60px; background: rgba(8,12,9,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
-        .nav-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--green); letter-spacing: -0.02em; }
+        .nav-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--green); letter-spacing: -0.02em; text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+        .nav-logo-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px rgba(34,201,122,0.5); }
         .nav-links { display: flex; gap: 1.75rem; list-style: none; }
         .nav-links a { color: #3d5240; text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.15s; }
         .nav-links a:hover { color: #94a3b8; }
@@ -117,23 +121,28 @@ export default function Home() {
         .compliance-title { font-size: 0.835rem; font-weight: 600; color: #fbbf24; margin-bottom: 0.5rem; }
         .compliance-text { font-size: 0.815rem; color: #92752a; line-height: 1.65; }
         .pricing-surface { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.25rem; margin-top: 2.75rem; }
-        .plan-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 18px; padding: 1.875rem; position: relative; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-top: 2.75rem; }
+        .plan-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 18px; padding: 1.75rem; position: relative; display: flex; flex-direction: column; }
+        .plan-card:hover { border-color: var(--green-border); }
         .plan-card.popular { border-color: rgba(34,201,122,0.35); background: linear-gradient(135deg, rgba(34,201,122,0.04) 0%, var(--bg3) 60%); }
-        .pop-label { position: absolute; top: 1.125rem; right: 1.125rem; background: rgba(34,201,122,0.1); border: 1px solid rgba(34,201,122,0.25); color: var(--green); font-size: 0.67rem; font-weight: 700; padding: 0.2rem 0.65rem; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.08em; }
-        .plan-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.925rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.625rem; }
-        .plan-price-wrap { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.375rem; }
-        .plan-price { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.375rem; font-weight: 800; color: #e8f4ec; letter-spacing: -0.04em; }
-        .plan-period { font-size: 0.875rem; color: #2a3d2e; }
-        .plan-desc { font-size: 0.8rem; color: #2a3d2e; margin-bottom: 1.5rem; }
-        .plan-divider { border: none; border-top: 1px solid var(--border); margin-bottom: 1.25rem; }
-        .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.875rem; }
-        .plan-features li { font-size: 0.845rem; color: #3d5240; display: flex; align-items: center; gap: 0.55rem; }
-        .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
-        .plan-btn { display: block; text-align: center; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.875rem; padding: 0.75rem; border-radius: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94a3b8; width: 100%; transition: all 0.15s; }
+        .plan-card.scale { border-color: rgba(147,51,234,0.25); background: linear-gradient(135deg, rgba(147,51,234,0.04) 0%, var(--bg3) 60%); }
+        .pop-label { position: absolute; top: 1rem; right: 1rem; background: rgba(34,201,122,0.1); border: 1px solid rgba(34,201,122,0.25); color: var(--green); font-size: 0.64rem; font-weight: 700; padding: 0.175rem 0.6rem; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .scale-label { position: absolute; top: 1rem; right: 1rem; background: rgba(147,51,234,0.1); border: 1px solid rgba(147,51,234,0.25); color: #a78bfa; font-size: 0.64rem; font-weight: 700; padding: 0.175rem 0.6rem; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.08em; }
+        .plan-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9rem; font-weight: 700; color: #94a3b8; margin-bottom: 0.5rem; }
+        .plan-price-wrap { display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 0.35rem; }
+        .plan-price { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 2.25rem; font-weight: 800; color: #e8f4ec; letter-spacing: -0.04em; }
+        .plan-period { font-size: 0.82rem; color: #2a3d2e; }
+        .plan-desc { font-size: 0.78rem; color: #2a3d2e; margin-bottom: 1.25rem; }
+        .plan-divider { border: none; border-top: 1px solid var(--border); margin-bottom: 1.125rem; }
+        .plan-features { list-style: none; display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1.5rem; flex: 1; }
+        .plan-features li { font-size: 0.8rem; color: #3d5240; display: flex; align-items: flex-start; gap: 0.5rem; line-height: 1.35; }
+        .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 0.75rem; flex-shrink: 0; margin-top: 1px; }
+        .plan-card.scale .plan-features li::before { color: #a78bfa; }
+        .plan-btn { display: block; text-align: center; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.84rem; padding: 0.7rem; border-radius: 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #94a3b8; width: 100%; transition: all 0.15s; }
         .plan-btn:hover { border-color: rgba(255,255,255,0.2); color: #c4d4c8; }
         .plan-card.popular .plan-btn { background: var(--green); color: #071209; border-color: var(--green); }
         .plan-card.popular .plan-btn:hover { background: #1db36c; }
+        .plan-card.scale .plan-btn { background: linear-gradient(135deg,#a78bfa,#7c3aed); color: #fff; border-color: #a78bfa; }
         .faq-list { display: flex; flex-direction: column; margin-top: 2.75rem; }
         .faq-item { border-bottom: 1px solid var(--border); }
         .faq-q { width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #94a3b8; font-family: 'Inter', sans-serif; font-size: 0.935rem; font-weight: 500; padding: 1.25rem 0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: color 0.15s; }
@@ -149,19 +158,23 @@ export default function Home() {
         .cta-sub { color: #3d5240; font-size: 1rem; margin-bottom: 2.25rem; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
         .cta-note { font-size: 0.755rem; color: #2a3d2e; margin-top: 1rem; }
         footer { border-top: 1px solid var(--border); padding: 1.75rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #2a3d2e; flex-wrap: wrap; gap: 1rem; background: var(--bg2); }
-        .footer-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: var(--green); font-size: 0.975rem; }
+        .footer-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: var(--green); font-size: 0.975rem; display: flex; align-items: center; gap: 0.35rem; }
+        .footer-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
         .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
         .footer-links a { color: #2a3d2e; text-decoration: none; font-weight: 500; transition: color 0.15s; }
         .footer-links a:hover { color: #4d6b54; }
         .disclaimer { font-size: 0.72rem; color: #1e2b20; text-align: center; padding: 1rem 2rem; background: var(--bg2); border-top: 1px solid var(--border); line-height: 1.6; }
+        @media(max-width:1100px){.pricing-grid{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:600px){.pricing-grid{grid-template-columns:1fr;}.nav-links{display:none;}}
       `}</style>
 
       <nav className="nav">
-        <div className="nav-logo">⚡ LeadMagnet</div>
+        <a href="/" className="nav-logo"><span className="nav-logo-dot"></span> LeadMagnet</a>
         <ul className="nav-links">
           <li><a href="#features">Features</a></li>
           <li><a href="#how-it-works">How it works</a></li>
           <li><a href="#pricing">Pricing</a></li>
+          <li><a href="/blog">Blog</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
         <a href="/signup" className="nav-cta">Start Free Trial</a>
@@ -181,27 +194,16 @@ export default function Home() {
       </section>
 
       <div className="stats-bar">
-        {stats.map(s => (
-          <div className="stat-item" key={s.l}>
-            <div className="stat-n">{s.n}</div>
-            <div className="stat-l">{s.l}</div>
-          </div>
-        ))}
+        {stats.map(s => (<div className="stat-item" key={s.l}><div className="stat-n">{s.n}</div><div className="stat-l">{s.l}</div></div>))}
       </div>
 
       <section id="features">
         <div className="container">
           <div className="section-tag">Features</div>
           <h2 className="section-title">Everything your agency needs<br />to scale lead generation</h2>
-          <p className="section-sub">From campaign management to Gmail sequences — one platform handles your entire outreach pipeline.</p>
+          <p className="section-sub">From campaign management to AI lead intelligence — one platform handles your entire pipeline.</p>
           <div className="features-grid">
-            {features.map(f => (
-              <div className="feature-card" key={f.title}>
-                <div className="f-icon-wrap">{f.icon}</div>
-                <div className="f-title">{f.title}</div>
-                <div className="f-desc">{f.desc}</div>
-              </div>
-            ))}
+            {features.map(f => (<div className="feature-card" key={f.title}><div className="f-icon-wrap">{f.icon}</div><div className="f-title">{f.title}</div><div className="f-desc">{f.desc}</div></div>))}
           </div>
         </div>
       </section>
@@ -212,15 +214,7 @@ export default function Home() {
           <h2 className="section-title">How agencies use LeadMagnet</h2>
           <p className="section-sub">A simple 5-step workflow that turns social engagement into organised, followed-up leads.</p>
           <div className="steps-list">
-            {howItWorks.map(s => (
-              <div className="step-item" key={s.step}>
-                <div className="step-num">{s.step}</div>
-                <div>
-                  <div className="step-title">{s.title}</div>
-                  <div className="step-desc">{s.desc}</div>
-                </div>
-              </div>
-            ))}
+            {howItWorks.map(s => (<div className="step-item" key={s.step}><div className="step-num">{s.step}</div><div><div className="step-title">{s.title}</div><div className="step-desc">{s.desc}</div></div></div>))}
           </div>
           <div className="compliance-box">
             <div className="compliance-title">⚠️ Responsible Use Notice</div>
@@ -236,19 +230,15 @@ export default function Home() {
           <p className="section-sub">Start free for 7 days. No credit card required. Scale as your agency grows.</p>
           <div className="pricing-grid">
             {plans.map(p => (
-              <div className={`plan-card${p.popular ? " popular" : ""}`} key={p.name}>
+              <div className={`plan-card${p.popular ? " popular" : ""}${p.isScale ? " scale" : ""}`} key={p.name}>
                 {p.popular && <div className="pop-label">Most Popular</div>}
+                {p.isScale && <div className="scale-label">Premium</div>}
                 <div className="plan-name">{p.name}</div>
-                <div className="plan-price-wrap">
-                  <div className="plan-price">{p.price}</div>
-                  <div className="plan-period">{p.period}</div>
-                </div>
+                <div className="plan-price-wrap"><div className="plan-price">{p.price}</div><div className="plan-period">{p.period}</div></div>
                 <div className="plan-desc">{p.desc}</div>
                 <hr className="plan-divider" />
-                <ul className="plan-features">
-                  {p.features.map(f => <li key={f}>{f}</li>)}
-                </ul>
-                <button className="plan-btn" onClick={() => window.location.href = "/signup"}>{p.cta}</button>
+                <ul className="plan-features">{p.features.map(f => <li key={f}>{f}</li>)}</ul>
+                <button className="plan-btn" onClick={() => window.location.href = "/signup"}>Start Free Trial</button>
               </div>
             ))}
           </div>
@@ -262,13 +252,8 @@ export default function Home() {
           <div className="faq-list">
             {faqs.map((f, i) => (
               <div className="faq-item" key={i}>
-                <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)} aria-expanded={openFaq === i}>
-                  {f.q}
-                  <span className={`faq-icon${openFaq === i ? " open" : ""}`}>+</span>
-                </button>
-                <div className={`faq-a-wrap${openFaq === i ? " open" : ""}`}>
-                  <div className="faq-a">{f.a}</div>
-                </div>
+                <button className="faq-q" onClick={() => setOpenFaq(openFaq === i ? null : i)} aria-expanded={openFaq === i}>{f.q}<span className={`faq-icon${openFaq === i ? " open" : ""}`}>+</span></button>
+                <div className={`faq-a-wrap${openFaq === i ? " open" : ""}`}><div className="faq-a">{f.a}</div></div>
               </div>
             ))}
           </div>
@@ -280,18 +265,17 @@ export default function Home() {
         <div className="container">
           <h2 className="cta-title">Start turning campaign engagement<br />into qualified leads today</h2>
           <p className="cta-sub">Join agencies across Europe capturing qualified prospects from LinkedIn and Instagram — and following up responsibly via Gmail.</p>
-          <div className="btn-row">
-            <a href="/signup" className="btn-primary">Start Your Free 7-Day Trial →</a>
-          </div>
+          <div className="btn-row"><a href="/signup" className="btn-primary">Start Your Free 7-Day Trial →</a></div>
           <p className="cta-note">No credit card · Cancel anytime · Set up in under 10 minutes</p>
         </div>
       </div>
 
       <footer>
-        <div className="footer-logo">⚡ LeadMagnet</div>
+        <div className="footer-logo"><span className="footer-dot"></span> LeadMagnet</div>
         <div className="footer-links">
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
+          <a href="/blog">Blog</a>
           <a href="#faq">FAQ</a>
           <a href="/contact">Contact</a>
           <a href="/privacy">Privacy</a>
@@ -299,9 +283,7 @@ export default function Home() {
         </div>
         <div>© 2026 LeadMagnet Inc. All rights reserved.</div>
       </footer>
-      <div className="disclaimer">
-        LeadMagnet is not affiliated with, endorsed by, or officially connected to LinkedIn, Instagram, Google, or Gmail. All trademarks belong to their respective owners.
-      </div>
+      <div className="disclaimer">LeadMagnet is not affiliated with, endorsed by, or officially connected to LinkedIn, Instagram, Google, or Gmail. All trademarks belong to their respective owners.</div>
     </main>
   );
 }
