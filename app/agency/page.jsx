@@ -134,8 +134,7 @@ export default function Agency() {
   const copyPortalLink = (client, e) => {
     e.stopPropagation();
     if (!client.portal_token) { setError("No portal token — edit and re-save this client."); setTimeout(() => setError(""), 3000); return; }
-    navigator.clipboard.writeText(`https://leadmagnetinc.com/portal/${client.portal_token}`);
-    setSuccess(`Portal link copied for ${client.name}!`); setTimeout(() => setSuccess(""), 3000);
+    window.open(`https://leadmagnetinc.com/portal/${client.portal_token}`, "_blank");
   };
 
   const openEdit = (client, e) => {
