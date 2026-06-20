@@ -91,12 +91,221 @@ const plans = [
   },
 ];
 
+function Icon({ name }) {
+  const common = {
+    width: "24",
+    height: "24",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+  };
+
+  const icons = {
+    dashboard: (
+      <svg {...common}>
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+    leads: (
+      <svg {...common}>
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+    analytics: (
+      <svg {...common}>
+        <path d="M3 3v18h18" />
+        <path d="m7 14 4-4 3 3 5-7" />
+      </svg>
+    ),
+    linkedin: (
+      <svg {...common}>
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
+        <rect x="2" y="9" width="4" height="12" />
+        <circle cx="4" cy="4" r="2" />
+      </svg>
+    ),
+    instagram: (
+      <svg {...common}>
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" />
+      </svg>
+    ),
+    gmail: (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="m3 7 9 6 9-6" />
+      </svg>
+    ),
+    clients: (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h6" />
+        <path d="M7 16h8" />
+      </svg>
+    ),
+    radar: (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 3v4" />
+        <path d="M12 17v4" />
+        <path d="M3 12h4" />
+        <path d="M17 12h4" />
+        <path d="m12 12 5-5" />
+      </svg>
+    ),
+    blog: (
+      <svg {...common}>
+        <path d="M4 4h16v16H4z" />
+        <path d="M8 8h8" />
+        <path d="M8 12h8" />
+        <path d="M8 16h5" />
+      </svg>
+    ),
+    settings: (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v3" />
+        <path d="M12 19v3" />
+        <path d="M2 12h3" />
+        <path d="M19 12h3" />
+        <path d="m4.93 4.93 2.12 2.12" />
+        <path d="m16.95 16.95 2.12 2.12" />
+        <path d="m19.07 4.93-2.12 2.12" />
+        <path d="m7.05 16.95-2.12 2.12" />
+      </svg>
+    ),
+    billing: (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 10h18" />
+      </svg>
+    ),
+    support: (
+      <svg {...common}>
+        <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+      </svg>
+    ),
+  };
+
+  return icons[name];
+}
+
+function BrandLogo() {
+  return (
+    <a href="/" className="logo">
+      <span className="brand-mark" />
+      <span className="brand-name">
+        <span className="lead">lead</span>
+        <span className="magnet">magnet</span> inc
+      </span>
+    </a>
+  );
+}
+
+function Sidebar() {
+  return (
+    <aside className="sidebar">
+      <div className="side-section">
+        <div className="side-label">Main</div>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="dashboard" /></span>
+          Dashboard
+        </a>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="leads" /></span>
+          All Leads
+        </a>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="analytics" /></span>
+          Analytics
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Platforms</div>
+
+        <a className="side-item" href="/linkedin">
+          <span className="side-icon"><Icon name="linkedin" /></span>
+          LinkedIn
+        </a>
+
+        <a className="side-item" href="/instagram">
+          <span className="side-icon"><Icon name="instagram" /></span>
+          Instagram
+        </a>
+
+        <a className="side-item" href="/gmail">
+          <span className="side-icon"><Icon name="gmail" /></span>
+          Gmail
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Agency</div>
+
+        <a className="side-item" href="/agency">
+          <span className="side-icon"><Icon name="clients" /></span>
+          Client Manager
+        </a>
+
+        <a className="side-item" href="/agency/lead-radar">
+          <span className="side-icon"><Icon name="radar" /></span>
+          Lead Radar
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Resources</div>
+
+        <a className="side-item" href="/blog">
+          <span className="side-icon"><Icon name="blog" /></span>
+          Blog
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Account</div>
+
+        <a className="side-item" href="/settings">
+          <span className="side-icon"><Icon name="settings" /></span>
+          Settings
+        </a>
+
+        <a className="side-item active" href="/pricing">
+          <span className="side-icon"><Icon name="billing" /></span>
+          Billing
+        </a>
+
+        <a className="side-item" href="/contact">
+          <span className="side-icon"><Icon name="support" /></span>
+          Support
+        </a>
+      </div>
+    </aside>
+  );
+}
+
 export default function Pricing() {
   const [loading, setLoading] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     document.title = "Pricing — LeadMagnet";
+
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUser(data.user);
     });
@@ -104,17 +313,21 @@ export default function Pricing() {
 
   const handleSubscribe = async (planKey, planName) => {
     setLoading(planName);
+
     try {
       if (!user) {
         window.location.href = "/signup";
         return;
       }
+
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan: planKey, userId: user.id, email: user.email }),
       });
+
       const data = await response.json();
+
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -123,166 +336,658 @@ export default function Pricing() {
     } catch (error) {
       alert("Error: " + error.message);
     }
+
     setLoading(null);
   };
 
   return (
-    <main style={{ minHeight: "100vh", background: "#080c09", fontFamily: "'Inter', sans-serif", color: "#d1e0d6" }}>
+    <main className="page">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;}
-        .nav{background:#0b120d;border-bottom:1px solid rgba(255,255,255,0.06);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:#22c97a;text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:0.4rem;}
-        .logo-dot{width:8px;height:8px;background:#22c97a;border-radius:50%;box-shadow:0 0 10px rgba(34,201,122,0.5);}
-        .nav-links{display:flex;gap:1.5rem;align-items:center;}
-        .nav-links a{color:#3d5240;text-decoration:none;font-size:0.875rem;font-weight:500;transition:color 0.15s;}
-        .nav-links a:hover{color:#94a3b8;}
-        .nav-cta{background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;padding:0.5rem 1.1rem;border-radius:9px;text-decoration:none;font-size:0.855rem;transition:all 0.15s;}
-        .nav-cta:hover{background:#1db36c;}
-        .hero{text-align:center;padding:4.5rem 1.5rem 2rem;}
-        .section-tag{display:inline-block;font-size:0.7rem;font-weight:600;color:#22c97a;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.875rem;}
-        .hero-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(2rem,5vw,3rem);font-weight:800;color:#e8f4ec;letter-spacing:-0.03em;margin-bottom:0.875rem;line-height:1.1;}
-        .hero-sub{color:#3d5240;font-size:1rem;margin-bottom:0.375rem;}
-        .hero-note{color:#2a3d2e;font-size:0.815rem;}
-        .trial-note{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.15);color:#22c97a;font-size:0.78rem;font-weight:600;padding:0.4rem 1rem;border-radius:100px;margin-bottom:2.5rem;}
-        .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:1200px;margin:0 auto;padding:0 1.5rem 5rem;}
-        .plan{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:1.75rem;position:relative;transition:all 0.2s;display:flex;flex-direction:column;}
-        .plan:hover{border-color:rgba(34,201,122,0.15);transform:translateY(-2px);}
-        .plan.popular{border-color:rgba(34,201,122,0.35);background:linear-gradient(135deg,rgba(34,201,122,0.04) 0%,#0f1a11 60%);transform:translateY(-4px);box-shadow:0 8px 32px rgba(34,201,122,0.08);}
-        .plan.popular:hover{transform:translateY(-6px);}
-        .plan.scale-plan{border-color:rgba(147,51,234,0.25);background:linear-gradient(135deg,rgba(147,51,234,0.04) 0%,#0f1a11 60%);}
-        .plan.scale-plan:hover{border-color:rgba(147,51,234,0.4);}
-        .pop-badge{position:absolute;top:1rem;right:1rem;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.25);color:#22c97a;font-size:0.64rem;font-weight:700;padding:0.175rem 0.6rem;border-radius:100px;text-transform:uppercase;letter-spacing:0.08em;}
-        .scale-badge{position:absolute;top:1rem;right:1rem;background:rgba(147,51,234,0.1);border:1px solid rgba(147,51,234,0.25);color:#a78bfa;font-size:0.64rem;font-weight:700;padding:0.175rem 0.6rem;border-radius:100px;text-transform:uppercase;letter-spacing:0.08em;}
-        .plan-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;font-weight:700;color:#94a3b8;margin-bottom:0.5rem;}
-        .plan-price-wrap{display:flex;align-items:baseline;gap:0.25rem;margin-bottom:0.35rem;}
-        .plan-price{font-family:'Plus Jakarta Sans',sans-serif;font-size:2.25rem;font-weight:800;color:#e8f4ec;letter-spacing:-0.04em;}
-        .plan-period{font-size:0.82rem;color:#2a3d2e;}
-        .plan-desc{font-size:0.78rem;color:#2a3d2e;margin-bottom:1.25rem;line-height:1.45;}
-        .plan-divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin-bottom:1.125rem;}
-        .features{list-style:none;display:flex;flex-direction:column;gap:0.45rem;margin-bottom:1.5rem;flex:1;}
-        .features li{font-size:0.8rem;color:#3d5240;display:flex;align-items:flex-start;gap:0.5rem;line-height:1.35;}
-        .features li::before{content:'✓';color:#22c97a;font-weight:700;font-size:0.75rem;flex-shrink:0;margin-top:1px;}
-        .scale-plan .features li::before{color:#a78bfa;}
-        .features li.highlight{color:#c4d4c8;font-weight:600;}
-        .btn{width:100%;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.84rem;padding:0.7rem;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#94a3b8;cursor:pointer;transition:all 0.15s;letter-spacing:-0.01em;}
-        .btn:hover{border-color:rgba(255,255,255,0.2);color:#c4d4c8;transform:translateY(-1px);}
-        .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-        .plan.popular .btn{background:linear-gradient(135deg,#22c97a,#1aae6a);color:#071209;border-color:#22c97a;box-shadow:0 2px 8px rgba(34,201,122,0.15);}
-        .plan.popular .btn:hover{background:linear-gradient(135deg,#1db36c,#18a060);box-shadow:0 4px 16px rgba(34,201,122,0.25);}
-        .scale-plan .btn{background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border-color:#a78bfa;box-shadow:0 2px 8px rgba(147,51,234,0.15);}
-        .scale-plan .btn:hover{box-shadow:0 4px 16px rgba(147,51,234,0.25);}
-        .guarantee{text-align:center;padding:0 1.5rem 4rem;color:#2a3d2e;font-size:0.835rem;line-height:1.6;}
-        .guarantee strong{color:#4d6b54;}
-        .compare{max-width:1200px;margin:0 auto;padding:0 1.5rem 4rem;}
-        .compare-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:#f0f7f2;text-align:center;margin-bottom:2rem;}
-        .compare-grid{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:0;border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden;}
-        .compare-cell{padding:0.7rem 0.85rem;font-size:0.78rem;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;}
-        .compare-cell:last-child{border-bottom:none;}
-        .compare-header{background:rgba(0,0,0,0.3);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#c4d4c8;font-size:0.82rem;justify-content:center;text-align:center;}
-        .compare-feature{color:#4d6b54;font-family:'Inter',sans-serif;}
-        .compare-check{color:#22c97a;font-weight:700;justify-content:center;font-size:0.85rem;}
-        .compare-dash{color:#1e2e22;justify-content:center;}
-        .compare-purple{color:#a78bfa;font-weight:700;justify-content:center;font-size:0.85rem;}
-        @media(max-width:1100px){.plans{grid-template-columns:repeat(2,1fr);}.compare-grid{display:none;}}
-        @media(max-width:600px){.plans{grid-template-columns:1fr;}.nav-links a:not(.nav-cta){display:none;}}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        .page {
+          min-height: 100vh;
+          background: #FBF3E3;
+          color: #173838;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .topbar {
+          height: 72px;
+          background: rgba(255,255,255,0.94);
+          backdrop-filter: blur(18px);
+          border-bottom: 1px solid rgba(23,56,56,0.08);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 1.5rem;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          box-shadow: 0 10px 30px rgba(23,56,56,0.04);
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 0.62rem;
+          text-decoration: none;
+        }
+
+        .brand-mark {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background: conic-gradient(from -12deg,#ff7f67 0 44%,transparent 44% 51%,#8fc8c1 51% 86%,transparent 86% 100%);
+          position: relative;
+          flex: 0 0 auto;
+        }
+
+        .brand-mark:after {
+          content: "";
+          position: absolute;
+          inset: 8px;
+          border-radius: 50%;
+          background: #ffffff;
+        }
+
+        .brand-name {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.06rem;
+          font-weight: 900;
+          letter-spacing: -0.035em;
+          color: #173838;
+          line-height: 1;
+        }
+
+        .brand-name .lead { color: #ff7f67; }
+        .brand-name .magnet { color: #8fc8c1; }
+
+        .top-link {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #5f7774;
+          border-radius: 12px;
+          min-height: 40px;
+          padding: 0 1rem;
+          display: inline-flex;
+          align-items: center;
+          text-decoration: none;
+          font-size: 0.84rem;
+          font-weight: 900;
+        }
+
+        .top-link:hover {
+          color: #ff7f67;
+          border-color: rgba(255,127,103,0.28);
+          background: rgba(255,127,103,0.06);
+        }
+
+        .app-layout {
+          display: grid;
+          grid-template-columns: 230px minmax(0, 1fr);
+          min-height: calc(100vh - 72px);
+        }
+
+        .sidebar {
+          background: rgba(255,255,255,0.72);
+          border-right: 1px solid rgba(23,56,56,0.08);
+          padding: 1.2rem 0.85rem;
+        }
+
+        .side-section {
+          margin-bottom: 1.35rem;
+        }
+
+        .side-label {
+          color: #819693;
+          font-size: 0.68rem;
+          font-weight: 900;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          margin: 0 0.55rem 0.5rem;
+        }
+
+        .side-item {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          min-height: 40px;
+          border-radius: 12px;
+          padding: 0 0.7rem;
+          background: transparent;
+          border: 1px solid transparent;
+          color: #5f7774;
+          text-decoration: none;
+          cursor: pointer;
+          font-weight: 800;
+          font-size: 0.86rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .side-item:hover,
+        .side-item.active {
+          background: rgba(255,127,103,0.12);
+          color: #ff7f67;
+          border-color: rgba(255,127,103,0.22);
+        }
+
+        .side-icon {
+          width: 18px;
+          height: 18px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: currentColor;
+          flex: 0 0 auto;
+        }
+
+        .side-icon svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .content {
+          padding: 2rem;
+          overflow-x: hidden;
+        }
+
+        .content-inner {
+          max-width: 1180px;
+          margin: 0 auto;
+        }
+
+        .hero-card,
+        .plan,
+        .compare-card,
+        .guarantee-card {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
+        }
+
+        .hero-card {
+          background: linear-gradient(145deg,#ffffff,#f8fbfa);
+          border-radius: 26px;
+          padding: 1.7rem;
+          box-shadow: 0 24px 60px rgba(23,56,56,0.08);
+          margin-bottom: 1.25rem;
+        }
+
+        .page-kicker {
+          display: inline-flex;
+          align-items: center;
+          color: #ff7f67;
+          background: rgba(255,127,103,0.08);
+          border: 1px solid rgba(255,127,103,0.18);
+          padding: 0.35rem 0.75rem;
+          border-radius: 100px;
+          font-size: 0.72rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          margin-bottom: 0.9rem;
+        }
+
+        .page-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 900;
+          color: #173838;
+          letter-spacing: -0.065em;
+          line-height: 1.04;
+          margin-bottom: 0.6rem;
+        }
+
+        .page-sub {
+          font-size: 0.95rem;
+          color: #5f7774;
+          line-height: 1.65;
+          max-width: 760px;
+        }
+
+        .billing-note {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 1rem;
+          background: rgba(143,200,193,0.18);
+          border: 1px solid rgba(143,200,193,0.34);
+          color: #2f625d;
+          font-size: 0.8rem;
+          font-weight: 900;
+          padding: 0.45rem 0.85rem;
+          border-radius: 100px;
+        }
+
+        .plans {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .plan {
+          border-radius: 22px;
+          padding: 1.35rem;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          transition: all 0.18s ease;
+        }
+
+        .plan:hover {
+          transform: translateY(-2px);
+          border-color: rgba(255,127,103,0.24);
+          box-shadow: 0 22px 50px rgba(23,56,56,0.08);
+        }
+
+        .plan.popular {
+          border-color: rgba(255,127,103,0.28);
+          box-shadow: 0 22px 50px rgba(255,127,103,0.10);
+        }
+
+        .plan.scale-plan {
+          border-color: rgba(167,139,250,0.28);
+        }
+
+        .pop-badge,
+        .scale-badge {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          font-size: 0.62rem;
+          font-weight: 900;
+          padding: 0.22rem 0.55rem;
+          border-radius: 100px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .pop-badge {
+          background: rgba(255,127,103,0.10);
+          border: 1px solid rgba(255,127,103,0.20);
+          color: #ff7f67;
+        }
+
+        .scale-badge {
+          background: rgba(167,139,250,0.12);
+          border: 1px solid rgba(167,139,250,0.24);
+          color: #7c3aed;
+        }
+
+        .plan-name {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 0.5rem;
+          padding-right: 5rem;
+        }
+
+        .plan-price-wrap {
+          display: flex;
+          align-items: baseline;
+          gap: 0.25rem;
+          margin-bottom: 0.35rem;
+        }
+
+        .plan-price {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 2.3rem;
+          font-weight: 900;
+          color: #ff7f67;
+          letter-spacing: -0.06em;
+        }
+
+        .scale-plan .plan-price {
+          color: #7c3aed;
+        }
+
+        .plan-period {
+          color: #819693;
+          font-size: 0.82rem;
+          font-weight: 800;
+        }
+
+        .plan-desc {
+          font-size: 0.8rem;
+          color: #5f7774;
+          line-height: 1.5;
+          margin-bottom: 1rem;
+          min-height: 58px;
+        }
+
+        .plan-divider {
+          border: none;
+          border-top: 1px solid rgba(23,56,56,0.08);
+          margin-bottom: 1rem;
+        }
+
+        .features {
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 0.52rem;
+          margin-bottom: 1.2rem;
+          flex: 1;
+        }
+
+        .features li {
+          font-size: 0.8rem;
+          color: #5f7774;
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          line-height: 1.4;
+        }
+
+        .features li::before {
+          content: "✓";
+          color: #2f625d;
+          font-weight: 900;
+          flex-shrink: 0;
+        }
+
+        .features li.highlight {
+          color: #173838;
+          font-weight: 900;
+        }
+
+        .btn {
+          width: 100%;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 900;
+          font-size: 0.84rem;
+          padding: 0.78rem;
+          border-radius: 12px;
+          border: 1px solid rgba(23,56,56,0.10);
+          background: #ffffff;
+          color: #2f625d;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+
+        .btn:hover {
+          border-color: rgba(255,127,103,0.28);
+          color: #ff7f67;
+          transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .plan.popular .btn {
+          background: #ff7f67;
+          color: #173838;
+          border-color: #ff7f67;
+          box-shadow: 0 14px 28px rgba(255,127,103,0.22);
+        }
+
+        .scale-plan .btn {
+          background: #7c3aed;
+          color: #ffffff;
+          border-color: #7c3aed;
+          box-shadow: 0 14px 28px rgba(124,58,237,0.16);
+        }
+
+        .compare-card {
+          border-radius: 22px;
+          padding: 1.25rem;
+          margin-bottom: 1.25rem;
+          overflow: hidden;
+        }
+
+        .compare-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.2rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 1rem;
+          letter-spacing: -0.04em;
+        }
+
+        .compare-grid {
+          display: grid;
+          grid-template-columns: 2fr repeat(4, 1fr);
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 16px;
+          overflow: hidden;
+        }
+
+        .compare-cell {
+          padding: 0.72rem 0.85rem;
+          font-size: 0.78rem;
+          border-bottom: 1px solid rgba(23,56,56,0.06);
+          border-right: 1px solid rgba(23,56,56,0.06);
+          display: flex;
+          align-items: center;
+        }
+
+        .compare-header {
+          background: #FBF3E3;
+          font-weight: 900;
+          color: #173838;
+          justify-content: center;
+          text-align: center;
+        }
+
+        .compare-feature {
+          color: #5f7774;
+          font-weight: 800;
+        }
+
+        .compare-check {
+          color: #2f625d;
+          font-weight: 900;
+          justify-content: center;
+        }
+
+        .compare-purple {
+          color: #7c3aed;
+          font-weight: 900;
+          justify-content: center;
+        }
+
+        .compare-dash {
+          color: #c2cfcb;
+          justify-content: center;
+        }
+
+        .guarantee-card {
+          border-radius: 20px;
+          padding: 1rem 1.25rem;
+          color: #5f7774;
+          font-size: 0.85rem;
+          line-height: 1.6;
+          margin-bottom: 2rem;
+        }
+
+        .guarantee-card strong {
+          color: #173838;
+        }
+
+        .guarantee-card a {
+          color: #ff7f67;
+          font-weight: 900;
+          text-decoration: none;
+        }
+
+        @media(max-width: 1100px) {
+          .plans {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .compare-grid {
+            display: none;
+          }
+        }
+
+        @media(max-width: 1000px) {
+          .app-layout {
+            grid-template-columns: 1fr;
+          }
+
+          .sidebar {
+            display: flex;
+            overflow-x: auto;
+            gap: 0.8rem;
+            padding: 0.8rem;
+          }
+
+          .side-section {
+            min-width: 190px;
+            margin-bottom: 0;
+          }
+        }
+
+        @media(max-width: 650px) {
+          .content {
+            padding: 1rem;
+          }
+
+          .plans {
+            grid-template-columns: 1fr;
+          }
+
+          .topbar {
+            padding: 0 1rem;
+          }
+        }
       `}</style>
 
-      <nav className="nav">
-        <a href="/" className="logo"><span className="logo-dot"></span> LeadMagnet</a>
-        <div className="nav-links">
-          <a href="/#features">Features</a>
-          <a href="/#faq">FAQ</a>
-          <a href="/login">Log in</a>
-          <a href="/signup" className="nav-cta">Start Free Trial</a>
-        </div>
-      </nav>
+      <header className="topbar">
+        <BrandLogo />
+        <a href="/dashboard" className="top-link">Dashboard</a>
+      </header>
 
-      <div className="hero">
-        <div className="section-tag">Pricing</div>
-        <h1 className="hero-title">Simple, transparent pricing</h1>
-        <p className="hero-sub">Start free for 7 days. No credit card required.</p>
-        <p className="hero-note">Cancel anytime · Billed monthly · All prices in EUR excl. VAT</p>
-      </div>
+      <div className="app-layout">
+        <Sidebar />
 
-      <div style={{ textAlign: "center" }}>
-        <div className="trial-note">🎉 Every plan includes a 7-day free trial — no credit card needed</div>
-      </div>
-
-      <div className="plans">
-        {plans.map(plan => (
-          <div className={`plan${plan.popular ? " popular" : ""}${plan.planKey === "scale" ? " scale-plan" : ""}`} key={plan.name}>
-            {plan.popular && <div className="pop-badge">Most Popular</div>}
-            {plan.planKey === "scale" && <div className="scale-badge">Premium</div>}
-            <div className="plan-name">{plan.name}</div>
-            <div className="plan-price-wrap">
-              <div className="plan-price">{plan.price}</div>
-              <div className="plan-period">{plan.period}</div>
+        <section className="content">
+          <div className="content-inner">
+            <div className="hero-card">
+              <div className="page-kicker">Billing</div>
+              <h1 className="page-title">Choose the right plan</h1>
+              <p className="page-sub">
+                Start free for 7 days. Cancel anytime. Billing is monthly and all prices are in EUR excluding VAT.
+              </p>
+              <div className="billing-note">Secure payments by Stripe</div>
             </div>
-            <div className="plan-desc">{plan.desc}</div>
-            <hr className="plan-divider" />
-            <ul className="features">
-              {plan.features.map((f, i) => (
-                <li key={f} className={f.includes("Everything in") || f === "Lead Radar" ? "highlight" : ""}>{f}</li>
-              ))}
-            </ul>
-            <button
-              className="btn"
-              onClick={() => handleSubscribe(plan.planKey, plan.name)}
-              disabled={loading === plan.name}
-            >
-              {loading === plan.name ? "Redirecting..." : `Start ${plan.name} Trial →`}
-            </button>
-          </div>
-        ))}
-      </div>
 
-      {/* COMPARISON TABLE */}
-      <div className="compare">
-        <div className="compare-title">Compare plans</div>
-        <div className="compare-grid">
-          {/* Header */}
-          <div className="compare-cell compare-header" style={{ background: "rgba(0,0,0,0.4)" }}></div>
-          <div className="compare-cell compare-header">Starter</div>
-          <div className="compare-cell compare-header">Pro</div>
-          <div className="compare-cell compare-header" style={{ color: "#22c97a" }}>Agency</div>
-          <div className="compare-cell compare-header" style={{ color: "#a78bfa" }}>Scale</div>
+            <div className="plans">
+              {plans.map(plan => (
+                <div
+                  className={`plan${plan.popular ? " popular" : ""}${plan.planKey === "scale" ? " scale-plan" : ""}`}
+                  key={plan.name}
+                >
+                  {plan.popular && <div className="pop-badge">Popular</div>}
+                  {plan.planKey === "scale" && <div className="scale-badge">Premium</div>}
 
-          {[
-            ["Client workspaces", "1", "5", "15", "Unlimited"],
-            ["Active campaigns", "5", "25", "Unlimited", "Unlimited"],
-            ["LinkedIn lead capture", "✓", "✓", "✓", "✓"],
-            ["Instagram lead capture", "—", "✓", "✓", "✓"],
-            ["Gmail sequences", "—", "✓", "✓", "✓"],
-            ["AI lead scoring", "—", "—", "✓", "✓"],
-            ["Client Manager", "—", "—", "✓", "✓"],
-            ["Automated PDF reports", "—", "—", "✓", "✓"],
-            ["White-label client portal", "—", "—", "✓", "✓"],
-            ["Client health alerts", "—", "—", "✓", "✓"],
-            ["Revenue dashboard", "—", "—", "✓", "✓"],
-            ["One-click onboarding", "—", "—", "✓", "✓"],
-            ["Lead Radar", "—", "—", "—", "✓"],
-            ["ICP profile builder", "—", "—", "—", "✓"],
-            ["AI recommendations", "—", "—", "—", "✓"],
-            ["Duplicate detection", "—", "—", "—", "✓"],
-            ["Lead scoring engine", "—", "—", "—", "✓"],
-            ["Monthly Lead Radar credits", "—", "—", "—", "2,000"],
-          ].map(([feature, ...values]) => (
-            <React.Fragment key={feature}>
-              <div className="compare-cell compare-feature">{feature}</div>
-              {values.map((v, i) => (
-                <div key={i} className={`compare-cell ${v === "✓" ? (i === 3 ? "compare-purple" : "compare-check") : v === "—" ? "compare-dash" : "compare-check"}`}>
-                  {v}
+                  <div className="plan-name">{plan.name}</div>
+
+                  <div className="plan-price-wrap">
+                    <div className="plan-price">{plan.price}</div>
+                    <div className="plan-period">{plan.period}</div>
+                  </div>
+
+                  <div className="plan-desc">{plan.desc}</div>
+
+                  <hr className="plan-divider" />
+
+                  <ul className="features">
+                    {plan.features.map(feature => (
+                      <li
+                        key={feature}
+                        className={feature.includes("Everything in") || feature === "Lead Radar" ? "highlight" : ""}
+                      >
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    className="btn"
+                    onClick={() => handleSubscribe(plan.planKey, plan.name)}
+                    disabled={loading === plan.name}
+                  >
+                    {loading === plan.name ? "Redirecting..." : `Start ${plan.name} Trial →`}
+                  </button>
                 </div>
               ))}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
+            </div>
 
-      <div className="guarantee">
-        <strong>🔒 Secure payments by Stripe</strong> · Your payment info is never stored on our servers.<br />
-        Questions? Email us at <a href="mailto:support@leadmagnetinc.com" style={{ color: "#3d5240" }}>support@leadmagnetinc.com</a>
+            <div className="compare-card">
+              <div className="compare-title">Compare plans</div>
+
+              <div className="compare-grid">
+                <div className="compare-cell compare-header"></div>
+                <div className="compare-cell compare-header">Starter</div>
+                <div className="compare-cell compare-header">Pro</div>
+                <div className="compare-cell compare-header" style={{ color: "#ff7f67" }}>Agency</div>
+                <div className="compare-cell compare-header" style={{ color: "#7c3aed" }}>Scale</div>
+
+                {[
+                  ["Client workspaces", "1", "5", "15", "Unlimited"],
+                  ["Active campaigns", "5", "25", "Unlimited", "Unlimited"],
+                  ["LinkedIn lead capture", "✓", "✓", "✓", "✓"],
+                  ["Instagram lead capture", "—", "✓", "✓", "✓"],
+                  ["Gmail sequences", "—", "✓", "✓", "✓"],
+                  ["AI lead scoring", "—", "—", "✓", "✓"],
+                  ["Client Manager", "—", "—", "✓", "✓"],
+                  ["Automated PDF reports", "—", "—", "✓", "✓"],
+                  ["White-label client portal", "—", "—", "✓", "✓"],
+                  ["Client health alerts", "—", "—", "✓", "✓"],
+                  ["Revenue dashboard", "—", "—", "✓", "✓"],
+                  ["One-click onboarding", "—", "—", "✓", "✓"],
+                  ["Lead Radar", "—", "—", "—", "✓"],
+                  ["ICP profile builder", "—", "—", "—", "✓"],
+                  ["AI recommendations", "—", "—", "—", "✓"],
+                  ["Duplicate detection", "—", "—", "—", "✓"],
+                  ["Lead scoring engine", "—", "—", "—", "✓"],
+                  ["Monthly Lead Radar credits", "—", "—", "—", "2,000"],
+                ].map(([feature, ...values]) => (
+                  <React.Fragment key={feature}>
+                    <div className="compare-cell compare-feature">{feature}</div>
+
+                    {values.map((value, index) => (
+                      <div
+                        key={index}
+                        className={`compare-cell ${
+                          value === "✓"
+                            ? index === 3
+                              ? "compare-purple"
+                              : "compare-check"
+                            : value === "—"
+                              ? "compare-dash"
+                              : "compare-check"
+                        }`}
+                      >
+                        {value}
+                      </div>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+
+            <div className="guarantee-card">
+              <strong>Secure payments by Stripe.</strong> Your payment info is never stored on our servers.
+              <br />
+              Questions? Email us at <a href="mailto:support@leadmagnetinc.com">support@leadmagnetinc.com</a>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );

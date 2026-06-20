@@ -7,6 +7,214 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+function Icon({ name }) {
+  const common = {
+    width: "24",
+    height: "24",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+  };
+
+  const icons = {
+    dashboard: (
+      <svg {...common}>
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+    leads: (
+      <svg {...common}>
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+    analytics: (
+      <svg {...common}>
+        <path d="M3 3v18h18" />
+        <path d="m7 14 4-4 3 3 5-7" />
+      </svg>
+    ),
+    linkedin: (
+      <svg {...common}>
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
+        <rect x="2" y="9" width="4" height="12" />
+        <circle cx="4" cy="4" r="2" />
+      </svg>
+    ),
+    instagram: (
+      <svg {...common}>
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" />
+      </svg>
+    ),
+    gmail: (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="m3 7 9 6 9-6" />
+      </svg>
+    ),
+    clients: (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h6" />
+        <path d="M7 16h8" />
+      </svg>
+    ),
+    radar: (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 3v4" />
+        <path d="M12 17v4" />
+        <path d="M3 12h4" />
+        <path d="M17 12h4" />
+        <path d="m12 12 5-5" />
+      </svg>
+    ),
+    blog: (
+      <svg {...common}>
+        <path d="M4 4h16v16H4z" />
+        <path d="M8 8h8" />
+        <path d="M8 12h8" />
+        <path d="M8 16h5" />
+      </svg>
+    ),
+    settings: (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v3" />
+        <path d="M12 19v3" />
+        <path d="M2 12h3" />
+        <path d="M19 12h3" />
+        <path d="m4.93 4.93 2.12 2.12" />
+        <path d="m16.95 16.95 2.12 2.12" />
+        <path d="m19.07 4.93-2.12 2.12" />
+        <path d="m7.05 16.95-2.12 2.12" />
+      </svg>
+    ),
+    billing: (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 10h18" />
+      </svg>
+    ),
+    support: (
+      <svg {...common}>
+        <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+      </svg>
+    ),
+  };
+
+  return icons[name];
+}
+
+function BrandLogo() {
+  return (
+    <a href="/" className="logo">
+      <span className="brand-mark" />
+      <span className="brand-name">
+        <span className="lead">lead</span>
+        <span className="magnet">magnet</span> inc
+      </span>
+    </a>
+  );
+}
+
+function Sidebar() {
+  return (
+    <aside className="sidebar">
+      <div className="side-section">
+        <div className="side-label">Main</div>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="dashboard" /></span>
+          Dashboard
+        </a>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="leads" /></span>
+          All Leads
+        </a>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="analytics" /></span>
+          Analytics
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Platforms</div>
+
+        <a className="side-item" href="/linkedin">
+          <span className="side-icon"><Icon name="linkedin" /></span>
+          LinkedIn
+        </a>
+
+        <a className="side-item active" href="/instagram">
+          <span className="side-icon"><Icon name="instagram" /></span>
+          Instagram
+        </a>
+
+        <a className="side-item" href="/gmail">
+          <span className="side-icon"><Icon name="gmail" /></span>
+          Gmail
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Agency</div>
+
+        <a className="side-item" href="/agency">
+          <span className="side-icon"><Icon name="clients" /></span>
+          Client Manager
+        </a>
+
+        <a className="side-item" href="/agency/lead-radar">
+          <span className="side-icon"><Icon name="radar" /></span>
+          Lead Radar
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Resources</div>
+
+        <a className="side-item" href="/blog">
+          <span className="side-icon"><Icon name="blog" /></span>
+          Blog
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Account</div>
+
+        <a className="side-item" href="/settings">
+          <span className="side-icon"><Icon name="settings" /></span>
+          Settings
+        </a>
+
+        <a className="side-item" href="/pricing">
+          <span className="side-icon"><Icon name="billing" /></span>
+          Billing
+        </a>
+
+        <a className="side-item" href="/contact">
+          <span className="side-icon"><Icon name="support" /></span>
+          Support
+        </a>
+      </div>
+    </aside>
+  );
+}
+
 export default function Instagram() {
   const [user, setUser] = useState(null);
   const [connected, setConnected] = useState(false);
@@ -20,18 +228,24 @@ export default function Instagram() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) { window.location.href = "/login"; return; }
+      if (!data.user) {
+        window.location.href = "/login";
+        return;
+      }
+
       setUser(data.user);
       checkConnection(data.user.id);
       loadCampaigns(data.user.id);
     });
 
     const params = new URLSearchParams(window.location.search);
+
     if (params.get("connected") === "true") {
       setConnected(true);
       setSuccess("Instagram connected successfully!");
       window.history.replaceState({}, "", "/instagram");
     }
+
     if (params.get("error")) {
       setError("Connection failed: " + params.get("error"));
       window.history.replaceState({}, "", "/instagram");
@@ -44,6 +258,7 @@ export default function Instagram() {
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
+
     if (data) setConnected(true);
   };
 
@@ -53,6 +268,7 @@ export default function Instagram() {
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
+
     if (data) setCampaigns(data);
   };
 
@@ -62,7 +278,12 @@ export default function Instagram() {
 
   const handleDisconnect = async () => {
     if (!user) return;
-    await supabase.from("instagram_accounts").delete().eq("user_id", user.id);
+
+    await supabase
+      .from("instagram_accounts")
+      .delete()
+      .eq("user_id", user.id);
+
     setConnected(false);
   };
 
@@ -70,207 +291,918 @@ export default function Instagram() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
       const { data: campaign } = await supabase
         .from("instagram_campaigns")
-        .insert({ user_id: user.id, post_url: postUrl, dm_message: dmMessage, status: "Active" })
-        .select().single();
+        .insert({
+          user_id: user.id,
+          post_url: postUrl,
+          dm_message: dmMessage,
+          status: "Active",
+        })
+        .select()
+        .single();
+
       if (campaign) setCampaigns(prev => [campaign, ...prev]);
-      setPostUrl(""); setDmMessage(""); setShowNewPost(false);
+
+      setPostUrl("");
+      setDmMessage("");
+      setShowNewPost(false);
       setSuccess("Instagram automation started!");
       setTimeout(() => setSuccess(""), 5000);
     } catch (err) {
       setError("Error: " + err.message);
     }
+
     setLoading(false);
   };
 
   const toggleCampaign = async (campaign) => {
     const newStatus = campaign.status === "Active" ? "Paused" : "Active";
-    await supabase.from("instagram_campaigns").update({ status: newStatus }).eq("id", campaign.id);
-    setCampaigns(prev => prev.map(c => c.id === campaign.id ? { ...c, status: newStatus } : c));
+
+    await supabase
+      .from("instagram_campaigns")
+      .update({ status: newStatus })
+      .eq("id", campaign.id);
+
+    setCampaigns(prev =>
+      prev.map(c => c.id === campaign.id ? { ...c, status: newStatus } : c)
+    );
   };
 
   const deleteCampaign = async (id) => {
-    await supabase.from("instagram_campaigns").delete().eq("id", id);
+    await supabase
+      .from("instagram_campaigns")
+      .delete()
+      .eq("id", id);
+
     setCampaigns(prev => prev.filter(c => c.id !== id));
   };
 
   return (
-    <main style={{ minHeight: "100vh", background: "#080c09", fontFamily: "'Inter', sans-serif", color: "#d1e0d6", display: "flex", flexDirection: "column" }}>
+    <main className="page">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;}
-        .nav{background:#0b120d;border-bottom:1px solid rgba(255,255,255,0.06);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:800;color:#22c97a;text-decoration:none;letter-spacing:-0.02em;}
-        .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.835rem;padding:0.4rem 0.875rem;border-radius:8px;cursor:pointer;text-decoration:none;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .back-btn:hover{border-color:rgba(255,255,255,0.15);color:#94a3b8;}
-        .container{max-width:900px;margin:0 auto;padding:2rem 1.5rem;}
-        .page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#f0f7f2;letter-spacing:-0.03em;margin-bottom:0.25rem;}
-        .page-sub{font-size:0.855rem;color:#4d6b54;margin-bottom:2rem;}
-        .connected-bar{background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.15);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
-        .connected-dot{width:8px;height:8px;background:#22c97a;border-radius:50%;animation:pulse 2s infinite;}
-        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-        .connected-text{font-size:0.875rem;color:#22c97a;font-weight:500;}
-        .disconnect-btn{background:transparent;border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.78rem;padding:0.3rem 0.75rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .disconnect-btn:hover{background:rgba(239,68,68,0.08);}
-        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-        .section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.975rem;font-weight:700;color:#c4d4c8;}
-        .btn-primary{background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.835rem;padding:0.55rem 1.1rem;border-radius:9px;border:none;cursor:pointer;transition:all 0.15s;}
-        .btn-primary:hover{background:#1db36c;transform:translateY(-1px);}
-        .post-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:1.125rem 1.25rem;margin-bottom:0.75rem;}
-        .post-url{font-size:0.82rem;color:#22c97a;font-weight:500;word-break:break-all;margin-bottom:0.4rem;}
-        .post-msg{font-size:0.78rem;color:#3d5240;margin-bottom:0.75rem;}
-        .post-actions{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;}
-        .status-active{font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:100px;font-weight:600;background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.2);color:#22c97a;}
-        .status-paused{font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:100px;font-weight:600;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;}
-        .toggle-btn{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-size:0.78rem;padding:0.3rem 0.65rem;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
-        .toggle-btn:hover{border-color:rgba(34,201,122,0.3);color:#22c97a;}
-        .delete-btn{background:transparent;border:1px solid rgba(239,68,68,0.2);color:#f87171;font-family:'Inter',sans-serif;font-weight:500;font-size:0.78rem;padding:0.3rem 0.65rem;border-radius:7px;cursor:pointer;transition:all 0.15s;}
-        .delete-btn:hover{background:rgba(239,68,68,0.08);}
-        .empty-state{background:#0f1a11;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:3rem 2rem;text-align:center;}
-        .empty-icon{font-size:2.25rem;margin-bottom:0.875rem;display:block;}
-        .empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}
-        .empty-sub{font-size:0.835rem;color:#3d5240;margin-bottom:1.5rem;line-height:1.5;}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(4px);}
-        .modal{background:#0f1a11;border:1px solid rgba(255,255,255,0.09);border-radius:18px;padding:1.875rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
-        .modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:700;color:#f0f7f2;margin-bottom:0.3rem;letter-spacing:-0.02em;}
-        .modal-sub{font-size:0.835rem;color:#3d5240;margin-bottom:1.5rem;line-height:1.5;}
-        .form-label{display:block;font-size:0.775rem;font-weight:600;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.02em;}
-        .form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:border-color 0.15s;}
-        .form-input:focus{border-color:rgba(34,201,122,0.35);}
-        .form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:120px;transition:border-color 0.15s;}
-        .form-textarea:focus{border-color:rgba(34,201,122,0.35);}
-        .modal-btns{display:flex;gap:0.75rem;}
-        .modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.08);color:#4d6b54;font-family:'Inter',sans-serif;font-weight:500;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;}
-        .modal-submit{flex:2;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;}
-        .modal-submit:disabled{opacity:0.5;cursor:not-allowed;}
-        .success-bar{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.2);color:#22c97a;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
-        .error-bar{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1.5rem;}
-        .connect-card{background:#0f1a11;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2.5rem;max-width:520px;margin:0 auto;}
-        .connect-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#f0f7f2;margin-bottom:0.5rem;letter-spacing:-0.03em;}
-        .connect-sub{font-size:0.875rem;color:#3d5240;margin-bottom:1.75rem;line-height:1.6;}
-        .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;margin-bottom:2rem;}
-        .feature-card{background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:1rem;}
-        .feature-icon{font-size:1.25rem;margin-bottom:0.5rem;}
-        .feature-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.835rem;font-weight:700;color:#c4d4c8;margin-bottom:0.2rem;}
-        .feature-desc{font-size:0.75rem;color:#2d4a33;line-height:1.4;}
-        .instagram-btn{width:100%;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:0.925rem;padding:0.875rem;border-radius:11px;border:none;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.75rem;letter-spacing:-0.01em;}
-        .instagram-btn:hover{opacity:0.9;transform:translateY(-1px);box-shadow:0 4px 16px rgba(220,39,67,0.3);}
-        .instagram-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-        .security-note{display:flex;align-items:center;gap:0.5rem;font-size:0.775rem;color:#2a3d2e;margin-top:0.875rem;justify-content:center;}
-        .var-tag{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.18);color:#22c97a;font-size:0.72rem;padding:0.2rem 0.55rem;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;margin-right:0.375rem;}
-        .var-tag:hover{background:rgba(34,201,122,0.15);}
-        .date-text{font-size:0.72rem;color:#3d5240;}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        .page {
+          min-height: 100vh;
+          background: #FBF3E3;
+          color: #173838;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .topbar {
+          height: 72px;
+          background: rgba(255,255,255,0.94);
+          backdrop-filter: blur(18px);
+          border-bottom: 1px solid rgba(23,56,56,0.08);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 1.5rem;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          box-shadow: 0 10px 30px rgba(23,56,56,0.04);
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 0.62rem;
+          text-decoration: none;
+        }
+
+        .brand-mark {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background: conic-gradient(from -12deg,#ff7f67 0 44%,transparent 44% 51%,#8fc8c1 51% 86%,transparent 86% 100%);
+          position: relative;
+          flex: 0 0 auto;
+        }
+
+        .brand-mark:after {
+          content: "";
+          position: absolute;
+          inset: 8px;
+          border-radius: 50%;
+          background: #ffffff;
+        }
+
+        .brand-name {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.06rem;
+          font-weight: 900;
+          letter-spacing: -0.035em;
+          color: #173838;
+          line-height: 1;
+        }
+
+        .brand-name .lead {
+          color: #ff7f67;
+        }
+
+        .brand-name .magnet {
+          color: #8fc8c1;
+        }
+
+        .top-link {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #5f7774;
+          border-radius: 12px;
+          min-height: 40px;
+          padding: 0 1rem;
+          display: inline-flex;
+          align-items: center;
+          text-decoration: none;
+          font-size: 0.84rem;
+          font-weight: 900;
+        }
+
+        .top-link:hover {
+          color: #ff7f67;
+          border-color: rgba(255,127,103,0.28);
+          background: rgba(255,127,103,0.06);
+        }
+
+        .app-layout {
+          display: grid;
+          grid-template-columns: 230px minmax(0, 1fr);
+          min-height: calc(100vh - 72px);
+        }
+
+        .sidebar {
+          background: rgba(255,255,255,0.72);
+          border-right: 1px solid rgba(23,56,56,0.08);
+          padding: 1.2rem 0.85rem;
+        }
+
+        .side-section {
+          margin-bottom: 1.35rem;
+        }
+
+        .side-label {
+          color: #819693;
+          font-size: 0.68rem;
+          font-weight: 900;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          margin: 0 0.55rem 0.5rem;
+        }
+
+        .side-item {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          min-height: 40px;
+          border-radius: 12px;
+          padding: 0 0.7rem;
+          background: transparent;
+          border: 1px solid transparent;
+          color: #5f7774;
+          text-decoration: none;
+          cursor: pointer;
+          font-weight: 800;
+          font-size: 0.86rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .side-item:hover,
+        .side-item.active {
+          background: rgba(255,127,103,0.12);
+          color: #ff7f67;
+          border-color: rgba(255,127,103,0.22);
+        }
+
+        .side-icon {
+          width: 18px;
+          height: 18px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: currentColor;
+          flex: 0 0 auto;
+        }
+
+        .side-icon svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .content {
+          padding: 2rem;
+          overflow-x: hidden;
+        }
+
+        .content-inner {
+          max-width: 1180px;
+          margin: 0 auto;
+        }
+
+        .hero-card,
+        .connect-card,
+        .campaign-card,
+        .empty-state,
+        .modal {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
+        }
+
+        .hero-card {
+          background: linear-gradient(145deg,#ffffff,#f8fbfa);
+          border-radius: 26px;
+          padding: 1.7rem;
+          box-shadow: 0 24px 60px rgba(23,56,56,0.08);
+          margin-bottom: 1.25rem;
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 1.25rem;
+        }
+
+        .page-kicker {
+          display: inline-flex;
+          align-items: center;
+          color: #ff7f67;
+          background: rgba(255,127,103,0.08);
+          border: 1px solid rgba(255,127,103,0.18);
+          padding: 0.35rem 0.75rem;
+          border-radius: 100px;
+          font-size: 0.72rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          margin-bottom: 0.9rem;
+        }
+
+        .page-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 900;
+          color: #173838;
+          letter-spacing: -0.065em;
+          line-height: 1.04;
+          margin-bottom: 0.6rem;
+        }
+
+        .page-sub {
+          font-size: 0.95rem;
+          color: #5f7774;
+          line-height: 1.65;
+          max-width: 720px;
+        }
+
+        .success-bar {
+          background: rgba(143,200,193,0.18);
+          border: 1px solid rgba(143,200,193,0.36);
+          color: #2f625d;
+          font-size: 0.86rem;
+          padding: 0.85rem 1rem;
+          border-radius: 14px;
+          margin-bottom: 1rem;
+          font-weight: 800;
+        }
+
+        .error-bar {
+          background: rgba(239,68,68,0.07);
+          border: 1px solid rgba(239,68,68,0.18);
+          color: #ef4444;
+          font-size: 0.86rem;
+          padding: 0.85rem 1rem;
+          border-radius: 14px;
+          margin-bottom: 1rem;
+          font-weight: 800;
+        }
+
+        .btn {
+          background: #ff7f67;
+          color: #173838;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 900;
+          font-size: 0.84rem;
+          padding: 0.72rem 1rem;
+          border-radius: 12px;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 14px 28px rgba(255,127,103,0.22);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+        }
+
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .btn-secondary {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #2f625d;
+          box-shadow: none;
+        }
+
+        .btn-danger {
+          background: #ffffff;
+          border: 1px solid rgba(239,68,68,0.18);
+          color: #ef4444;
+          box-shadow: none;
+        }
+
+        .connect-card {
+          max-width: 660px;
+          border-radius: 24px;
+          padding: 1.7rem;
+        }
+
+        .connect-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.8rem;
+          font-weight: 900;
+          color: #173838;
+          letter-spacing: -0.055em;
+          margin-bottom: 0.55rem;
+        }
+
+        .connect-sub {
+          color: #5f7774;
+          line-height: 1.65;
+          font-size: 0.94rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .feature-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .feature-card {
+          background: #FBF3E3;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 16px;
+          padding: 1rem;
+        }
+
+        .feature-icon {
+          width: 38px;
+          height: 38px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,127,103,0.18);
+          background: rgba(255,127,103,0.08);
+          color: #ff7f67;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 0.7rem;
+        }
+
+        .feature-title {
+          font-weight: 900;
+          color: #173838;
+          font-size: 0.86rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .feature-desc {
+          color: #819693;
+          font-size: 0.76rem;
+          line-height: 1.45;
+        }
+
+        .instagram-btn {
+          width: 100%;
+          background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+          color: #ffffff;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 900;
+          font-size: 0.92rem;
+          padding: 0.9rem;
+          border-radius: 13px;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+        }
+
+        .instagram-btn:hover {
+          opacity: 0.9;
+        }
+
+        .security-note {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          color: #819693;
+          font-size: 0.78rem;
+          margin-top: 0.85rem;
+        }
+
+        .connected-bar {
+          background: rgba(143,200,193,0.18);
+          border: 1px solid rgba(143,200,193,0.36);
+          border-radius: 18px;
+          padding: 1rem 1.15rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .connected-left {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          color: #2f625d;
+          font-weight: 900;
+        }
+
+        .connected-dot {
+          width: 10px;
+          height: 10px;
+          background: #8fc8c1;
+          border-radius: 50%;
+          box-shadow: 0 0 0 6px rgba(143,200,193,0.18);
+        }
+
+        .section-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .section-title {
+          font-size: 1rem;
+          font-weight: 900;
+          color: #173838;
+        }
+
+        .campaign-card {
+          border-radius: 20px;
+          padding: 1.15rem;
+          margin-bottom: 0.85rem;
+        }
+
+        .campaign-url {
+          color: #ff7f67;
+          font-weight: 900;
+          font-size: 0.86rem;
+          word-break: break-all;
+          margin-bottom: 0.45rem;
+        }
+
+        .campaign-msg {
+          color: #5f7774;
+          font-size: 0.84rem;
+          line-height: 1.5;
+          margin-bottom: 1rem;
+        }
+
+        .campaign-actions {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+
+        .status-pill {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.32rem 0.68rem;
+          border-radius: 100px;
+          font-size: 0.72rem;
+          font-weight: 900;
+        }
+
+        .status-active {
+          background: rgba(143,200,193,0.18);
+          border: 1px solid rgba(143,200,193,0.36);
+          color: #2f625d;
+        }
+
+        .status-paused {
+          background: rgba(245,158,11,0.10);
+          border: 1px solid rgba(245,158,11,0.24);
+          color: #b45309;
+        }
+
+        .small-btn {
+          font-size: 0.76rem;
+          padding: 0.44rem 0.72rem;
+          border-radius: 10px;
+          cursor: pointer;
+          font-weight: 800;
+          border: 1px solid rgba(23,56,56,0.10);
+          background: #ffffff;
+          color: #5f7774;
+        }
+
+        .small-btn:hover {
+          border-color: rgba(255,127,103,0.28);
+          color: #ff7f67;
+        }
+
+        .date-text {
+          color: #819693;
+          font-size: 0.76rem;
+          margin-left: auto;
+        }
+
+        .empty-state {
+          border-radius: 22px;
+          padding: 3rem 2rem;
+          text-align: center;
+        }
+
+        .empty-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 16px;
+          background: rgba(255,127,103,0.10);
+          border: 1px solid rgba(255,127,103,0.18);
+          color: #ff7f67;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 1rem;
+        }
+
+        .empty-title {
+          font-size: 1rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 0.4rem;
+        }
+
+        .empty-sub {
+          font-size: 0.86rem;
+          color: #5f7774;
+          margin-bottom: 1.5rem;
+          line-height: 1.55;
+        }
+
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(23,56,56,0.30);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          padding: 1rem;
+          backdrop-filter: blur(8px);
+        }
+
+        .modal {
+          border-radius: 24px;
+          padding: 1.7rem;
+          width: 100%;
+          max-width: 560px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 30px 80px rgba(23,56,56,0.18);
+        }
+
+        .modal-title {
+          font-size: 1.5rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 0.35rem;
+          letter-spacing: -0.045em;
+        }
+
+        .modal-sub {
+          color: #5f7774;
+          font-size: 0.9rem;
+          line-height: 1.6;
+          margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 0.75rem;
+          font-weight: 900;
+          color: #2f625d;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 0.45rem;
+        }
+
+        .form-input,
+        .form-textarea {
+          width: 100%;
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.12);
+          border-radius: 13px;
+          padding: 0.85rem 1rem;
+          color: #173838;
+          font-size: 0.9rem;
+          outline: none;
+          font-family: 'Inter', sans-serif;
+          margin-bottom: 1rem;
+        }
+
+        .form-textarea {
+          resize: vertical;
+          min-height: 130px;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+          border-color: rgba(255,127,103,0.42);
+          box-shadow: 0 0 0 4px rgba(255,127,103,0.08);
+        }
+
+        .var-row {
+          display: flex;
+          gap: 0.4rem;
+          flex-wrap: wrap;
+          margin-bottom: 0.55rem;
+        }
+
+        .var-tag {
+          background: rgba(255,127,103,0.10);
+          border: 1px solid rgba(255,127,103,0.20);
+          color: #ff7f67;
+          font-size: 0.76rem;
+          padding: 0.28rem 0.62rem;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 900;
+        }
+
+        .modal-btns {
+          display: flex;
+          gap: 0.75rem;
+        }
+
+        .modal-cancel,
+        .modal-submit {
+          min-height: 42px;
+          border-radius: 12px;
+          font-weight: 900;
+          cursor: pointer;
+        }
+
+        .modal-cancel {
+          flex: 1;
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #2f625d;
+        }
+
+        .modal-submit {
+          flex: 2;
+          background: #ff7f67;
+          color: #173838;
+          border: 0;
+          box-shadow: 0 14px 28px rgba(255,127,103,0.22);
+        }
+
+        .modal-submit:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        @media(max-width: 1000px) {
+          .app-layout {
+            grid-template-columns: 1fr;
+          }
+
+          .sidebar {
+            display: flex;
+            overflow-x: auto;
+            gap: 0.8rem;
+            padding: 0.8rem;
+          }
+
+          .side-section {
+            min-width: 190px;
+            margin-bottom: 0;
+          }
+
+          .hero-card {
+            flex-direction: column;
+          }
+        }
+
+        @media(max-width: 760px) {
+          .content {
+            padding: 1rem;
+          }
+
+          .feature-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .modal-btns {
+            flex-direction: column;
+          }
+
+          .date-text {
+            margin-left: 0;
+          }
+
+          .topbar {
+            padding: 0 1rem;
+          }
+        }
       `}</style>
 
-      <nav className="nav">
-        <a href="/" className="logo">⚡ LeadMagnet</a>
-        <a href="/dashboard" className="back-btn">← Dashboard</a>
-      </nav>
+      <header className="topbar">
+        <BrandLogo />
+        <a href="/dashboard" className="top-link">Dashboard</a>
+      </header>
 
-      <div className="container">
-        {success && <div className="success-bar">✓ {success}</div>}
-        {error && <div className="error-bar">⚠ {error}</div>}
+      <div className="app-layout">
+        <Sidebar />
 
-        {!connected ? (
-          <div className="connect-card">
-            <div className="connect-title">📸 Connect Instagram</div>
-            <p className="connect-sub">Connect your Instagram account with one click via Meta. We'll redirect you to Facebook/Instagram to approve access.</p>
+        <section className="content">
+          <div className="content-inner">
+            {success && <div className="success-bar">{success}</div>}
+            {error && <div className="error-bar">{error}</div>}
 
-            <div className="feature-grid">
-              <div className="feature-card">
-                <div className="feature-icon">💬</div>
-                <div className="feature-title">Auto-DM</div>
-                <div className="feature-desc">Automatically DM everyone who comments on your posts</div>
+            <div className="hero-card">
+              <div>
+                <div className="page-kicker">Instagram</div>
+                <h1 className="page-title">Instagram Automation</h1>
+                <p className="page-sub">
+                  Connect Instagram, automate comment follow-ups, and capture warm social leads from your posts.
+                </p>
               </div>
-              <div className="feature-card">
-                <div className="feature-icon">👥</div>
-                <div className="feature-title">Lead Capture</div>
-                <div className="feature-desc">Collect commenter profiles automatically</div>
-              </div>
-              <div className="feature-card">
-                <div className="feature-icon">⚡</div>
-                <div className="feature-title">24/7 Autopilot</div>
-                <div className="feature-desc">Runs while you sleep</div>
-              </div>
+
+              {connected && (
+                <button className="btn btn-secondary" onClick={() => setShowNewPost(true)}>
+                  Add Post
+                </button>
+              )}
             </div>
 
-            <button className="instagram-btn" onClick={handleConnect} disabled={loading}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-              </svg>
-              {loading ? "Connecting..." : "Connect with Instagram"}
-            </button>
-            <div className="security-note">
-              🔒 We use official Meta OAuth. Your password is never stored.
-            </div>
-          </div>
-        ) : (
-          <>
-            <h1 className="page-title">📸 Instagram Automation</h1>
-            <p className="page-sub">Manage which posts are automated. Toggle on/off anytime.</p>
+            {!connected ? (
+              <div className="connect-card">
+                <div className="connect-title">Connect Instagram</div>
+                <p className="connect-sub">
+                  Connect your Instagram account with one click. You will be redirected to approve access.
+                  Your password is never stored.
+                </p>
 
-            <div className="connected-bar">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <div className="connected-dot"></div>
-                <div className="connected-text">Instagram connected & active</div>
-              </div>
-              <button className="disconnect-btn" onClick={handleDisconnect}>Disconnect</button>
-            </div>
+                <div className="feature-grid">
+                  <div className="feature-card">
+                    <div className="feature-icon"><Icon name="instagram" /></div>
+                    <div className="feature-title">Comment DM</div>
+                    <div className="feature-desc">Send automatic DMs to people who comment on selected posts.</div>
+                  </div>
 
-            <div className="section-header">
-              <div className="section-title">Your Automated Posts</div>
-              <button className="btn-primary" onClick={() => setShowNewPost(true)}>+ Add Post</button>
-            </div>
+                  <div className="feature-card">
+                    <div className="feature-icon"><Icon name="leads" /></div>
+                    <div className="feature-title">Lead Capture</div>
+                    <div className="feature-desc">Save Instagram prospects into your lead workspace.</div>
+                  </div>
 
-            {campaigns.length === 0 ? (
-              <div className="empty-state">
-                <span className="empty-icon">📸</span>
-                <div className="empty-title">No automated posts yet</div>
-                <div className="empty-sub">Add your first Instagram post URL to start automating DMs to everyone who comments.</div>
-                <button className="btn-primary" onClick={() => setShowNewPost(true)}>+ Add your first post</button>
-              </div>
-            ) : (
-              campaigns.map(c => (
-                <div className="post-card" key={c.id}>
-                  <div className="post-url">🔗 {c.post_url?.slice(0, 70)}...</div>
-                  <div className="post-msg">DM: "{c.dm_message?.slice(0, 70)}..."</div>
-                  <div className="post-actions">
-                    <div className={c.status === "Active" ? "status-active" : "status-paused"}>
-                      {c.status === "Active" ? "Active" : "Paused"}
-                    </div>
-                    <button className="toggle-btn" onClick={() => toggleCampaign(c)}>
-                      {c.status === "Active" ? "Pause" : "Resume"}
-                    </button>
-                    <button className="delete-btn" onClick={() => deleteCampaign(c.id)}>Delete</button>
-                    <span className="date-text">{new Date(c.created_at).toLocaleDateString()}</span>
+                  <div className="feature-card">
+                    <div className="feature-icon"><Icon name="analytics" /></div>
+                    <div className="feature-title">Campaign Control</div>
+                    <div className="feature-desc">Pause, resume, and manage campaigns whenever needed.</div>
                   </div>
                 </div>
-              ))
+
+                <button className="instagram-btn" onClick={handleConnect} disabled={loading}>
+                  <Icon name="instagram" />
+                  {loading ? "Connecting..." : "Connect with Instagram"}
+                </button>
+
+                <div className="security-note">
+                  Secure OAuth connection. No Instagram password is stored.
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="connected-bar">
+                  <div className="connected-left">
+                    <span className="connected-dot" />
+                    Instagram connected and active
+                  </div>
+
+                  <button className="btn btn-danger" onClick={handleDisconnect}>
+                    Disconnect
+                  </button>
+                </div>
+
+                <div className="section-header">
+                  <div className="section-title">Automated Posts</div>
+                  <button className="btn" onClick={() => setShowNewPost(true)}>Add Post</button>
+                </div>
+
+                {campaigns.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon"><Icon name="instagram" /></div>
+                    <div className="empty-title">No automated posts yet</div>
+                    <div className="empty-sub">
+                      Add your first Instagram post URL to start automating DMs to people who comment.
+                    </div>
+                    <button className="btn" onClick={() => setShowNewPost(true)}>Add First Post</button>
+                  </div>
+                ) : (
+                  campaigns.map(campaign => (
+                    <div className="campaign-card" key={campaign.id}>
+                      <div className="campaign-url">
+                        {campaign.post_url?.slice(0, 90)}{campaign.post_url?.length > 90 ? "..." : ""}
+                      </div>
+
+                      <div className="campaign-msg">
+                        DM: "{campaign.dm_message?.slice(0, 100)}{campaign.dm_message?.length > 100 ? "..." : ""}"
+                      </div>
+
+                      <div className="campaign-actions">
+                        <span className={`status-pill ${campaign.status === "Active" ? "status-active" : "status-paused"}`}>
+                          {campaign.status === "Active" ? "Active" : "Paused"}
+                        </span>
+
+                        <button className="small-btn" onClick={() => toggleCampaign(campaign)}>
+                          {campaign.status === "Active" ? "Pause" : "Resume"}
+                        </button>
+
+                        <button className="small-btn" onClick={() => deleteCampaign(campaign.id)}>
+                          Delete
+                        </button>
+
+                        <span className="date-text">
+                          {new Date(campaign.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </>
             )}
-          </>
-        )}
+          </div>
+        </section>
       </div>
 
       {showNewPost && (
         <div className="modal-overlay">
           <div className="modal">
-            <div className="modal-title">Automate an Instagram Post</div>
-            <div className="modal-sub">Paste your Instagram post URL and write the DM to send to everyone who comments.</div>
+            <div className="modal-title">Automate a Post</div>
+            <div className="modal-sub">
+              Paste your Instagram post URL and write the DM to send to everyone who comments.
+            </div>
+
             <form onSubmit={handleAddPost}>
               <label className="form-label">Instagram Post URL</label>
-              <input className="form-input" type="url" placeholder="https://instagram.com/p/..." value={postUrl} onChange={e => setPostUrl(e.target.value)} required />
+              <input
+                className="form-input"
+                type="url"
+                placeholder="https://instagram.com/p/..."
+                value={postUrl}
+                onChange={e => setPostUrl(e.target.value)}
+                required
+              />
+
               <label className="form-label">DM Message</label>
-              <div style={{ marginBottom: "0.5rem" }}>
+
+              <div className="var-row">
                 {["[Name]", "[Link]"].map(tag => (
-                  <span key={tag} className="var-tag" onClick={() => setDmMessage(prev => prev + tag)}>{tag}</span>
+                  <span key={tag} className="var-tag" onClick={() => setDmMessage(prev => prev + tag)}>
+                    {tag}
+                  </span>
                 ))}
               </div>
-              <textarea className="form-textarea" placeholder="Hey [Name], thanks for commenting! Here's the resource: [Link]" value={dmMessage} onChange={e => setDmMessage(e.target.value)} required />
+
+              <textarea
+                className="form-textarea"
+                placeholder="Hey [Name], thanks for commenting! Here's the link: [Link]"
+                value={dmMessage}
+                onChange={e => setDmMessage(e.target.value)}
+                required
+              />
+
               <div className="modal-btns">
-                <button type="button" className="modal-cancel" onClick={() => setShowNewPost(false)}>Cancel</button>
-                <button type="submit" className="modal-submit" disabled={loading}>{loading ? "Starting..." : "Start Automation →"}</button>
+                <button type="button" className="modal-cancel" onClick={() => setShowNewPost(false)}>
+                  Cancel
+                </button>
+
+                <button type="submit" className="modal-submit" disabled={loading}>
+                  {loading ? "Starting..." : "Start Automation →"}
+                </button>
               </div>
             </form>
           </div>

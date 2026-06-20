@@ -8,18 +8,229 @@ const supabase = createClient(
 );
 
 const TIERS = ["VIP", "Standard", "Trial", "Inactive"];
+
 const TIER_COLORS = {
-  VIP: { bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.2)", color: "#fbbf24" },
-  Standard: { bg: "rgba(34,201,122,0.08)", border: "rgba(34,201,122,0.2)", color: "#22c97a" },
-  Trial: { bg: "rgba(99,179,237,0.08)", border: "rgba(99,179,237,0.2)", color: "#63b3ed" },
-  Inactive: { bg: "rgba(160,160,160,0.08)", border: "rgba(160,160,160,0.2)", color: "#a0a0a0" },
+  VIP: { bg: "rgba(245,158,11,0.10)", border: "rgba(245,158,11,0.24)", color: "#b45309" },
+  Standard: { bg: "rgba(143,200,193,0.18)", border: "rgba(143,200,193,0.36)", color: "#2f625d" },
+  Trial: { bg: "rgba(255,127,103,0.10)", border: "rgba(255,127,103,0.22)", color: "#ff7f67" },
+  Inactive: { bg: "rgba(23,56,56,0.04)", border: "rgba(23,56,56,0.10)", color: "#819693" },
 };
+
 const PLATFORMS = ["LinkedIn", "Instagram", "Gmail"];
+
 const REPORT_FREQUENCIES = [
   { value: "weekly", label: "Weekly" },
   { value: "monthly", label: "Monthly" },
   { value: "quarterly", label: "Quarterly" },
 ];
+
+function Icon({ name }) {
+  const common = {
+    width: "24",
+    height: "24",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+  };
+
+  const icons = {
+    dashboard: (
+      <svg {...common}>
+        <rect x="3" y="3" width="7" height="7" rx="1" />
+        <rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" />
+        <rect x="14" y="14" width="7" height="7" rx="1" />
+      </svg>
+    ),
+    leads: (
+      <svg {...common}>
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
+    analytics: (
+      <svg {...common}>
+        <path d="M3 3v18h18" />
+        <path d="m7 14 4-4 3 3 5-7" />
+      </svg>
+    ),
+    linkedin: (
+      <svg {...common}>
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
+        <rect x="2" y="9" width="4" height="12" />
+        <circle cx="4" cy="4" r="2" />
+      </svg>
+    ),
+    instagram: (
+      <svg {...common}>
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" />
+      </svg>
+    ),
+    gmail: (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="m3 7 9 6 9-6" />
+      </svg>
+    ),
+    clients: (
+      <svg {...common}>
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M7 8h10" />
+        <path d="M7 12h6" />
+        <path d="M7 16h8" />
+      </svg>
+    ),
+    radar: (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 3v4" />
+        <path d="M12 17v4" />
+        <path d="M3 12h4" />
+        <path d="M17 12h4" />
+        <path d="m12 12 5-5" />
+      </svg>
+    ),
+    blog: (
+      <svg {...common}>
+        <path d="M4 4h16v16H4z" />
+        <path d="M8 8h8" />
+        <path d="M8 12h8" />
+        <path d="M8 16h5" />
+      </svg>
+    ),
+    settings: (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v3" />
+        <path d="M12 19v3" />
+        <path d="M2 12h3" />
+        <path d="M19 12h3" />
+        <path d="m4.93 4.93 2.12 2.12" />
+        <path d="m16.95 16.95 2.12 2.12" />
+        <path d="m19.07 4.93-2.12 2.12" />
+        <path d="m7.05 16.95-2.12 2.12" />
+      </svg>
+    ),
+    billing: (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 10h18" />
+      </svg>
+    ),
+    support: (
+      <svg {...common}>
+        <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+      </svg>
+    ),
+  };
+
+  return icons[name];
+}
+
+function BrandLogo() {
+  return (
+    <a href="/" className="logo">
+      <span className="brand-mark" />
+      <span className="brand-name">
+        <span className="lead">lead</span>
+        <span className="magnet">magnet</span> inc
+      </span>
+    </a>
+  );
+}
+
+function Sidebar() {
+  return (
+    <aside className="sidebar">
+      <div className="side-section">
+        <div className="side-label">Main</div>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="dashboard" /></span>
+          Dashboard
+        </a>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="leads" /></span>
+          All Leads
+        </a>
+
+        <a className="side-item" href="/dashboard">
+          <span className="side-icon"><Icon name="analytics" /></span>
+          Analytics
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Platforms</div>
+
+        <a className="side-item" href="/linkedin">
+          <span className="side-icon"><Icon name="linkedin" /></span>
+          LinkedIn
+        </a>
+
+        <a className="side-item" href="/instagram">
+          <span className="side-icon"><Icon name="instagram" /></span>
+          Instagram
+        </a>
+
+        <a className="side-item" href="/gmail">
+          <span className="side-icon"><Icon name="gmail" /></span>
+          Gmail
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Agency</div>
+
+        <a className="side-item active" href="/agency">
+          <span className="side-icon"><Icon name="clients" /></span>
+          Client Manager
+        </a>
+
+        <a className="side-item" href="/agency/lead-radar">
+          <span className="side-icon"><Icon name="radar" /></span>
+          Lead Radar
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Resources</div>
+
+        <a className="side-item" href="/blog">
+          <span className="side-icon"><Icon name="blog" /></span>
+          Blog
+        </a>
+      </div>
+
+      <div className="side-section">
+        <div className="side-label">Account</div>
+
+        <a className="side-item" href="/settings">
+          <span className="side-icon"><Icon name="settings" /></span>
+          Settings
+        </a>
+
+        <a className="side-item" href="/pricing">
+          <span className="side-icon"><Icon name="billing" /></span>
+          Billing
+        </a>
+
+        <a className="side-item" href="/contact">
+          <span className="side-icon"><Icon name="support" /></span>
+          Support
+        </a>
+      </div>
+    </aside>
+  );
+}
 
 export default function Agency() {
   const [user, setUser] = useState(null);
@@ -40,15 +251,26 @@ export default function Agency() {
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    name: "", email: "", company: "", phone: "",
-    tier: "Standard", platforms: [], mrr: "",
-    notes: "", health_score: 75,
-    auto_report: false, report_frequency: "monthly",
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+    tier: "Standard",
+    platforms: [],
+    mrr: "",
+    notes: "",
+    health_score: 75,
+    auto_report: false,
+    report_frequency: "monthly",
   });
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) { window.location.href = "/login"; return; }
+      if (!data.user) {
+        window.location.href = "/login";
+        return;
+      }
+
       setUser(data.user);
 
       const { data: sub } = await supabase
@@ -60,26 +282,58 @@ export default function Agency() {
       setSubscription(sub);
       setCheckingAccess(false);
 
-      if (sub && (sub.plan === "agency" || sub.plan === "scale") && (sub.status === "active" || sub.status === "trialing")) {
+      if (
+        sub &&
+        (sub.plan === "agency" || sub.plan === "scale") &&
+        (sub.status === "active" || sub.status === "trialing")
+      ) {
         loadClients(data.user.id);
       }
     });
   }, []);
 
-  const hasAccess = subscription && (subscription.plan === "agency" || subscription.plan === "scale") && (subscription.status === "active" || subscription.status === "trialing");
+  const hasAccess =
+    subscription &&
+    (subscription.plan === "agency" || subscription.plan === "scale") &&
+    (subscription.status === "active" || subscription.status === "trialing");
 
   const loadClients = async (userId) => {
-    const { data: clientsData } = await supabase.from("agency_clients").select("*").eq("agency_user_id", userId).order("created_at", { ascending: false });
+    const { data: clientsData } = await supabase
+      .from("agency_clients")
+      .select("*")
+      .eq("agency_user_id", userId)
+      .order("created_at", { ascending: false });
+
     if (!clientsData) return;
-    const enriched = await Promise.all(clientsData.map(async (c) => {
-      const { count: campaignsCount } = await supabase.from("campaigns").select("*", { count: "exact", head: true }).eq("client_id", c.id);
-      const { data: clientLeads } = await supabase.from("leads").select("lead_score").eq("client_id", c.id);
-      const leadsCount = clientLeads?.length || 0;
-      const hotLeads = clientLeads?.filter(l => l.lead_score === "hot").length || 0;
-      const warmLeads = clientLeads?.filter(l => l.lead_score === "warm").length || 0;
-      const coldLeads = clientLeads?.filter(l => l.lead_score === "cold").length || 0;
-      return { ...c, campaigns_count: campaignsCount || 0, leads_count: leadsCount, hot_leads: hotLeads, warm_leads: warmLeads, cold_leads: coldLeads };
-    }));
+
+    const enriched = await Promise.all(
+      clientsData.map(async (c) => {
+        const { count: campaignsCount } = await supabase
+          .from("campaigns")
+          .select("*", { count: "exact", head: true })
+          .eq("client_id", c.id);
+
+        const { data: clientLeads } = await supabase
+          .from("leads")
+          .select("lead_score")
+          .eq("client_id", c.id);
+
+        const leadsCount = clientLeads?.length || 0;
+        const hotLeads = clientLeads?.filter(l => l.lead_score === "hot").length || 0;
+        const warmLeads = clientLeads?.filter(l => l.lead_score === "warm").length || 0;
+        const coldLeads = clientLeads?.filter(l => l.lead_score === "cold").length || 0;
+
+        return {
+          ...c,
+          campaigns_count: campaignsCount || 0,
+          leads_count: leadsCount,
+          hot_leads: hotLeads,
+          warm_leads: warmLeads,
+          cold_leads: coldLeads,
+        };
+      })
+    );
+
     setClients(enriched);
   };
 
@@ -87,87 +341,224 @@ export default function Agency() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
       if (showEditClient && selectedClient) {
-        const { error: dbError } = await supabase.from("agency_clients").update({ ...form, mrr: parseFloat(form.mrr) || 0 }).eq("id", selectedClient.id);
+        const { error: dbError } = await supabase
+          .from("agency_clients")
+          .update({ ...form, mrr: parseFloat(form.mrr) || 0 })
+          .eq("id", selectedClient.id);
+
         if (dbError) throw dbError;
         setSuccess("Client updated!");
       } else {
-        const { data: client, error: dbError } = await supabase.from("agency_clients").insert({
-          agency_user_id: user.id, ...form, mrr: parseFloat(form.mrr) || 0, status: "Active", portal_token: crypto.randomUUID(),
-        }).select().single();
+        const { data: client, error: dbError } = await supabase
+          .from("agency_clients")
+          .insert({
+            agency_user_id: user.id,
+            ...form,
+            mrr: parseFloat(form.mrr) || 0,
+            status: "Active",
+            portal_token: crypto.randomUUID(),
+          })
+          .select()
+          .single();
+
         if (dbError) throw dbError;
-        if (client) setClients(prev => [{ ...client, campaigns_count: 0, leads_count: 0, hot_leads: 0, warm_leads: 0, cold_leads: 0 }, ...prev]);
+
+        if (client) {
+          setClients(prev => [
+            {
+              ...client,
+              campaigns_count: 0,
+              leads_count: 0,
+              hot_leads: 0,
+              warm_leads: 0,
+              cold_leads: 0,
+            },
+            ...prev,
+          ]);
+        }
+
         setSuccess("Client added!");
       }
-      setShowAddClient(false); setShowEditClient(false); resetForm();
+
+      setShowAddClient(false);
+      setShowEditClient(false);
+      resetForm();
+
       if (user) loadClients(user.id);
+
       setTimeout(() => setSuccess(""), 4000);
-    } catch (err) { setError("Error: " + err.message); }
+    } catch (err) {
+      setError("Error: " + err.message);
+    }
+
     setLoading(false);
   };
 
-  const resetForm = () => setForm({ name: "", email: "", company: "", phone: "", tier: "Standard", platforms: [], mrr: "", notes: "", health_score: 75, auto_report: false, report_frequency: "monthly" });
+  const resetForm = () =>
+    setForm({
+      name: "",
+      email: "",
+      company: "",
+      phone: "",
+      tier: "Standard",
+      platforms: [],
+      mrr: "",
+      notes: "",
+      health_score: 75,
+      auto_report: false,
+      report_frequency: "monthly",
+    });
 
   const handleSendReport = async (client, e) => {
-    e.stopPropagation(); setSendingReport(client.id);
+    e.stopPropagation();
+    setSendingReport(client.id);
+
     try {
-      const res = await fetch("/api/send-report", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clientId: client.id, userId: user.id }) });
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: client.id, userId: user.id }),
+      });
+
       const data = await res.json();
-      if (data.success) { setSuccess(`Report sent to ${client.email}!`); setClients(prev => prev.map(c => c.id === client.id ? { ...c, last_report_sent: new Date().toISOString() } : c)); }
-      else setError("Failed: " + (data.error || "Unknown error"));
-    } catch (err) { setError("Error: " + err.message); }
-    setSendingReport(null); setTimeout(() => { setSuccess(""); setError(""); }, 5000);
+
+      if (data.success) {
+        setSuccess(`Report sent to ${client.email}!`);
+        setClients(prev =>
+          prev.map(c =>
+            c.id === client.id
+              ? { ...c, last_report_sent: new Date().toISOString() }
+              : c
+          )
+        );
+      } else {
+        setError("Failed: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      setError("Error: " + err.message);
+    }
+
+    setSendingReport(null);
+    setTimeout(() => {
+      setSuccess("");
+      setError("");
+    }, 5000);
   };
 
   const handleOnboard = async (client, e) => {
-    e.stopPropagation(); setOnboardingClient(client.id);
+    e.stopPropagation();
+    setOnboardingClient(client.id);
+
     try {
-      const res = await fetch("/api/onboard-client", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ clientId: client.id, userId: user.id }) });
+      const res = await fetch("/api/onboard-client", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: client.id, userId: user.id }),
+      });
+
       const data = await res.json();
-      if (data.success) { setSuccess(`🎉 ${client.name} onboarded!`); if (user) loadClients(user.id); }
-      else setError("Onboarding failed: " + (data.error || "Unknown error"));
-    } catch (err) { setError("Error: " + err.message); }
-    setOnboardingClient(null); setTimeout(() => { setSuccess(""); setError(""); }, 5000);
+
+      if (data.success) {
+        setSuccess(`${client.name} onboarded!`);
+        if (user) loadClients(user.id);
+      } else {
+        setError("Onboarding failed: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      setError("Error: " + err.message);
+    }
+
+    setOnboardingClient(null);
+    setTimeout(() => {
+      setSuccess("");
+      setError("");
+    }, 5000);
   };
 
   const copyPortalLink = (client, e) => {
     e.stopPropagation();
-    if (!client.portal_token) { setError("No portal token — edit and re-save this client."); setTimeout(() => setError(""), 3000); return; }
+
+    if (!client.portal_token) {
+      setError("No portal token — edit and re-save this client.");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
     window.open(`https://leadmagnetinc.com/portal/${client.portal_token}`, "_blank");
   };
 
   const openEdit = (client, e) => {
     e.stopPropagation();
-    setForm({ name: client.name || "", email: client.email || "", company: client.company || "", phone: client.phone || "", tier: client.tier || "Standard", platforms: client.platforms || [], mrr: client.mrr || "", notes: client.notes || "", health_score: client.health_score || 75, auto_report: client.auto_report || false, report_frequency: client.report_frequency || "monthly" });
-    setSelectedClient(client); setShowEditClient(true);
+
+    setForm({
+      name: client.name || "",
+      email: client.email || "",
+      company: client.company || "",
+      phone: client.phone || "",
+      tier: client.tier || "Standard",
+      platforms: client.platforms || [],
+      mrr: client.mrr || "",
+      notes: client.notes || "",
+      health_score: client.health_score || 75,
+      auto_report: client.auto_report || false,
+      report_frequency: client.report_frequency || "monthly",
+    });
+
+    setSelectedClient(client);
+    setShowEditClient(true);
   };
 
   const deleteClient = async (id, e) => {
     e.stopPropagation();
+
     if (!confirm("Delete this client? This cannot be undone.")) return;
+
     await supabase.from("agency_clients").delete().eq("id", id);
     setClients(prev => prev.filter(c => c.id !== id));
   };
 
-  const togglePlatform = (platform) => setForm(prev => ({ ...prev, platforms: prev.platforms.includes(platform) ? prev.platforms.filter(p => p !== platform) : [...prev.platforms, platform] }));
-  const getHealthColor = (score) => score >= 75 ? "#22c97a" : score >= 40 ? "#fbbf24" : "#f87171";
+  const togglePlatform = (platform) =>
+    setForm(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(platform)
+        ? prev.platforms.filter(p => p !== platform)
+        : [...prev.platforms, platform],
+    }));
 
-  const filteredClients = clients.filter(c => filterTier === "All" || c.tier === filterTier).sort((a, b) => {
-    if (sortBy === "mrr") return (b.mrr || 0) - (a.mrr || 0);
-    if (sortBy === "leads") return (b.leads_count || 0) - (a.leads_count || 0);
-    if (sortBy === "health") return (b.health_score || 0) - (a.health_score || 0);
-    if (sortBy === "hot") return (b.hot_leads || 0) - (a.hot_leads || 0);
-    return new Date(b.created_at) - new Date(a.created_at);
-  });
+  const getHealthColor = (score) =>
+    score >= 75 ? "#2f625d" : score >= 40 ? "#b45309" : "#ef4444";
+
+  const filteredClients = clients
+    .filter(c => filterTier === "All" || c.tier === filterTier)
+    .sort((a, b) => {
+      if (sortBy === "mrr") return (b.mrr || 0) - (a.mrr || 0);
+      if (sortBy === "leads") return (b.leads_count || 0) - (a.leads_count || 0);
+      if (sortBy === "health") return (b.health_score || 0) - (a.health_score || 0);
+      if (sortBy === "hot") return (b.hot_leads || 0) - (a.hot_leads || 0);
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
 
   const totalMRR = clients.reduce((a, c) => a + (c.mrr || 0), 0);
   const totalLeads = clients.reduce((a, c) => a + (c.leads_count || 0), 0);
   const totalHot = clients.reduce((a, c) => a + (c.hot_leads || 0), 0);
   const activeClients = clients.filter(c => c.tier !== "Inactive").length;
-  const mrrByTier = {}; const clientsByTier = {};
-  TIERS.forEach(t => { mrrByTier[t] = 0; clientsByTier[t] = 0; });
-  clients.forEach(c => { const t = c.tier || "Standard"; mrrByTier[t] += (c.mrr || 0); clientsByTier[t]++; });
+
+  const mrrByTier = {};
+  const clientsByTier = {};
+  TIERS.forEach(t => {
+    mrrByTier[t] = 0;
+    clientsByTier[t] = 0;
+  });
+
+  clients.forEach(c => {
+    const t = c.tier || "Standard";
+    mrrByTier[t] += c.mrr || 0;
+    clientsByTier[t]++;
+  });
+
   const maxClientMRR = Math.max(...clients.map(c => c.mrr || 0), 1);
   const avgMRR = clients.length > 0 ? Math.round(totalMRR / clients.length) : 0;
   const annualRevenue = totalMRR * 12;
@@ -175,233 +566,1269 @@ export default function Agency() {
   const atRiskMRR = atRiskClients.reduce((a, c) => a + (c.mrr || 0), 0);
 
   return (
-    <main style={{ minHeight: "100vh", background: "#060a07", fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", color: "#d1e0d6" }}>
+    <main className="page">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;}
-        .nav{background:rgba(8,14,10,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.05);padding:0 1.75rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
-        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#22c97a;text-decoration:none;display:flex;align-items:center;gap:0.4rem;}
-        .logo-dot{width:8px;height:8px;background:#22c97a;border-radius:50%;box-shadow:0 0 10px rgba(34,201,122,0.5);}
-        .back-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.82rem;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;text-decoration:none;font-family:'Inter',sans-serif;font-weight:500;transition:all 0.2s;}
-        .back-btn:hover{border-color:rgba(34,201,122,0.25);color:#22c97a;}
-        .container{max-width:1120px;margin:0 auto;padding:2rem 1.5rem 3rem;}
-        .page-header{margin-bottom:1.25rem;}
-        .page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.6rem;font-weight:800;color:#f0f7f2;letter-spacing:-0.035em;margin-bottom:0.2rem;}
-        .page-sub{font-size:0.84rem;color:#3d5240;font-family:'Inter',sans-serif;}
-        .success-bar{background:rgba(34,201,122,0.06);border:1px solid rgba(34,201,122,0.15);color:#22c97a;font-size:0.82rem;padding:0.75rem 1rem;border-radius:11px;margin-bottom:1.5rem;font-family:'Inter',sans-serif;font-weight:500;}
-        .error-bar{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);color:#f87171;font-size:0.82rem;padding:0.75rem 1rem;border-radius:11px;margin-bottom:1.5rem;font-family:'Inter',sans-serif;}
-        .view-toggle{display:flex;gap:0.35rem;margin-bottom:1.75rem;background:rgba(12,21,16,0.6);padding:0.25rem;border-radius:10px;width:fit-content;}
-        .view-btn{background:transparent;border:none;color:#3d5240;font-size:0.82rem;padding:0.5rem 1.15rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all 0.15s;}
-        .view-btn.active{background:rgba(34,201,122,0.1);color:#22c97a;}
-        .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:2rem;}
-        .stat-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.15rem 1.25rem;transition:border-color 0.2s;}
-        .stat-card:hover{border-color:rgba(34,201,122,0.12);}
-        .stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;color:#22c97a;letter-spacing:-0.04em;line-height:1;}
-        .stat-lbl{font-size:0.68rem;color:#3d5240;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',sans-serif;font-weight:600;}
-        .controls{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:1.5rem;}
-        .filter-btn{background:transparent;border:1px solid rgba(255,255,255,0.05);color:#2a3d2e;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:100px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all 0.15s;}
-        .filter-btn.active{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.2);color:#22c97a;}
-        .sort-select{background:rgba(12,21,16,0.8);border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;outline:none;}
-        .add-btn{background:linear-gradient(135deg,#22c97a,#1aae6a);color:#071209;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.82rem;padding:0.55rem 1.15rem;border-radius:9px;border:none;cursor:pointer;margin-left:auto;transition:all 0.2s;box-shadow:0 2px 8px rgba(34,201,122,0.15);}
-        .add-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,201,122,0.25);}
-        .client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:0.875rem;}
-        .client-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:1.5rem;transition:all 0.2s;position:relative;cursor:pointer;}
-        .client-card:hover{border-color:rgba(34,201,122,0.12);transform:translateY(-1px);}
-        .mrr-badge{position:absolute;top:1.25rem;right:1.25rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:800;color:#22c97a;}
-        .card-top{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;}
-        .client-avatar{width:40px;height:40px;background:linear-gradient(135deg,rgba(34,201,122,0.12),rgba(34,201,122,0.04));border:1px solid rgba(34,201,122,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#22c97a;font-size:0.95rem;}
-        .card-top-info{flex:1;min-width:0;}
-        .client-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#e2ede7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .client-company{font-size:0.75rem;color:#3d5240;font-family:'Inter',sans-serif;}
-        .tier-badge{font-size:0.65rem;font-weight:700;padding:0.175rem 0.55rem;border-radius:100px;font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;}
-        .client-email-row{font-size:0.72rem;color:#2a3d2e;margin-bottom:1rem;font-family:'Inter',sans-serif;}
-        .health-wrap{margin-bottom:1rem;}.health-top{display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:0.3rem;font-family:'Inter',sans-serif;}.health-lbl{color:#2a3d2e;font-weight:500;}.health-bar{height:4px;background:rgba(255,255,255,0.04);border-radius:100px;overflow:hidden;}.health-fill{height:100%;border-radius:100px;transition:width 0.4s;}
-        .score-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:1rem;}.score-box{background:#080c09;border:1px solid rgba(255,255,255,0.03);border-radius:9px;padding:0.55rem 0.4rem;text-align:center;}.score-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;line-height:1;}.score-lbl{font-size:0.58rem;color:#2a3d2e;text-transform:uppercase;letter-spacing:0.08em;margin-top:0.2rem;font-family:'Inter',sans-serif;font-weight:600;}
-        .platforms-row{display:flex;gap:0.3rem;margin-bottom:0.75rem;flex-wrap:wrap;}.platform-tag{font-size:0.66rem;padding:0.15rem 0.45rem;border-radius:5px;background:rgba(34,201,122,0.04);border:1px solid rgba(34,201,122,0.1);color:#3d5240;font-family:'Inter',sans-serif;}
-        .auto-row{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;}.auto-tag{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.65rem;font-weight:600;padding:0.15rem 0.5rem;border-radius:5px;font-family:'Inter',sans-serif;}.auto-tag.report{background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.15);color:#63b3ed;}.auto-tag.routing{background:rgba(147,51,234,0.06);border:1px solid rgba(147,51,234,0.15);color:#a78bfa;}
-        .last-report{font-size:0.65rem;color:#1e2e22;font-family:'Inter',sans-serif;margin-bottom:0.5rem;}
-        .card-actions{display:flex;gap:0.35rem;margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.03);}
-        .act-btn{flex:1;font-size:0.7rem;padding:0.425rem;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;text-align:center;transition:all 0.15s;border:none;}
-        .act-onboard{background:rgba(147,51,234,0.08);border:1px solid rgba(147,51,234,0.15);color:#a78bfa;}.act-onboard:hover{background:rgba(147,51,234,0.15);}.act-onboard:disabled{opacity:0.4;cursor:not-allowed;}
-        .act-portal{background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.15);color:#63b3ed;}.act-portal:hover{background:rgba(99,179,237,0.15);}
-        .act-report{background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.15);color:#22c97a;}.act-report:hover{background:rgba(34,201,122,0.15);}.act-report:disabled{opacity:0.4;cursor:not-allowed;}
-        .act-edit{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;}.act-edit:hover{border-color:rgba(34,201,122,0.2);color:#22c97a;}
-        .act-del{background:transparent;border:1px solid rgba(239,68,68,0.1);color:#f87171;flex:0.4;}.act-del:hover{background:rgba(239,68,68,0.05);}
-        .expanded-section{margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.04);}.expanded-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:700;color:#8fa696;margin-bottom:0.75rem;}.notes-box{background:#080c09;border:1px solid rgba(255,255,255,0.03);border-radius:8px;padding:0.65rem 0.75rem;font-size:0.78rem;color:#3d5240;line-height:1.5;font-family:'Inter',sans-serif;}
-        .empty-state{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:3.5rem 2rem;text-align:center;}.empty-icon{font-size:2.5rem;margin-bottom:1rem;display:block;}.empty-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:#c4d4c8;margin-bottom:0.4rem;}.empty-sub{font-size:0.84rem;color:#3d5240;margin-bottom:1.75rem;line-height:1.55;font-family:'Inter',sans-serif;}
-        .rev-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:2rem;}.rev-card{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.25rem;}.rev-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.85rem;font-weight:800;letter-spacing:-0.04em;line-height:1;}.rev-lbl{font-size:0.68rem;color:#3d5240;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.08em;font-family:'Inter',sans-serif;font-weight:600;}.rev-sub{font-size:0.7rem;color:#1e2e22;margin-top:0.15rem;font-family:'Inter',sans-serif;}
-        .rev-section{background:linear-gradient(145deg,#0c1510,#0a120d);border:1px solid rgba(255,255,255,0.04);border-radius:14px;padding:1.5rem;margin-bottom:1rem;}.rev-section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#c4d4c8;margin-bottom:1.25rem;}
-        .rev-client-row{display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}.rev-client-row:last-child{border-bottom:none;}.rev-client-avatar{width:32px;height:32px;background:linear-gradient(135deg,rgba(34,201,122,0.1),rgba(34,201,122,0.03));border:1px solid rgba(34,201,122,0.12);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#22c97a;font-size:0.8rem;flex-shrink:0;}.rev-client-info{flex:1;min-width:0;}.rev-client-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.84rem;font-weight:700;color:#e2ede7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.rev-client-tier{font-size:0.68rem;color:#3d5240;font-family:'Inter',sans-serif;}.rev-client-bar-wrap{flex:2;height:6px;background:rgba(255,255,255,0.03);border-radius:100px;overflow:hidden;}.rev-client-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,#22c97a,#0d9456);}.rev-client-mrr{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:800;color:#22c97a;min-width:70px;text-align:right;}
-        .tier-row{display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid rgba(255,255,255,0.03);}.tier-row:last-child{border-bottom:none;}.tier-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}.tier-name{font-size:0.84rem;color:#c4d4c8;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;min-width:80px;}.tier-clients{font-size:0.75rem;color:#3d5240;font-family:'Inter',sans-serif;min-width:60px;}.tier-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.03);border-radius:100px;overflow:hidden;}.tier-bar{height:100%;border-radius:100px;}.tier-mrr{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:800;color:#22c97a;min-width:70px;text-align:right;}
-        .risk-card{background:#080c09;border:1px solid rgba(239,68,68,0.1);border-radius:10px;padding:0.875rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;justify-content:space-between;}.risk-info{display:flex;align-items:center;gap:0.6rem;}.risk-avatar{width:30px;height:30px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;color:#f87171;font-size:0.75rem;}.risk-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.84rem;font-weight:700;color:#e2ede7;}.risk-reason{font-size:0.7rem;color:#f87171;font-family:'Inter',sans-serif;}.risk-mrr{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:800;color:#f87171;}
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;z-index:100;padding:1rem;backdrop-filter:blur(8px);}.modal{background:#0c1510;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2rem;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,0.4);}.modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:800;color:#f0f7f2;margin-bottom:0.25rem;}.modal-sub{font-size:0.82rem;color:#3d5240;margin-bottom:1.75rem;font-family:'Inter',sans-serif;}
-        .form-label{display:block;font-size:0.72rem;font-weight:700;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.03em;text-transform:uppercase;font-family:'Inter',sans-serif;}.form-input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;transition:all 0.2s;}.form-input:focus{border-color:rgba(34,201,122,0.3);box-shadow:0 0 0 3px rgba(34,201,122,0.05);}.form-select{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;}.form-textarea{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;font-family:'Inter',sans-serif;margin-bottom:1rem;resize:vertical;min-height:80px;}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}.divider{border:none;border-top:1px solid rgba(255,255,255,0.04);margin:1rem 0;}
-        .platforms-select{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;}.platform-toggle{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}.platform-toggle.selected{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.25);color:#22c97a;font-weight:600;}
-        .health-input{width:100%;accent-color:#22c97a;margin-bottom:1rem;}
-        .toggle-row{display:flex;align-items:center;justify-content:space-between;background:#080c09;border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;}.toggle-label{font-size:0.82rem;color:#c4d4c8;font-family:'Inter',sans-serif;}.toggle-sub{font-size:0.7rem;color:#2a3d2e;margin-top:2px;font-family:'Inter',sans-serif;}.toggle-switch{width:40px;height:22px;background:rgba(255,255,255,0.06);border-radius:100px;position:relative;cursor:pointer;transition:background 0.2s;border:none;}.toggle-switch.on{background:#22c97a;}.toggle-knob{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:left 0.2s;}.toggle-switch.on .toggle-knob{left:21px;}
-        .freq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1rem;}.freq-btn{background:#080c09;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-size:0.78rem;padding:0.6rem;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;text-align:center;transition:all 0.15s;}.freq-btn.selected{background:rgba(34,201,122,0.08);border-color:rgba(34,201,122,0.25);color:#22c97a;font-weight:600;}
-        .modal-btns{display:flex;gap:0.75rem;margin-top:0.5rem;}.modal-cancel{flex:1;background:transparent;border:1px solid rgba(255,255,255,0.06);color:#4d6b54;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:0.875rem;padding:0.75rem;border-radius:10px;cursor:pointer;}.modal-submit{flex:2;background:linear-gradient(135deg,#22c97a,#1aae6a);color:#071209;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.875rem;padding:0.75rem;border-radius:10px;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(34,201,122,0.15);}.modal-submit:disabled{opacity:0.4;cursor:not-allowed;}
-        @media(max-width:900px){.stats-row,.rev-stats{grid-template-columns:repeat(2,1fr);}.client-grid{grid-template-columns:1fr;}}
-        @media(max-width:600px){.container{padding:1.5rem 1rem;}.form-row{grid-template-columns:1fr;}}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        .page {
+          min-height: 100vh;
+          background: #FBF3E3;
+          color: #173838;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .topbar {
+          height: 72px;
+          background: rgba(255,255,255,0.94);
+          backdrop-filter: blur(18px);
+          border-bottom: 1px solid rgba(23,56,56,0.08);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 1.5rem;
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          box-shadow: 0 10px 30px rgba(23,56,56,0.04);
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 0.62rem;
+          text-decoration: none;
+        }
+
+        .brand-mark {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background: conic-gradient(from -12deg,#ff7f67 0 44%,transparent 44% 51%,#8fc8c1 51% 86%,transparent 86% 100%);
+          position: relative;
+          flex: 0 0 auto;
+        }
+
+        .brand-mark:after {
+          content: "";
+          position: absolute;
+          inset: 8px;
+          border-radius: 50%;
+          background: #ffffff;
+        }
+
+        .brand-name {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.06rem;
+          font-weight: 900;
+          letter-spacing: -0.035em;
+          color: #173838;
+          line-height: 1;
+        }
+
+        .brand-name .lead {
+          color: #ff7f67;
+        }
+
+        .brand-name .magnet {
+          color: #8fc8c1;
+        }
+
+        .top-link {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #5f7774;
+          border-radius: 12px;
+          min-height: 40px;
+          padding: 0 1rem;
+          display: inline-flex;
+          align-items: center;
+          text-decoration: none;
+          font-size: 0.84rem;
+          font-weight: 900;
+        }
+
+        .top-link:hover {
+          color: #ff7f67;
+          border-color: rgba(255,127,103,0.28);
+          background: rgba(255,127,103,0.06);
+        }
+
+        .app-layout {
+          display: grid;
+          grid-template-columns: 230px minmax(0, 1fr);
+          min-height: calc(100vh - 72px);
+        }
+
+        .sidebar {
+          background: rgba(255,255,255,0.72);
+          border-right: 1px solid rgba(23,56,56,0.08);
+          padding: 1.2rem 0.85rem;
+        }
+
+        .side-section {
+          margin-bottom: 1.35rem;
+        }
+
+        .side-label {
+          color: #819693;
+          font-size: 0.68rem;
+          font-weight: 900;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          margin: 0 0.55rem 0.5rem;
+        }
+
+        .side-item {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          min-height: 40px;
+          border-radius: 12px;
+          padding: 0 0.7rem;
+          background: transparent;
+          border: 1px solid transparent;
+          color: #5f7774;
+          text-decoration: none;
+          cursor: pointer;
+          font-weight: 800;
+          font-size: 0.86rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .side-item:hover,
+        .side-item.active {
+          background: rgba(255,127,103,0.12);
+          color: #ff7f67;
+          border-color: rgba(255,127,103,0.22);
+        }
+
+        .side-icon {
+          width: 18px;
+          height: 18px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: currentColor;
+          flex: 0 0 auto;
+        }
+
+        .side-icon svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .content {
+          padding: 2rem;
+          overflow-x: hidden;
+        }
+
+        .content-inner {
+          max-width: 1180px;
+          margin: 0 auto;
+        }
+
+        .access-card,
+        .page-header,
+        .client-card,
+        .stat-card,
+        .rev-card,
+        .rev-section,
+        .empty-state {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
+        }
+
+        .access-card,
+        .page-header {
+          background: linear-gradient(145deg,#ffffff,#f8fbfa);
+          border-radius: 26px;
+          padding: 1.7rem;
+          box-shadow: 0 24px 60px rgba(23,56,56,0.08);
+          margin-bottom: 1.25rem;
+        }
+
+        .access-card {
+          max-width: 720px;
+        }
+
+        .page-title {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: clamp(2rem, 4vw, 3rem);
+          font-weight: 900;
+          color: #173838;
+          letter-spacing: -0.065em;
+          line-height: 1.04;
+          margin-bottom: 0.6rem;
+        }
+
+        .page-sub {
+          font-size: 0.95rem;
+          color: #5f7774;
+          line-height: 1.65;
+        }
+
+        .success-bar {
+          background: rgba(143,200,193,0.18);
+          border: 1px solid rgba(143,200,193,0.36);
+          color: #2f625d;
+          font-size: 0.86rem;
+          padding: 0.85rem 1rem;
+          border-radius: 14px;
+          margin-bottom: 1rem;
+          font-weight: 800;
+        }
+
+        .error-bar {
+          background: rgba(239,68,68,0.07);
+          border: 1px solid rgba(239,68,68,0.18);
+          color: #ef4444;
+          font-size: 0.86rem;
+          padding: 0.85rem 1rem;
+          border-radius: 14px;
+          margin-bottom: 1rem;
+          font-weight: 800;
+        }
+
+        .view-toggle {
+          display: flex;
+          gap: 0.35rem;
+          margin-bottom: 1.25rem;
+          background: #ffffff;
+          padding: 0.3rem;
+          border-radius: 14px;
+          width: fit-content;
+          border: 1px solid rgba(23,56,56,0.08);
+          box-shadow: 0 12px 28px rgba(23,56,56,0.04);
+        }
+
+        .view-btn {
+          background: transparent;
+          border: none;
+          color: #5f7774;
+          font-size: 0.84rem;
+          padding: 0.58rem 1.15rem;
+          border-radius: 10px;
+          cursor: pointer;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-weight: 800;
+        }
+
+        .view-btn.active {
+          background: rgba(255,127,103,0.10);
+          color: #ff7f67;
+        }
+
+        .stats-row {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .rev-stats {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+        }
+
+        .stat-card,
+        .rev-card {
+          border-radius: 20px;
+          padding: 1.15rem;
+        }
+
+        .stat-val,
+        .rev-val {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 2rem;
+          font-weight: 900;
+          color: #ff7f67;
+          letter-spacing: -0.06em;
+          line-height: 1;
+        }
+
+        .stat-lbl,
+        .rev-lbl {
+          font-size: 0.72rem;
+          color: #819693;
+          margin-top: 0.35rem;
+          text-transform: uppercase;
+          letter-spacing: 0.07em;
+          font-weight: 900;
+        }
+
+        .rev-sub {
+          font-size: 0.74rem;
+          color: #819693;
+          margin-top: 0.2rem;
+        }
+
+        .controls {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+          flex-wrap: wrap;
+          margin-bottom: 1.25rem;
+        }
+
+        .filter-btn,
+        .sort-select,
+        .add-btn,
+        .act-btn,
+        .modal-cancel,
+        .modal-submit,
+        .freq-btn {
+          border-radius: 12px;
+          font-family: 'Inter', sans-serif;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .filter-btn {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #5f7774;
+          font-size: 0.8rem;
+          padding: 0.48rem 0.85rem;
+        }
+
+        .filter-btn.active {
+          background: rgba(255,127,103,0.10);
+          border-color: rgba(255,127,103,0.28);
+          color: #ff7f67;
+        }
+
+        .sort-select {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #5f7774;
+          font-size: 0.8rem;
+          padding: 0.48rem 0.85rem;
+          outline: none;
+        }
+
+        .add-btn,
+        .modal-submit {
+          background: #ff7f67;
+          color: #173838;
+          border: none;
+          box-shadow: 0 14px 28px rgba(255,127,103,0.22);
+        }
+
+        .add-btn {
+          font-size: 0.84rem;
+          padding: 0.65rem 1rem;
+          margin-left: auto;
+        }
+
+        .client-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+          gap: 1rem;
+        }
+
+        .client-card {
+          border-radius: 20px;
+          padding: 1.15rem;
+          position: relative;
+          cursor: pointer;
+          transition: 0.15s ease;
+        }
+
+        .client-card:hover {
+          transform: translateY(-1px);
+          border-color: rgba(255,127,103,0.24);
+        }
+
+        .mrr-badge {
+          position: absolute;
+          top: 1.25rem;
+          right: 1.25rem;
+          font-size: 0.86rem;
+          font-weight: 900;
+          color: #ff7f67;
+        }
+
+        .card-top {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+          padding-right: 4rem;
+        }
+
+        .client-avatar,
+        .rev-client-avatar {
+          width: 42px;
+          height: 42px;
+          background: rgba(255,127,103,0.10);
+          border: 1px solid rgba(255,127,103,0.18);
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 900;
+          color: #ff7f67;
+        }
+
+        .card-top-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .client-name,
+        .rev-client-name {
+          font-size: 0.98rem;
+          font-weight: 900;
+          color: #173838;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .client-company,
+        .client-email-row,
+        .rev-client-tier,
+        .last-report {
+          font-size: 0.78rem;
+          color: #819693;
+        }
+
+        .tier-badge {
+          font-size: 0.7rem;
+          font-weight: 900;
+          padding: 0.22rem 0.6rem;
+          border-radius: 100px;
+        }
+
+        .health-wrap {
+          margin-bottom: 1rem;
+        }
+
+        .health-top {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.72rem;
+          margin-bottom: 0.35rem;
+        }
+
+        .health-lbl {
+          color: #819693;
+          font-weight: 800;
+        }
+
+        .health-bar {
+          height: 6px;
+          background: #FBF3E3;
+          border-radius: 100px;
+          overflow: hidden;
+        }
+
+        .health-fill {
+          height: 100%;
+          border-radius: 100px;
+        }
+
+        .score-row {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .score-box {
+          background: #FBF3E3;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 12px;
+          padding: 0.65rem 0.4rem;
+          text-align: center;
+        }
+
+        .score-val {
+          font-size: 1rem;
+          font-weight: 900;
+        }
+
+        .score-lbl {
+          font-size: 0.6rem;
+          color: #819693;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-top: 0.2rem;
+          font-weight: 900;
+        }
+
+        .platforms-row,
+        .auto-row,
+        .card-actions {
+          display: flex;
+          gap: 0.4rem;
+          flex-wrap: wrap;
+        }
+
+        .platform-tag,
+        .auto-tag {
+          font-size: 0.7rem;
+          padding: 0.22rem 0.52rem;
+          border-radius: 8px;
+          background: rgba(143,200,193,0.18);
+          border: 1px solid rgba(143,200,193,0.34);
+          color: #2f625d;
+          font-weight: 800;
+        }
+
+        .auto-tag.report {
+          background: rgba(255,127,103,0.10);
+          border-color: rgba(255,127,103,0.20);
+          color: #ff7f67;
+        }
+
+        .auto-tag.routing {
+          background: rgba(143,200,193,0.18);
+          border-color: rgba(143,200,193,0.34);
+          color: #2f625d;
+        }
+
+        .card-actions {
+          margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid rgba(23,56,56,0.08);
+        }
+
+        .act-btn {
+          flex: 1;
+          font-size: 0.72rem;
+          padding: 0.5rem;
+          border: 1px solid rgba(23,56,56,0.10);
+          background: #ffffff;
+          color: #5f7774;
+        }
+
+        .act-onboard,
+        .act-report {
+          color: #2f625d;
+          background: rgba(143,200,193,0.18);
+          border-color: rgba(143,200,193,0.34);
+        }
+
+        .act-portal {
+          color: #ff7f67;
+          background: rgba(255,127,103,0.10);
+          border-color: rgba(255,127,103,0.20);
+        }
+
+        .act-del {
+          color: #ef4444;
+          border-color: rgba(239,68,68,0.18);
+          flex: 0.45;
+        }
+
+        .expanded-section {
+          margin-top: 1rem;
+          padding-top: 1rem;
+          border-top: 1px solid rgba(23,56,56,0.08);
+        }
+
+        .expanded-title {
+          font-size: 0.86rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 0.75rem;
+        }
+
+        .notes-box {
+          background: #FBF3E3;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 12px;
+          padding: 0.75rem;
+          font-size: 0.84rem;
+          color: #5f7774;
+          line-height: 1.5;
+        }
+
+        .empty-state {
+          border-radius: 20px;
+          padding: 3rem 2rem;
+          text-align: center;
+        }
+
+        .empty-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 16px;
+          background: rgba(255,127,103,0.10);
+          border: 1px solid rgba(255,127,103,0.18);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: #ff7f67;
+          font-weight: 900;
+          margin-bottom: 1rem;
+        }
+
+        .empty-title {
+          font-size: 1rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 0.4rem;
+        }
+
+        .empty-sub {
+          font-size: 0.86rem;
+          color: #5f7774;
+          margin-bottom: 1.5rem;
+          line-height: 1.55;
+        }
+
+        .rev-section {
+          border-radius: 20px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+        }
+
+        .rev-section-title {
+          font-size: 1rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 1rem;
+        }
+
+        .rev-client-row {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem 0;
+          border-bottom: 1px solid rgba(23,56,56,0.08);
+        }
+
+        .rev-client-row:last-child {
+          border-bottom: none;
+        }
+
+        .rev-client-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .rev-client-bar-wrap {
+          flex: 2;
+          height: 8px;
+          background: #FBF3E3;
+          border-radius: 100px;
+          overflow: hidden;
+        }
+
+        .rev-client-bar {
+          height: 100%;
+          border-radius: 100px;
+          background: linear-gradient(90deg,#ff7f67,#8fc8c1);
+        }
+
+        .rev-client-mrr {
+          font-weight: 900;
+          color: #173838;
+        }
+
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(23,56,56,0.30);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          padding: 1rem;
+          backdrop-filter: blur(8px);
+        }
+
+        .modal {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          border-radius: 24px;
+          padding: 1.7rem;
+          width: 100%;
+          max-width: 620px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 30px 80px rgba(23,56,56,0.18);
+        }
+
+        .modal-title {
+          font-size: 1.5rem;
+          font-weight: 900;
+          color: #173838;
+          margin-bottom: 0.35rem;
+          letter-spacing: -0.05em;
+        }
+
+        .modal-sub {
+          color: #5f7774;
+          font-size: 0.9rem;
+          line-height: 1.6;
+          margin-bottom: 1.35rem;
+        }
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 0.75rem;
+          font-weight: 900;
+          color: #2f625d;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 0.45rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+          width: 100%;
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.12);
+          border-radius: 13px;
+          padding: 0.85rem 1rem;
+          color: #173838;
+          font-size: 0.9rem;
+          outline: none;
+          font-family: 'Inter', sans-serif;
+          margin-bottom: 1rem;
+        }
+
+        .form-textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+          border-color: rgba(255,127,103,0.42);
+          box-shadow: 0 0 0 4px rgba(255,127,103,0.08);
+        }
+
+        .platform-select {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+          margin-bottom: 1rem;
+        }
+
+        .platform-option {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #5f7774;
+          padding: 0.55rem 0.75rem;
+          border-radius: 12px;
+          cursor: pointer;
+          font-weight: 800;
+        }
+
+        .platform-option.selected {
+          background: rgba(255,127,103,0.10);
+          border-color: rgba(255,127,103,0.28);
+          color: #ff7f67;
+        }
+
+        .range-wrap {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .range {
+          flex: 1;
+        }
+
+        .toggle-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          background: #FBF3E3;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 16px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .toggle-label {
+          font-weight: 900;
+          color: #173838;
+        }
+
+        .toggle-sub {
+          font-size: 0.8rem;
+          color: #819693;
+          margin-top: 0.2rem;
+        }
+
+        .toggle-switch {
+          width: 48px;
+          height: 28px;
+          border: none;
+          border-radius: 100px;
+          background: #d8e3df;
+          position: relative;
+          cursor: pointer;
+        }
+
+        .toggle-switch.on {
+          background: #ff7f67;
+        }
+
+        .toggle-knob {
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: #ffffff;
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          transition: 0.2s;
+        }
+
+        .toggle-switch.on .toggle-knob {
+          left: 23px;
+        }
+
+        .freq-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .freq-btn {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          color: #5f7774;
+          font-size: 0.8rem;
+          padding: 0.7rem;
+        }
+
+        .freq-btn.selected {
+          background: rgba(255,127,103,0.10);
+          border-color: rgba(255,127,103,0.28);
+          color: #ff7f67;
+        }
+
+        .modal-btns {
+          display: flex;
+          gap: 0.75rem;
+        }
+
+        .modal-cancel,
+        .modal-submit {
+          min-height: 42px;
+          border: none;
+          padding: 0 0.95rem;
+        }
+
+        .modal-cancel {
+          flex: 1;
+          background: #ffffff;
+          color: #2f625d;
+          border: 1px solid rgba(23,56,56,0.10);
+        }
+
+        .modal-submit {
+          flex: 2;
+        }
+
+        @media(max-width: 1000px) {
+          .app-layout {
+            grid-template-columns: 1fr;
+          }
+
+          .sidebar {
+            display: flex;
+            overflow-x: auto;
+            gap: 0.8rem;
+            padding: 0.8rem;
+          }
+
+          .side-section {
+            min-width: 190px;
+            margin-bottom: 0;
+          }
+
+          .stats-row,
+          .rev-stats {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .client-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media(max-width: 650px) {
+          .content {
+            padding: 1rem;
+          }
+
+          .topbar {
+            padding: 0 1rem;
+          }
+
+          .stats-row,
+          .rev-stats {
+            grid-template-columns: 1fr;
+          }
+
+          .form-row {
+            grid-template-columns: 1fr;
+          }
+
+          .modal-btns,
+          .freq-grid {
+            grid-template-columns: 1fr;
+            flex-direction: column;
+          }
+
+          .controls {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .add-btn {
+            margin-left: 0;
+          }
+        }
       `}</style>
 
-      <nav className="nav">
-        <a href="/" className="logo"><span className="logo-dot"></span> LeadMagnet</a>
-        <a href="/dashboard" className="back-btn">← Dashboard</a>
-      </nav>
+      <header className="topbar">
+        <BrandLogo />
+        <a href="/dashboard" className="top-link">Dashboard</a>
+      </header>
 
-      {/* ACCESS CHECK */}
-      {checkingAccess ? (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "1.2rem", color: "#22c97a", fontWeight: 800, fontFamily: "'Plus Jakarta Sans',sans-serif" }}>Loading...</div>
-          </div>
-        </div>
-      ) : !hasAccess ? (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "70vh", padding: "2rem" }}>
-          <div style={{ textAlign: "center", maxWidth: "480px" }}>
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔒</div>
-            <div style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontSize: "1.5rem", fontWeight: 800, color: "#f0f7f2", marginBottom: "0.5rem" }}>Agency Plan Required</div>
-            <div style={{ fontSize: "0.88rem", color: "#3d5240", lineHeight: 1.6, marginBottom: "2rem", fontFamily: "Inter,sans-serif" }}>
-              The Client Manager and all automation features are exclusive to Agency subscribers. Upgrade to unlock AI lead scoring, automated reports, client portals, health alerts, and more.
-            </div>
-            <button onClick={() => window.location.href = "/pricing"} style={{ background: "linear-gradient(135deg,#22c97a,#1aae6a)", color: "#071209", fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 700, fontSize: "0.9rem", padding: "0.7rem 1.5rem", borderRadius: "10px", border: "none", cursor: "pointer", boxShadow: "0 2px 8px rgba(34,201,122,0.15)" }}>
-              View Plans & Upgrade →
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* MAIN CONTENT — AGENCY ACCESS GRANTED */
-        <div className="container">
-          {success && <div className="success-bar">✓ {success}</div>}
-          {error && <div className="error-bar">⚠ {error}</div>}
+      <div className="app-layout">
+        <Sidebar />
 
-          <div className="page-header">
-            <h1 className="page-title">Client Manager</h1>
-            <p className="page-sub">Your automation command center — manage clients, track leads, and monitor revenue.</p>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.75rem", flexWrap: "wrap", gap: "0.75rem" }}>
-            <div className="view-toggle" style={{ marginBottom: 0 }}>
-              <button className={`view-btn ${activeView === "clients" ? "active" : ""}`} onClick={() => setActiveView("clients")}>👥 Clients</button>
-              <button className={`view-btn ${activeView === "revenue" ? "active" : ""}`} onClick={() => setActiveView("revenue")}>💰 Revenue</button>
-            </div>
-            <button onClick={() => window.location.href = "/agency/lead-radar"} style={{ background: "linear-gradient(135deg,rgba(147,51,234,0.1),rgba(147,51,234,0.05))", border: "1px solid rgba(147,51,234,0.2)", color: "#a78bfa", fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 700, fontSize: "0.82rem", padding: "0.5rem 1.1rem", borderRadius: "9px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem", transition: "all 0.2s" }}>🛰️ Lead Radar</button>
-          </div>
-
-          {activeView === "clients" && (
-            <>
-              <div className="stats-row">
-                <div className="stat-card"><div className="stat-val">{clients.length}</div><div className="stat-lbl">Total Clients</div></div>
-                <div className="stat-card"><div className="stat-val">{activeClients}</div><div className="stat-lbl">Active</div></div>
-                <div className="stat-card"><div className="stat-val" style={{ color: "#f87171" }}>{totalHot}</div><div className="stat-lbl">Hot Leads</div></div>
-                <div className="stat-card"><div className="stat-val">€{totalMRR.toLocaleString()}</div><div className="stat-lbl">Total MRR</div></div>
-                <div className="stat-card"><div className="stat-val">{totalLeads}</div><div className="stat-lbl">Total Leads</div></div>
+        <section className="content">
+          <div className="content-inner">
+            {checkingAccess ? (
+              <div className="access-card">
+                <h1 className="page-title">Checking access</h1>
+                <p className="page-sub">Please wait while we confirm your agency workspace access.</p>
               </div>
-              <div className="controls">
-                {["All", ...TIERS].map(t => (<button key={t} className={`filter-btn ${filterTier === t ? "active" : ""}`} onClick={() => setFilterTier(t)}>{t}</button>))}
-                <select className="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-                  <option value="created_at">Sort: Recent</option><option value="mrr">Sort: MRR</option><option value="leads">Sort: Leads</option><option value="hot">Sort: Hot Leads</option><option value="health">Sort: Health</option>
-                </select>
-                <button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add Client</button>
+            ) : !hasAccess ? (
+              <div className="access-card">
+                <h1 className="page-title">Upgrade to access Client Manager</h1>
+                <p className="page-sub">
+                  This workspace is available on the Agency or Scale plan. Upgrade to manage clients, reports, onboarding, and client portals.
+                </p>
+                <br />
+                <a href="/pricing" className="add-btn" style={{ display: "inline-flex", textDecoration: "none", marginLeft: 0 }}>
+                  View Plans
+                </a>
               </div>
-              {filteredClients.length === 0 ? (
-                <div className="empty-state"><span className="empty-icon">🏢</span><div className="empty-title">No clients {filterTier !== "All" ? `in ${filterTier} tier` : "yet"}</div><div className="empty-sub">Add your first client to start managing their campaigns and automation.</div><button className="add-btn" onClick={() => setShowAddClient(true)}>+ Add Client</button></div>
-              ) : (
-                <div className="client-grid">
-                  {filteredClients.map(c => {
-                    const tier = c.tier || "Standard"; const tierStyle = TIER_COLORS[tier] || TIER_COLORS.Standard; const health = c.health_score || 75; const isExpanded = expandedClient === c.id;
-                    return (
-                      <div className="client-card" key={c.id} onClick={() => setExpandedClient(isExpanded ? null : c.id)}>
-                        {c.mrr > 0 && <div className="mrr-badge">€{c.mrr}/mo</div>}
-                        <div className="card-top">
-                          <div className="client-avatar">{c.name?.charAt(0).toUpperCase()}</div>
-                          <div className="card-top-info"><div className="client-name">{c.name}</div>{c.company && <div className="client-company">{c.company}</div>}</div>
-                          <div className="tier-badge" style={{ background: tierStyle.bg, border: `1px solid ${tierStyle.border}`, color: tierStyle.color }}>{tier === "VIP" ? "⭐ VIP" : tier}</div>
-                        </div>
-                        <div className="client-email-row">✉️ {c.email}</div>
-                        <div className="health-wrap">
-                          <div className="health-top"><span className="health-lbl">Client Health</span><span style={{ color: getHealthColor(health), fontWeight: 700 }}>{health}/100</span></div>
-                          <div className="health-bar"><div className="health-fill" style={{ width: `${health}%`, background: getHealthColor(health) }} /></div>
-                        </div>
-                        <div className="score-row">
-                          <div className="score-box"><div className="score-val" style={{ color: "#e2ede7" }}>{c.leads_count || 0}</div><div className="score-lbl">Leads</div></div>
-                          <div className="score-box"><div className="score-val" style={{ color: "#f87171" }}>{c.hot_leads || 0}</div><div className="score-lbl">🔥 Hot</div></div>
-                          <div className="score-box"><div className="score-val" style={{ color: "#fbbf24" }}>{c.warm_leads || 0}</div><div className="score-lbl">🟡 Warm</div></div>
-                          <div className="score-box"><div className="score-val" style={{ color: "#60a5fa" }}>{c.cold_leads || 0}</div><div className="score-lbl">🔵 Cold</div></div>
-                        </div>
-                        {c.platforms?.length > 0 && (<div className="platforms-row">{c.platforms.map(p => <span key={p} className="platform-tag">{p}</span>)}<span className="platform-tag" style={{ color: "#2a3d2e" }}>{c.campaigns_count || 0} campaigns</span></div>)}
-                        <div className="auto-row">
-                          {c.auto_report && <span className="auto-tag report">📊 Auto-report: {c.report_frequency || "monthly"}</span>}
-                          {c.campaigns_count > 0 && <span className="auto-tag routing">🔀 Lead routing active</span>}
-                        </div>
-                        {c.last_report_sent && <div className="last-report">Last report: {new Date(c.last_report_sent).toLocaleDateString()}</div>}
-                        <div className="card-actions">
-                          <button className="act-btn act-onboard" onClick={(e) => handleOnboard(c, e)} disabled={onboardingClient === c.id}>{onboardingClient === c.id ? "Setting up..." : "🚀 Onboard"}</button>
-                          <button className="act-btn act-portal" onClick={(e) => copyPortalLink(c, e)}>🔗 Portal</button>
-                          <button className="act-btn act-report" onClick={(e) => handleSendReport(c, e)} disabled={sendingReport === c.id}>{sendingReport === c.id ? "Sending..." : "📊 Report"}</button>
-                          <button className="act-btn act-edit" onClick={(e) => openEdit(c, e)}>Edit</button>
-                          <button className="act-btn act-del" onClick={(e) => deleteClient(c.id, e)}>✕</button>
-                        </div>
-                        {isExpanded && c.notes && (<div className="expanded-section"><div className="expanded-title">📝 Notes</div><div className="notes-box">{c.notes}</div></div>)}
-                      </div>
-                    );
-                  })}
+            ) : (
+              <>
+                {success && <div className="success-bar">{success}</div>}
+                {error && <div className="error-bar">{error}</div>}
+
+                <div className="page-header">
+                  <h1 className="page-title">Client Manager</h1>
+                  <p className="page-sub">Manage agency clients, revenue, reports, onboarding, and client portal access.</p>
                 </div>
-              )}
-            </>
-          )}
 
-          {activeView === "revenue" && (
-            <>
-              <div className="rev-stats">
-                <div className="rev-card"><div className="rev-val" style={{ color: "#22c97a" }}>€{totalMRR.toLocaleString()}</div><div className="rev-lbl">Monthly Revenue</div><div className="rev-sub">across {clients.length} clients</div></div>
-                <div className="rev-card"><div className="rev-val" style={{ color: "#22c97a" }}>€{annualRevenue.toLocaleString()}</div><div className="rev-lbl">Annual Forecast</div><div className="rev-sub">projected at current MRR</div></div>
-                <div className="rev-card"><div className="rev-val" style={{ color: "#22c97a" }}>€{avgMRR}</div><div className="rev-lbl">Avg per Client</div><div className="rev-sub">{clients.length} total clients</div></div>
-                <div className="rev-card"><div className="rev-val" style={{ color: atRiskMRR > 0 ? "#f87171" : "#22c97a" }}>€{atRiskMRR.toLocaleString()}</div><div className="rev-lbl">At-Risk MRR</div><div className="rev-sub">{atRiskClients.length} client{atRiskClients.length !== 1 ? "s" : ""} flagged</div></div>
-              </div>
-              <div className="rev-section">
-                <div className="rev-section-title">Revenue by Client</div>
-                {clients.length === 0 ? <div style={{ color: "#2a3d2e", fontSize: "0.82rem" }}>No clients yet</div> :
-                  [...clients].sort((a, b) => (b.mrr || 0) - (a.mrr || 0)).map(c => (
-                    <div className="rev-client-row" key={c.id}><div className="rev-client-avatar">{c.name?.charAt(0).toUpperCase()}</div><div className="rev-client-info"><div className="rev-client-name">{c.name}</div><div className="rev-client-tier">{c.tier || "Standard"} · {c.leads_count || 0} leads</div></div><div className="rev-client-bar-wrap"><div className="rev-client-bar" style={{ width: `${((c.mrr || 0) / maxClientMRR) * 100}%` }} /></div><div className="rev-client-mrr">€{(c.mrr || 0).toLocaleString()}</div></div>
-                  ))}
-              </div>
-              <div className="rev-section">
-                <div className="rev-section-title">Revenue by Tier</div>
-                {TIERS.map(t => { const tierStyle = TIER_COLORS[t]; return (<div className="tier-row" key={t}><div className="tier-dot" style={{ background: tierStyle.color }} /><div className="tier-name">{t}</div><div className="tier-clients">{clientsByTier[t]} client{clientsByTier[t] !== 1 ? "s" : ""}</div><div className="tier-bar-wrap"><div className="tier-bar" style={{ width: totalMRR > 0 ? `${(mrrByTier[t] / totalMRR) * 100}%` : "0%", background: tierStyle.color }} /></div><div className="tier-mrr">€{mrrByTier[t].toLocaleString()}</div></div>); })}
-              </div>
-              <div className="rev-section">
-                <div className="rev-section-title">⚠️ At-Risk Clients</div>
-                {atRiskClients.length === 0 ? (<div style={{ color: "#22c97a", fontSize: "0.84rem", fontFamily: "Inter,sans-serif" }}>All clients are healthy — no churn risk detected.</div>) :
-                  atRiskClients.map(c => (<div className="risk-card" key={c.id}><div className="risk-info"><div className="risk-avatar">{c.name?.charAt(0).toUpperCase()}</div><div><div className="risk-name">{c.name}</div><div className="risk-reason">{c.health_score < 40 ? `Health: ${c.health_score}/100` : "No leads or campaigns"}</div></div></div><div className="risk-mrr">€{(c.mrr || 0).toLocaleString()}/mo</div></div>))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+                <div className="view-toggle">
+                  <button className={`view-btn ${activeView === "clients" ? "active" : ""}`} onClick={() => setActiveView("clients")}>Clients</button>
+                  <button className={`view-btn ${activeView === "revenue" ? "active" : ""}`} onClick={() => setActiveView("revenue")}>Revenue</button>
+                </div>
 
-      {/* ADD / EDIT MODAL */}
+                {activeView === "clients" && (
+                  <>
+                    <div className="stats-row">
+                      <div className="stat-card"><div className="stat-val">{activeClients}</div><div className="stat-lbl">Active Clients</div></div>
+                      <div className="stat-card"><div className="stat-val">${totalMRR.toLocaleString()}</div><div className="stat-lbl">Monthly MRR</div></div>
+                      <div className="stat-card"><div className="stat-val">{totalLeads}</div><div className="stat-lbl">Total Leads</div></div>
+                      <div className="stat-card"><div className="stat-val">{totalHot}</div><div className="stat-lbl">Hot Leads</div></div>
+                      <div className="stat-card"><div className="stat-val">{atRiskClients.length}</div><div className="stat-lbl">At Risk</div></div>
+                    </div>
+
+                    <div className="controls">
+                      {["All", ...TIERS].map(tier => (
+                        <button key={tier} className={`filter-btn ${filterTier === tier ? "active" : ""}`} onClick={() => setFilterTier(tier)}>
+                          {tier}
+                        </button>
+                      ))}
+
+                      <select className="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
+                        <option value="created_at">Newest</option>
+                        <option value="mrr">Highest MRR</option>
+                        <option value="leads">Most Leads</option>
+                        <option value="health">Best Health</option>
+                        <option value="hot">Hot Leads</option>
+                      </select>
+
+                      <button className="add-btn" onClick={() => setShowAddClient(true)}>Add Client</button>
+                    </div>
+
+                    {filteredClients.length === 0 ? (
+                      <div className="empty-state">
+                        <div className="empty-icon">CM</div>
+                        <div className="empty-title">No clients yet</div>
+                        <div className="empty-sub">Add your first client to start managing campaigns, reports, and portals.</div>
+                        <button className="add-btn" onClick={() => setShowAddClient(true)} style={{ marginLeft: 0 }}>Add First Client</button>
+                      </div>
+                    ) : (
+                      <div className="client-grid">
+                        {filteredClients.map(client => {
+                          const tierStyle = TIER_COLORS[client.tier || "Standard"] || TIER_COLORS.Standard;
+                          const isExpanded = expandedClient === client.id;
+
+                          return (
+                            <div className="client-card" key={client.id} onClick={() => setExpandedClient(isExpanded ? null : client.id)}>
+                              <div className="mrr-badge">${Number(client.mrr || 0).toLocaleString()}</div>
+
+                              <div className="card-top">
+                                <div className="client-avatar">{client.name?.[0]?.toUpperCase() || "C"}</div>
+
+                                <div className="card-top-info">
+                                  <div className="client-name">{client.name}</div>
+                                  <div className="client-company">{client.company || "No company"}</div>
+                                </div>
+
+                                <span className="tier-badge" style={{ background: tierStyle.bg, border: `1px solid ${tierStyle.border}`, color: tierStyle.color }}>
+                                  {client.tier || "Standard"}
+                                </span>
+                              </div>
+
+                              <div className="client-email-row">{client.email}</div>
+
+                              <div className="health-wrap">
+                                <div className="health-top">
+                                  <span className="health-lbl">Health score</span>
+                                  <span style={{ color: getHealthColor(client.health_score || 0), fontWeight: 900 }}>{client.health_score || 0}%</span>
+                                </div>
+                                <div className="health-bar">
+                                  <div className="health-fill" style={{ width: `${client.health_score || 0}%`, background: getHealthColor(client.health_score || 0) }} />
+                                </div>
+                              </div>
+
+                              <div className="score-row">
+                                <div className="score-box"><div className="score-val">{client.campaigns_count || 0}</div><div className="score-lbl">Campaigns</div></div>
+                                <div className="score-box"><div className="score-val">{client.leads_count || 0}</div><div className="score-lbl">Leads</div></div>
+                                <div className="score-box"><div className="score-val" style={{ color: "#ff7f67" }}>{client.hot_leads || 0}</div><div className="score-lbl">Hot</div></div>
+                                <div className="score-box"><div className="score-val">{client.warm_leads || 0}</div><div className="score-lbl">Warm</div></div>
+                              </div>
+
+                              <div className="platforms-row">
+                                {(client.platforms || []).map(platform => <span key={platform} className="platform-tag">{platform}</span>)}
+                              </div>
+
+                              <div className="auto-row">
+                                {client.auto_report && <span className="auto-tag report">Reports {client.report_frequency}</span>}
+                                {client.portal_token && <span className="auto-tag routing">Portal ready</span>}
+                              </div>
+
+                              {client.last_report_sent && (
+                                <div className="last-report">Last report: {new Date(client.last_report_sent).toLocaleDateString()}</div>
+                              )}
+
+                              <div className="card-actions">
+                                <button className="act-btn act-onboard" disabled={onboardingClient === client.id} onClick={(e) => handleOnboard(client, e)}>
+                                  {onboardingClient === client.id ? "..." : "Onboard"}
+                                </button>
+
+                                <button className="act-btn act-portal" onClick={(e) => copyPortalLink(client, e)}>Portal</button>
+
+                                <button className="act-btn act-report" disabled={sendingReport === client.id} onClick={(e) => handleSendReport(client, e)}>
+                                  {sendingReport === client.id ? "..." : "Report"}
+                                </button>
+
+                                <button className="act-btn act-edit" onClick={(e) => openEdit(client, e)}>Edit</button>
+
+                                <button className="act-btn act-del" onClick={(e) => deleteClient(client.id, e)}>Delete</button>
+                              </div>
+
+                              {isExpanded && (
+                                <div className="expanded-section">
+                                  <div className="expanded-title">Client notes</div>
+                                  <div className="notes-box">{client.notes || "No notes saved for this client."}</div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {activeView === "revenue" && (
+                  <>
+                    <div className="rev-stats">
+                      <div className="rev-card"><div className="rev-val">${totalMRR.toLocaleString()}</div><div className="rev-lbl">MRR</div><div className="rev-sub">Monthly recurring revenue</div></div>
+                      <div className="rev-card"><div className="rev-val">${annualRevenue.toLocaleString()}</div><div className="rev-lbl">ARR</div><div className="rev-sub">Projected annual revenue</div></div>
+                      <div className="rev-card"><div className="rev-val">${avgMRR.toLocaleString()}</div><div className="rev-lbl">Avg MRR</div><div className="rev-sub">Per client</div></div>
+                      <div className="rev-card"><div className="rev-val">${atRiskMRR.toLocaleString()}</div><div className="rev-lbl">Risk MRR</div><div className="rev-sub">Needs attention</div></div>
+                    </div>
+
+                    <div className="rev-section">
+                      <div className="rev-section-title">MRR by client</div>
+
+                      {clients.length === 0 ? (
+                        <div className="empty-sub">No client revenue yet.</div>
+                      ) : (
+                        [...clients].sort((a, b) => (b.mrr || 0) - (a.mrr || 0)).map(client => (
+                          <div className="rev-client-row" key={client.id}>
+                            <div className="rev-client-avatar">{client.name?.[0]?.toUpperCase() || "C"}</div>
+
+                            <div className="rev-client-info">
+                              <div className="rev-client-name">{client.name}</div>
+                              <div className="rev-client-tier">{client.tier || "Standard"}</div>
+                            </div>
+
+                            <div className="rev-client-bar-wrap">
+                              <div className="rev-client-bar" style={{ width: `${((client.mrr || 0) / maxClientMRR) * 100}%` }} />
+                            </div>
+
+                            <div className="rev-client-mrr">${Number(client.mrr || 0).toLocaleString()}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="rev-section">
+                      <div className="rev-section-title">Revenue by tier</div>
+
+                      {TIERS.map(tier => (
+                        <div className="rev-client-row" key={tier}>
+                          <div className="rev-client-info">
+                            <div className="rev-client-name">{tier}</div>
+                            <div className="rev-client-tier">{clientsByTier[tier]} clients</div>
+                          </div>
+
+                          <div className="rev-client-bar-wrap">
+                            <div className="rev-client-bar" style={{ width: `${totalMRR ? (mrrByTier[tier] / totalMRR) * 100 : 0}%` }} />
+                          </div>
+
+                          <div className="rev-client-mrr">${Number(mrrByTier[tier] || 0).toLocaleString()}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+      </div>
+
       {(showAddClient || showEditClient) && (
         <div className="modal-overlay">
           <div className="modal">
-            <div className="modal-title">{showEditClient ? "Edit Client" : "Add New Client"}</div>
-            <div className="modal-sub">Fill in client details, set their tier and configure automation.</div>
+            <div className="modal-title">{showEditClient ? "Edit Client" : "Add Client"}</div>
+            <div className="modal-sub">Add the client details, platforms, revenue, and reporting preferences.</div>
+
             <form onSubmit={handleSubmit}>
-              <div className="form-row"><div><label className="form-label">Client Name</label><input className="form-input" placeholder="e.g. John Smith" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required /></div><div><label className="form-label">Company</label><input className="form-input" placeholder="e.g. Acme Corp" value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} /></div></div>
-              <div className="form-row"><div><label className="form-label">Email</label><input className="form-input" type="email" placeholder="client@company.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required /></div><div><label className="form-label">Phone</label><input className="form-input" placeholder="+31 6 12345678" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} /></div></div>
-              <hr className="divider" />
-              <div className="form-row"><div><label className="form-label">Client Tier</label><select className="form-select" value={form.tier} onChange={e => setForm(p => ({ ...p, tier: e.target.value }))}>{TIERS.map(t => <option key={t} value={t}>{t}</option>)}</select></div><div><label className="form-label">Monthly Revenue (€)</label><input className="form-input" type="number" placeholder="0" value={form.mrr} onChange={e => setForm(p => ({ ...p, mrr: e.target.value }))} /></div></div>
+              <div className="form-row">
+                <div>
+                  <label className="form-label">Name</label>
+                  <input className="form-input" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required />
+                </div>
+
+                <div>
+                  <label className="form-label">Email</label>
+                  <input className="form-input" type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div>
+                  <label className="form-label">Company</label>
+                  <input className="form-input" value={form.company} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} />
+                </div>
+
+                <div>
+                  <label className="form-label">Phone</label>
+                  <input className="form-input" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div>
+                  <label className="form-label">Tier</label>
+                  <select className="form-select" value={form.tier} onChange={e => setForm(p => ({ ...p, tier: e.target.value }))}>
+                    {TIERS.map(tier => <option key={tier} value={tier}>{tier}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="form-label">Monthly Revenue</label>
+                  <input className="form-input" type="number" min="0" value={form.mrr} onChange={e => setForm(p => ({ ...p, mrr: e.target.value }))} />
+                </div>
+              </div>
+
               <label className="form-label">Platforms</label>
-              <div className="platforms-select">{PLATFORMS.map(p => (<button key={p} type="button" className={`platform-toggle ${form.platforms.includes(p) ? "selected" : ""}`} onClick={() => togglePlatform(p)}>{p}</button>))}</div>
-              <label className="form-label">Health Score: {form.health_score}/100</label>
-              <input type="range" min="0" max="100" value={form.health_score} onChange={e => setForm(p => ({ ...p, health_score: parseInt(e.target.value) }))} className="health-input" />
-              <hr className="divider" />
-              <div className="toggle-row"><div><div className="toggle-label">Auto-send performance reports</div><div className="toggle-sub">Automatically email reports to this client</div></div><button type="button" className={`toggle-switch ${form.auto_report ? "on" : ""}`} onClick={() => setForm(p => ({ ...p, auto_report: !p.auto_report }))}><div className="toggle-knob" /></button></div>
-              {form.auto_report && (<><label className="form-label">Report Frequency</label><div className="freq-grid">{REPORT_FREQUENCIES.map(f => (<button key={f.value} type="button" className={`freq-btn ${form.report_frequency === f.value ? "selected" : ""}`} onClick={() => setForm(p => ({ ...p, report_frequency: f.value }))}>{f.label}</button>))}</div></>)}
+              <div className="platform-select">
+                {PLATFORMS.map(platform => (
+                  <button key={platform} type="button" className={`platform-option ${form.platforms.includes(platform) ? "selected" : ""}`} onClick={() => togglePlatform(platform)}>
+                    {platform}
+                  </button>
+                ))}
+              </div>
+
+              <label className="form-label">Health Score</label>
+              <div className="range-wrap">
+                <input className="range" type="range" min="0" max="100" value={form.health_score} onChange={e => setForm(p => ({ ...p, health_score: parseInt(e.target.value) }))} />
+                <strong style={{ color: getHealthColor(form.health_score) }}>{form.health_score}%</strong>
+              </div>
+
+              <div className="toggle-row">
+                <div>
+                  <div className="toggle-label">Auto-send performance reports</div>
+                  <div className="toggle-sub">Automatically email reports to this client</div>
+                </div>
+
+                <button type="button" className={`toggle-switch ${form.auto_report ? "on" : ""}`} onClick={() => setForm(p => ({ ...p, auto_report: !p.auto_report }))}>
+                  <div className="toggle-knob" />
+                </button>
+              </div>
+
+              {form.auto_report && (
+                <>
+                  <label className="form-label">Report Frequency</label>
+                  <div className="freq-grid">
+                    {REPORT_FREQUENCIES.map(f => (
+                      <button key={f.value} type="button" className={`freq-btn ${form.report_frequency === f.value ? "selected" : ""}`} onClick={() => setForm(p => ({ ...p, report_frequency: f.value }))}>
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
               <label className="form-label">Notes</label>
               <textarea className="form-textarea" placeholder="Notes about this client..." value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
-              <div className="modal-btns"><button type="button" className="modal-cancel" onClick={() => { setShowAddClient(false); setShowEditClient(false); resetForm(); }}>Cancel</button><button type="submit" className="modal-submit" disabled={loading}>{loading ? "Saving..." : showEditClient ? "Save Changes →" : "Add Client →"}</button></div>
+
+              <div className="modal-btns">
+                <button type="button" className="modal-cancel" onClick={() => { setShowAddClient(false); setShowEditClient(false); resetForm(); }}>
+                  Cancel
+                </button>
+
+                <button type="submit" className="modal-submit" disabled={loading}>
+                  {loading ? "Saving..." : showEditClient ? "Save Changes →" : "Add Client →"}
+                </button>
+              </div>
             </form>
           </div>
         </div>
