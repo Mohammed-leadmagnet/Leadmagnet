@@ -1,91 +1,411 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import Link from "next/link";
+import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+function getSupabase() {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return null;
+  }
+
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+}
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    document.title = "Start Free Trial — LeadMagnet";
-  }, []);
-
-  const handleSignUp = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const { error } = await supabase.auth.signUp({ email, password });
+    setSuccess("");
+
+    const supabase = getSupabase();
+
+    if (!supabase) {
+      setError("Authentication is not configured yet. Please check environment variables.");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo:
+          typeof window !== "undefined"
+            ? `${window.location.origin}/onboarding`
+            : undefined,
+      },
+    });
+
     if (error) {
       setError(error.message);
       setLoading(false);
-    } else {
-      window.location.href = "/onboarding";
+      return;
     }
+
+    if (data?.user && !data?.session) {
+      setSuccess("Account created. Please check your email to confirm your account.");
+      setLoading(false);
+      return;
+    }
+
+    window.location.href = "/onboarding";
   };
 
   return (
-    <main style={{ minHeight: "100vh", background: "#080c09", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', sans-serif", padding: "1rem" }}>
+    <main className="page-shell">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0;}
-        .card{background:#0f1a11;border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;}
-        .logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#22c97a;margin-bottom:2rem;display:block;text-decoration:none;letter-spacing:-0.02em;}
-        .title{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.625rem;font-weight:800;color:#f0f7f2;margin-bottom:0.4rem;letter-spacing:-0.03em;}
-        .subtitle{font-size:0.875rem;color:#3d5240;margin-bottom:2rem;font-weight:400;line-height:1.5;}
-        .trial-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(34,201,122,0.08);border:1px solid rgba(34,201,122,0.18);color:#22c97a;font-size:0.72rem;font-weight:600;padding:0.3rem 0.75rem;border-radius:100px;margin-bottom:1.5rem;letter-spacing:0.04em;}
-        .label{display:block;font-size:0.775rem;font-weight:600;color:#4d6b54;margin-bottom:0.4rem;letter-spacing:0.02em;}
-        .input{width:100%;background:#080c09;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.75rem 1rem;color:#e2ede7;font-size:0.875rem;outline:none;transition:border-color 0.15s;margin-bottom:1rem;font-family:'Inter',sans-serif;}
-        .input:focus{border-color:rgba(34,201,122,0.4);}
-        .input::placeholder{color:#2a3d2e;}
-        .btn{width:100%;background:#22c97a;color:#071209;font-family:'Inter',sans-serif;font-weight:600;font-size:0.925rem;padding:0.875rem;border-radius:11px;border:none;cursor:pointer;transition:all 0.15s;margin-top:0.25rem;letter-spacing:-0.01em;}
-        .btn:hover{background:#1db36c;transform:translateY(-1px);}
-        .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-        .error{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-size:0.835rem;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1rem;line-height:1.5;}
-        .divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:1.5rem 0;}
-        .login-link{text-align:center;font-size:0.835rem;color:#2a3d2e;}
-        .login-link a{color:#22c97a;text-decoration:none;font-weight:500;}
-        .login-link a:hover{color:#1db36c;}
-        .perks{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1.5rem;}
-        .perk{display:flex;align-items:center;gap:0.5rem;font-size:0.815rem;color:#3d5240;}
-        .perk span{color:#22c97a;font-weight:700;font-size:0.75rem;}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        .page-shell {
+          min-height: 100vh;
+          background: #FBF3E3;
+          color: #173838;
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+        }
+
+        .auth-card {
+          width: 100%;
+          max-width: 460px;
+          background: linear-gradient(145deg, #ffffff, #f8fbfa);
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 26px;
+          padding: 2.2rem;
+          box-shadow: 0 24px 60px rgba(23,56,56,0.10);
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 0.62rem;
+          text-decoration: none;
+          margin-bottom: 2rem;
+        }
+
+        .brand-mark {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background: conic-gradient(from -12deg,#ff7f67 0 44%,transparent 44% 51%,#8fc8c1 51% 86%,transparent 86% 100%);
+          position: relative;
+          flex: 0 0 auto;
+        }
+
+        .brand-mark:after {
+          content: "";
+          position: absolute;
+          inset: 8px;
+          border-radius: 50%;
+          background: #ffffff;
+        }
+
+        .brand-name {
+          font-size: 1.06rem;
+          font-weight: 900;
+          letter-spacing: -0.035em;
+          color: #173838;
+          line-height: 1;
+        }
+
+        .brand-name .lead {
+          color: #ff7f67;
+        }
+
+        .brand-name .magnet {
+          color: #8fc8c1;
+        }
+
+        .kicker {
+          display: inline-flex;
+          align-items: center;
+          color: #ff7f67;
+          background: rgba(255,127,103,0.08);
+          border: 1px solid rgba(255,127,103,0.18);
+          padding: 0.45rem 0.8rem;
+          border-radius: 100px;
+          font-size: 0.72rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          margin-bottom: 1rem;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .title {
+          font-size: 2rem;
+          font-weight: 900;
+          letter-spacing: -0.055em;
+          color: #173838;
+          margin-bottom: 0.55rem;
+        }
+
+        .subtitle {
+          color: #5f7774;
+          font-size: 0.94rem;
+          line-height: 1.65;
+          margin-bottom: 1.55rem;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .benefits {
+          display: grid;
+          gap: 0.55rem;
+          margin-bottom: 1.45rem;
+        }
+
+        .benefit {
+          display: flex;
+          align-items: center;
+          gap: 0.55rem;
+          color: #5f7774;
+          font-size: 0.86rem;
+          font-family: 'Inter', sans-serif;
+          font-weight: 600;
+        }
+
+        .check {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: rgba(143,200,193,0.20);
+          border: 1px solid rgba(143,200,193,0.38);
+          color: #2f625d;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          font-weight: 900;
+          flex: 0 0 auto;
+        }
+
+        .form {
+          display: grid;
+          gap: 1rem;
+        }
+
+        .field {
+          display: grid;
+          gap: 0.45rem;
+        }
+
+        .label {
+          font-size: 0.76rem;
+          font-weight: 900;
+          color: #2f625d;
+          text-transform: uppercase;
+          letter-spacing: 0.045em;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .input {
+          width: 100%;
+          height: 52px;
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.10);
+          border-radius: 13px;
+          color: #173838;
+          font-size: 0.92rem;
+          outline: none;
+          padding: 0 1rem;
+          font-family: 'Inter', sans-serif;
+          transition: all 0.15s;
+        }
+
+        .input:focus {
+          border-color: rgba(255,127,103,0.42);
+          box-shadow: 0 0 0 4px rgba(255,127,103,0.08);
+        }
+
+        .input::placeholder {
+          color: #9aaba8;
+        }
+
+        .button {
+          width: 100%;
+          height: 54px;
+          border: none;
+          border-radius: 13px;
+          background: #ff7f67;
+          color: #173838;
+          font-size: 0.94rem;
+          font-weight: 900;
+          cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          box-shadow: 0 14px 28px rgba(255,127,103,0.24);
+          transition: all 0.15s;
+          margin-top: 0.25rem;
+        }
+
+        .button:hover {
+          background: #ec6f5b;
+          transform: translateY(-1px);
+        }
+
+        .button:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .alert {
+          padding: 0.8rem 0.95rem;
+          border-radius: 13px;
+          font-size: 0.85rem;
+          line-height: 1.5;
+          font-family: 'Inter', sans-serif;
+          font-weight: 700;
+        }
+
+        .alert-error {
+          background: rgba(239,68,68,0.07);
+          border: 1px solid rgba(239,68,68,0.18);
+          color: #ef4444;
+        }
+
+        .alert-success {
+          background: rgba(143,200,193,0.18);
+          border: 1px solid rgba(143,200,193,0.36);
+          color: #2f625d;
+        }
+
+        .divider {
+          height: 1px;
+          background: rgba(23,56,56,0.08);
+          margin: 1.55rem 0 1.2rem;
+        }
+
+        .bottom {
+          text-align: center;
+          color: #819693;
+          font-size: 0.86rem;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .bottom a {
+          color: #ff7f67;
+          font-weight: 900;
+          text-decoration: none;
+        }
+
+        @media(max-width: 560px) {
+          .page-shell {
+            padding: 1rem;
+          }
+
+          .auth-card {
+            padding: 1.65rem;
+            border-radius: 22px;
+          }
+
+          .title {
+            font-size: 1.65rem;
+          }
+        }
       `}</style>
 
-      <div className="card">
-        <a href="/" className="logo">⚡ LeadMagnet</a>
-        <div className="trial-badge">🎉 7-day free trial — no card needed</div>
-        <h1 className="title">Create your account</h1>
-        <p className="subtitle">Join agencies capturing qualified prospects from LinkedIn and Instagram campaigns — and managing Gmail follow-ups from one dashboard.</p>
+      <section className="auth-card">
+        <Link href="/" className="logo">
+          <span className="brand-mark" />
+          <span className="brand-name">
+            <span className="lead">lead</span>
+            <span className="magnet">magnet</span> inc
+          </span>
+        </Link>
 
-        <div className="perks">
-          <div className="perk"><span>✓</span> Free for 7 days — no credit card</div>
-          <div className="perk"><span>✓</span> Set up in under 10 minutes</div>
-          <div className="perk"><span>✓</span> Cancel anytime</div>
+        <div className="kicker">7-day free trial</div>
+
+        <h1 className="title">Create your account</h1>
+
+        <p className="subtitle">
+          Start capturing engaged prospects, managing campaigns, and organizing
+          follow-ups from one clean dashboard.
+        </p>
+
+        <div className="benefits">
+          <div className="benefit">
+            <span className="check">✓</span>
+            No credit card required
+          </div>
+
+          <div className="benefit">
+            <span className="check">✓</span>
+            Set up your first workflow in minutes
+          </div>
+
+          <div className="benefit">
+            <span className="check">✓</span>
+            Upgrade only when you are ready
+          </div>
         </div>
 
-        {error && <div className="error">⚠ {error}</div>}
+        <form className="form" onSubmit={handleSignup}>
+          {error && <div className="alert alert-error">{error}</div>}
+          {success && <div className="alert alert-success">{success}</div>}
 
-        <form onSubmit={handleSignUp}>
-          <label className="label">Email address</label>
-          <input className="input" type="email" placeholder="you@agency.com" value={email} onChange={e => setEmail(e.target.value)} required />
-          <label className="label">Password</label>
-          <input className="input" type="password" placeholder="At least 8 characters" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
-          <button className="btn" type="submit" disabled={loading}>
-            {loading ? "Creating account..." : "Start Free Trial →"}
+          <label className="field">
+            <span className="label">Email address</span>
+            <input
+              className="input"
+              type="email"
+              placeholder="you@agency.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </label>
+
+          <label className="field">
+            <span className="label">Password</span>
+            <input
+              className="input"
+              type="password"
+              placeholder="At least 8 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </label>
+
+          <button className="button" type="submit" disabled={loading}>
+            {loading ? "Creating account..." : "Start Free Trial"}
           </button>
         </form>
 
-        <hr className="divider" />
-        <div className="login-link">
-          Already have an account? <a href="/login">Log in</a>
+        <div className="divider" />
+
+        <div className="bottom">
+          Already have an account? <Link href="/login">Log in</Link>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
