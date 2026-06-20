@@ -2,20 +2,44 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { ReactNode, SVGProps } from "react";
 
-function Icon({ name, size = 22 }: { name: string; size?: number }) {
-  const common = {
+type IconProps = {
+  name: string;
+  size?: number;
+};
+
+type Plan = {
+  name: string;
+  price: string;
+  period: string;
+  desc: string;
+  features: string[];
+  popular: boolean;
+};
+
+type ApiPlan = {
+  name: string;
+  display_price: string;
+  period: string;
+  description: string;
+  features?: string[];
+  popular: boolean;
+};
+
+function Icon({ name, size = 22 }: IconProps) {
+  const common: SVGProps<SVGSVGElement> = {
     width: size,
     height: size,
     viewBox: "0 0 24 24",
     fill: "none",
     stroke: "currentColor",
-    strokeWidth: "2",
+    strokeWidth: 2,
     strokeLinecap: "round",
     strokeLinejoin: "round",
   };
 
-  const icons: Record<string, JSX.Element> = {
+  const icons: Record<string, ReactNode> = {
     campaign: (
       <svg {...common}>
         <path d="M4 4h16v16H4z" />
@@ -77,15 +101,6 @@ function Icon({ name, size = 22 }: { name: string; size?: number }) {
 
   return icons[name] || null;
 }
-
-type Plan = {
-  name: string;
-  price: string;
-  period: string;
-  desc: string;
-  features: string[];
-  popular: boolean;
-};
 
 export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -156,10 +171,10 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/plans")
       .then((res) => res.json())
-      .then((data) => {
+      .then((data: { plans?: ApiPlan[] }) => {
         if (data.plans?.length) {
           setPlans(
-            data.plans.map((plan: any) => ({
+            data.plans.map((plan) => ({
               name: plan.name,
               price: plan.display_price,
               period: plan.period,
@@ -853,11 +868,21 @@ export default function Home() {
         </Link>
 
         <div className="nav-links">
-          <a href="#features" className="nav-link hide-mobile">Features</a>
-          <a href="#pricing" className="nav-link hide-mobile">Pricing</a>
-          <a href="#faq" className="nav-link hide-mobile">FAQ</a>
-          <Link href="/login" className="nav-link">Log in</Link>
-          <Link href="/signup" className="nav-cta">Start Free Trial</Link>
+          <a href="#features" className="nav-link hide-mobile">
+            Features
+          </a>
+          <a href="#pricing" className="nav-link hide-mobile">
+            Pricing
+          </a>
+          <a href="#faq" className="nav-link hide-mobile">
+            FAQ
+          </a>
+          <Link href="/login" className="nav-link">
+            Log in
+          </Link>
+          <Link href="/signup" className="nav-cta">
+            Start Free Trial
+          </Link>
         </div>
       </nav>
 
