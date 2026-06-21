@@ -9,24 +9,31 @@ function verifyAdmin(request) {
 
   if (!token) return false;
 
-  const parts = token.split(".");
+  const parts = token.split("|");
   if (parts.length !== 3) return false;
 
-  const [username, expiresAt, signature] = parts;
+  const [encodedUsername, expiresAt, signature] = parts;
 
-  if (!username || !expiresAt || !signature) return false;
+  if (!encodedUsername || !expiresAt || !signature) return false;
   if (Date.now() > Number(expiresAt)) return false;
+
+  const username = decodeURIComponent(encodedUsername);
+
   if (username !== process.env.ADMIN_USERNAME) return false;
 
   const expected = crypto
     .createHmac("sha256", process.env.ADMIN_SESSION_SECRET || "")
-    .update(`${username}.${expiresAt}`)
+    .update(`${username}|${expiresAt}`)
     .digest("hex");
 
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expected)
-  );
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expected)
+    );
+  } catch {
+    return false;
+  }
 }
 
 const supabase = createClient(

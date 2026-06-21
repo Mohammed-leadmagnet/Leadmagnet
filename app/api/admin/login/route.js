@@ -5,9 +5,10 @@ const COOKIE_NAME = "leadmagnet_admin_session";
 
 function signSession(username, expiresAt) {
   const secret = process.env.ADMIN_SESSION_SECRET || "";
+
   return crypto
     .createHmac("sha256", secret)
-    .update(`${username}.${expiresAt}`)
+    .update(`${username}|${expiresAt}`)
     .digest("hex");
 }
 
@@ -35,7 +36,8 @@ export async function POST(request) {
 
     const expiresAt = Date.now() + 1000 * 60 * 60 * 8;
     const signature = signSession(username, expiresAt);
-    const token = `${username}.${expiresAt}.${signature}`;
+
+    const token = `${encodeURIComponent(username)}|${expiresAt}|${signature}`;
 
     const response = NextResponse.json({ success: true });
 
