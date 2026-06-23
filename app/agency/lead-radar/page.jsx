@@ -837,6 +837,26 @@ export default function LeadRadar() {
     };
   };
 
+  const formatAiRecommendation = (rec) => {
+  if (!rec) return null;
+
+  if (typeof rec === "string") {
+    try {
+      return JSON.parse(rec);
+    } catch {
+      return {
+        why_valuable: rec,
+        outreach_angle: "",
+        suggested_message: "",
+        risk_warning: "",
+        next_action: "",
+      };
+    }
+  }
+
+  return rec;
+};
+
   const getStatusColor = (status) => ({
     new: "#819693",
     approved: "#2f625d",
@@ -1546,29 +1566,100 @@ export default function LeadRadar() {
           text-align: right;
         }
 
-        .ai-box {
-          background: #FBF3E3;
-          border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 14px;
-          padding: 1rem;
-          margin: 0.75rem 0;
-        }
+.ai-box {
+  background: linear-gradient(145deg,#ffffff,#f8fbfa);
+  border: 1px solid rgba(23,56,56,0.08);
+  border-radius: 18px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 14px 30px rgba(23,56,56,0.06);
+}
 
-        .ai-label {
-          font-size: 0.72rem;
-          font-weight: 900;
-          color: #ff7f67;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          margin-bottom: 0.35rem;
-        }
+.ai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
 
-        .ai-text {
-          font-size: 0.86rem;
-          color: #5f7774;
-          line-height: 1.55;
-          white-space: pre-wrap;
-        }
+.ai-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #ff7f67;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ai-label-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff7f67;
+  box-shadow: 0 0 0 4px rgba(255,127,103,0.12);
+}
+
+.ai-pill {
+  background: rgba(143,200,193,0.18);
+  border: 1px solid rgba(143,200,193,0.34);
+  color: #2f625d;
+  border-radius: 100px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.ai-card-grid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ai-card {
+  background: #FBF3E3;
+  border: 1px solid rgba(23,56,56,0.08);
+  border-radius: 14px;
+  padding: 0.85rem;
+}
+
+.ai-card-title {
+  color: #173838;
+  font-size: 0.78rem;
+  font-weight: 900;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ai-card-text {
+  color: #5f7774;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  font-weight: 700;
+}
+
+.ai-message {
+  background: #ffffff;
+  border: 1px solid rgba(255,127,103,0.18);
+  color: #173838;
+  border-radius: 14px;
+  padding: 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(255,127,103,0.08);
+}
+
+.ai-warning {
+  background: rgba(239,68,68,0.06);
+  border-color: rgba(239,68,68,0.16);
+}
+
+.ai-warning .ai-card-title {
+  color: #ef4444;
+}
 
         @media(max-width: 1000px) {
           .app-layout {
@@ -1898,12 +1989,61 @@ export default function LeadRadar() {
               {aiLoading ? "Loading recommendation..." : "Get AI Recommendation"}
             </button>
 
-            {aiRec && (
-              <div className="ai-box">
-                <div className="ai-label">AI Recommendation</div>
-                <div className="ai-text">{typeof aiRec === "string" ? aiRec : JSON.stringify(aiRec, null, 2)}</div>
-              </div>
-            )}
+           {aiRec && (() => {
+  const rec = formatAiRecommendation(aiRec);
+
+  return (
+    <div className="ai-box">
+      <div className="ai-header">
+        <div className="ai-label">
+          <span className="ai-label-dot" />
+          AI Recommendation
+        </div>
+
+        <div className="ai-pill">Ready to use</div>
+      </div>
+
+      <div className="ai-card-grid">
+        {rec.why_valuable && (
+          <div className="ai-card">
+            <div className="ai-card-title">Why this lead matters</div>
+            <div className="ai-card-text">{rec.why_valuable}</div>
+          </div>
+        )}
+
+        {rec.outreach_angle && (
+          <div className="ai-card">
+            <div className="ai-card-title">Best outreach angle</div>
+            <div className="ai-card-text">{rec.outreach_angle}</div>
+          </div>
+        )}
+
+        {rec.suggested_message && (
+          <div>
+            <div className="ai-card-title" style={{ marginBottom: "0.35rem" }}>
+              Suggested message
+            </div>
+            <div className="ai-message">{rec.suggested_message}</div>
+          </div>
+        )}
+
+        {rec.next_action && (
+          <div className="ai-card">
+            <div className="ai-card-title">Next action</div>
+            <div className="ai-card-text">{rec.next_action}</div>
+          </div>
+        )}
+
+        {rec.risk_warning && (
+          <div className="ai-card ai-warning">
+            <div className="ai-card-title">Risk warning</div>
+            <div className="ai-card-text">{rec.risk_warning}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+})()}
 
             <div className="modal-buttons">
               <button className="modal-cancel" onClick={() => setDetailLead(null)}>Close</button>
