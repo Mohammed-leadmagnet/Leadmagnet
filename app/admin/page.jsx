@@ -102,6 +102,39 @@ export default function AdminPage() {
     return new Date(value).toLocaleDateString();
   };
 
+  const formatEuro = (value) => {
+    const number = Number(value || 0);
+
+    return new Intl.NumberFormat("en-EU", {
+      style: "currency",
+      currency: "EUR",
+      maximumFractionDigits: 0,
+    }).format(number);
+  };
+
+  const userAnalysis = dashboard?.userAnalysis || {
+    total_users: 0,
+    joined_today: 0,
+    joined_7_days: 0,
+    joined_30_days: 0,
+    users_by_month: [],
+    conversion_rate: 0,
+  };
+
+  const businessAnalysis = dashboard?.businessAnalysis || {
+    paid_people_count: 0,
+    monthly_revenue: 0,
+    monthly_expenses: 0,
+    net_monthly: 0,
+    active_expenses_count: 0,
+    plan_breakdown: [],
+  };
+
+  const maxMonthlyUsers = Math.max(
+    1,
+    ...userAnalysis.users_by_month.map(item => item.users)
+  );
+
   return (
     <main className="admin-page">
       <style>{`
@@ -168,13 +201,20 @@ export default function AdminPage() {
           line-height: 1;
         }
 
-        .brand-name .lead { color: #ff7f67; }
-        .brand-name .magnet { color: #8fc8c1; }
+        .brand-name .lead {
+          color: #ff7f67;
+        }
+
+        .brand-name .magnet {
+          color: #8fc8c1;
+        }
 
         .top-actions {
           display: flex;
           align-items: center;
           gap: 0.75rem;
+          flex-wrap: wrap;
+          justify-content: flex-end;
         }
 
         .top-link,
@@ -191,6 +231,12 @@ export default function AdminPage() {
           font-size: 0.84rem;
           font-weight: 900;
           cursor: pointer;
+        }
+
+        .top-link:hover {
+          background: rgba(255,127,103,0.10);
+          border-color: rgba(255,127,103,0.22);
+          color: #ff7f67;
         }
 
         .logout-btn {
@@ -373,10 +419,19 @@ export default function AdminPage() {
           letter-spacing: -0.05em;
         }
 
-        .grid {
+        .stat-value.good {
+          color: #2f625d;
+        }
+
+        .stat-value.bad {
+          color: #ef4444;
+        }
+
+        .analysis-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 1rem;
+          margin-bottom: 1rem;
         }
 
         .panel {
@@ -412,6 +467,107 @@ export default function AdminPage() {
           border-radius: 100px;
           font-size: 0.68rem;
           font-weight: 900;
+        }
+
+        .mini-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.75rem;
+          padding: 1rem;
+        }
+
+        .mini-card {
+          background: #FBF3E3;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 16px;
+          padding: 0.9rem;
+        }
+
+        .mini-label {
+          color: #819693;
+          font-size: 0.68rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 0.35rem;
+        }
+
+        .mini-value {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          color: #173838;
+          font-size: 1.35rem;
+          font-weight: 900;
+          letter-spacing: -0.05em;
+        }
+
+        .bar-list {
+          padding: 1rem;
+          display: grid;
+          gap: 0.8rem;
+        }
+
+        .bar-row {
+          display: grid;
+          grid-template-columns: 78px minmax(0, 1fr) 36px;
+          gap: 0.7rem;
+          align-items: center;
+          color: #5f7774;
+          font-size: 0.78rem;
+          font-weight: 900;
+        }
+
+        .bar-track {
+          height: 10px;
+          border-radius: 999px;
+          background: rgba(23,56,56,0.08);
+          overflow: hidden;
+        }
+
+        .bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg,#ff7f67,#8fc8c1);
+          border-radius: 999px;
+        }
+
+        .business-summary {
+          padding: 1rem;
+          display: grid;
+          gap: 0.75rem;
+        }
+
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          gap: 1rem;
+          border-bottom: 1px solid rgba(23,56,56,0.08);
+          padding-bottom: 0.75rem;
+          color: #5f7774;
+          font-size: 0.86rem;
+          font-weight: 800;
+        }
+
+        .summary-row:last-child {
+          border-bottom: 0;
+          padding-bottom: 0;
+        }
+
+        .summary-row strong {
+          color: #173838;
+          font-weight: 900;
+        }
+
+        .summary-row .good {
+          color: #2f625d;
+        }
+
+        .summary-row .bad {
+          color: #ef4444;
+        }
+
+        .table-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
         }
 
         .table {
@@ -466,18 +622,40 @@ export default function AdminPage() {
             grid-template-columns: repeat(3, 1fr);
           }
 
-          .grid {
+          .analysis-grid,
+          .table-grid {
             grid-template-columns: 1fr;
           }
         }
 
         @media(max-width: 700px) {
+          .topbar {
+            height: auto;
+            min-height: 72px;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            flex-direction: column;
+          }
+
+          .top-actions {
+            width: 100%;
+            justify-content: flex-start;
+          }
+
           .stats-grid {
             grid-template-columns: repeat(2, 1fr);
           }
 
-          .top-link {
-            display: none;
+          .mini-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .top-link,
+          .logout-btn {
+            min-height: 36px;
+            font-size: 0.78rem;
+            padding: 0 0.75rem;
           }
         }
       `}</style>
@@ -486,7 +664,15 @@ export default function AdminPage() {
         <BrandLogo />
 
         <div className="top-actions">
+          {authorized && (
+            <>
+              <a href="/admin/packages" className="top-link">Packages</a>
+              <a href="/admin/business" className="top-link">Business</a>
+            </>
+          )}
+
           <a href="/dashboard" className="top-link">Dashboard</a>
+
           {authorized && (
             <button className="logout-btn" onClick={handleLogout}>
               Admin logout
@@ -546,7 +732,7 @@ export default function AdminPage() {
             <div className="kicker">Internal</div>
             <h1 className="title">Admin Dashboard</h1>
             <p className="subtitle">
-              Monitor users, campaigns, leads, clients, subscriptions, and recent platform activity.
+              Monitor user growth, revenue, expenses, active customers, campaigns, and business performance.
             </p>
           </div>
 
@@ -557,36 +743,176 @@ export default function AdminPage() {
             </div>
 
             <div className="stat-card">
-              <div className="stat-label">Campaigns</div>
-              <div className="stat-value">{dashboard?.stats?.campaigns || 0}</div>
+              <div className="stat-label">Joined 30 Days</div>
+              <div className="stat-value">{userAnalysis.joined_30_days}</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-label">Leads</div>
-              <div className="stat-value">{dashboard?.stats?.leads || 0}</div>
+              <div className="stat-label">Paid People</div>
+              <div className="stat-value">{businessAnalysis.paid_people_count}</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-label">Clients</div>
-              <div className="stat-value">{dashboard?.stats?.clients || 0}</div>
+              <div className="stat-label">Revenue</div>
+              <div className="stat-value good">{formatEuro(businessAnalysis.monthly_revenue)}</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-label">Sequences</div>
-              <div className="stat-value">{dashboard?.stats?.sequences || 0}</div>
+              <div className="stat-label">Expenses</div>
+              <div className="stat-value bad">{formatEuro(businessAnalysis.monthly_expenses)}</div>
             </div>
 
             <div className="stat-card">
-              <div className="stat-label">Subscriptions</div>
-              <div className="stat-value">{dashboard?.stats?.subscriptions || 0}</div>
+              <div className="stat-label">Net</div>
+              <div className={`stat-value ${businessAnalysis.net_monthly >= 0 ? "good" : "bad"}`}>
+                {formatEuro(businessAnalysis.net_monthly)}
+              </div>
             </div>
           </div>
 
-          <div className="grid">
+          <div className="analysis-grid">
+            <div className="panel">
+              <div className="panel-head">
+                <div className="panel-title">User Join Analysis</div>
+                <div className="panel-tag">Growth</div>
+              </div>
+
+              <div className="mini-grid">
+                <div className="mini-card">
+                  <div className="mini-label">Today</div>
+                  <div className="mini-value">{userAnalysis.joined_today}</div>
+                </div>
+
+                <div className="mini-card">
+                  <div className="mini-label">7 Days</div>
+                  <div className="mini-value">{userAnalysis.joined_7_days}</div>
+                </div>
+
+                <div className="mini-card">
+                  <div className="mini-label">30 Days</div>
+                  <div className="mini-value">{userAnalysis.joined_30_days}</div>
+                </div>
+              </div>
+
+              <div className="bar-list">
+                {userAnalysis.users_by_month.map(item => (
+                  <div className="bar-row" key={item.month}>
+                    <div>{item.label}</div>
+                    <div className="bar-track">
+                      <div
+                        className="bar-fill"
+                        style={{
+                          width: `${Math.max(4, (item.users / maxMonthlyUsers) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                    <div>{item.users}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="panel">
+              <div className="panel-head">
+                <div className="panel-title">Business Analysis</div>
+                <div className="panel-tag">Finance</div>
+              </div>
+
+              <div className="business-summary">
+                <div className="summary-row">
+                  <span>Monthly revenue</span>
+                  <strong className="good">{formatEuro(businessAnalysis.monthly_revenue)}</strong>
+                </div>
+
+                <div className="summary-row">
+                  <span>Monthly expenses</span>
+                  <strong className="bad">{formatEuro(businessAnalysis.monthly_expenses)}</strong>
+                </div>
+
+                <div className="summary-row">
+                  <span>Estimated net monthly</span>
+                  <strong className={businessAnalysis.net_monthly >= 0 ? "good" : "bad"}>
+                    {formatEuro(businessAnalysis.net_monthly)}
+                  </strong>
+                </div>
+
+                <div className="summary-row">
+                  <span>Active paying people</span>
+                  <strong>{businessAnalysis.paid_people_count}</strong>
+                </div>
+
+                <div className="summary-row">
+                  <span>Conversion rate</span>
+                  <strong>{userAnalysis.conversion_rate}%</strong>
+                </div>
+
+                <div className="summary-row">
+                  <span>Active expenses</span>
+                  <strong>{businessAnalysis.active_expenses_count}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="table-grid">
+            <div className="panel">
+              <div className="panel-head">
+                <div className="panel-title">People Who Paid</div>
+                <div className="panel-tag">Revenue</div>
+              </div>
+
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Plan</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {(dashboard?.paidPeople || []).map(person => (
+                    <tr key={person.id}>
+                      <td>{person.email || "—"}</td>
+                      <td>{person.plan_name || "—"}</td>
+                      <td>{formatEuro(person.amount_eur)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="panel">
+              <div className="panel-head">
+                <div className="panel-title">Plan Breakdown</div>
+                <div className="panel-tag">Plans</div>
+              </div>
+
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Plan</th>
+                    <th>People</th>
+                    <th>Revenue</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {businessAnalysis.plan_breakdown.map(plan => (
+                    <tr key={plan.plan_key}>
+                      <td>{plan.plan_name}</td>
+                      <td>{plan.count}</td>
+                      <td>{formatEuro(plan.revenue)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
             <div className="panel">
               <div className="panel-head">
                 <div className="panel-title">Recent Users</div>
-                <div className="panel-tag">Auth</div>
+                <div className="panel-tag">Joined</div>
               </div>
 
               <table className="table">
@@ -612,33 +938,6 @@ export default function AdminPage() {
 
             <div className="panel">
               <div className="panel-head">
-                <div className="panel-title">Recent Subscriptions</div>
-                <div className="panel-tag">Stripe</div>
-              </div>
-
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Plan</th>
-                    <th>Status</th>
-                    <th>Created</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {(dashboard?.recentSubscriptions || []).map(sub => (
-                    <tr key={sub.id}>
-                      <td>{sub.plan || "—"}</td>
-                      <td><span className="pill">{sub.status || "—"}</span></td>
-                      <td className="muted">{formatDate(sub.created_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="panel" style={{ gridColumn: "1 / -1" }}>
-              <div className="panel-head">
                 <div className="panel-title">Recent Campaigns</div>
                 <div className="panel-tag">Campaigns</div>
               </div>
@@ -648,7 +947,6 @@ export default function AdminPage() {
                   <tr>
                     <th>Platform</th>
                     <th>Status</th>
-                    <th>Post URL</th>
                     <th>Created</th>
                   </tr>
                 </thead>
@@ -658,11 +956,6 @@ export default function AdminPage() {
                     <tr key={campaign.id}>
                       <td>{campaign.platform || "linkedin"}</td>
                       <td><span className="pill">{campaign.status || "—"}</span></td>
-                      <td className="muted">
-                        {campaign.post_url
-                          ? campaign.post_url.slice(0, 70) + "..."
-                          : "—"}
-                      </td>
                       <td className="muted">{formatDate(campaign.created_at)}</td>
                     </tr>
                   ))}
