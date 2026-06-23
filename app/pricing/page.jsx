@@ -7,7 +7,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-const plans = [
+const fallbackPlans = [
   {
     name: "Starter",
     planKey: "starter",
@@ -24,7 +24,6 @@ const plans = [
       "Email support",
     ],
     popular: false,
-    color: "#22c97a",
   },
   {
     name: "Pro",
@@ -42,7 +41,6 @@ const plans = [
       "Priority support",
     ],
     popular: false,
-    color: "#63b3ed",
   },
   {
     name: "Agency",
@@ -64,7 +62,6 @@ const plans = [
       "Per-client email sequences",
     ],
     popular: true,
-    color: "#22c97a",
   },
   {
     name: "Scale",
@@ -87,7 +84,6 @@ const plans = [
       "2,000 monthly Lead Radar credits",
     ],
     popular: false,
-    color: "#a78bfa",
   },
 ];
 
@@ -302,6 +298,8 @@ function Sidebar() {
 export default function Pricing() {
   const [loading, setLoading] = useState(null);
   const [user, setUser] = useState(null);
+  const [pricingPlans, setPricingPlans] = useState(fallbackPlans);
+  const [plansLoading, setPlansLoading] = useState(true);
 
   useEffect(() => {
     document.title = "Pricing — LeadMagnet";
@@ -309,6 +307,32 @@ export default function Pricing() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUser(data.user);
     });
+
+    fetch("/api/plans")
+      .then(res => res.json())
+      .then(data => {
+        if (data.plans?.length) {
+          setPricingPlans(
+            data.plans.map(plan => ({
+              name: plan.name,
+              planKey: plan.planKey || plan.plan_key,
+              price: plan.price || plan.display_price,
+              period: plan.period || "/ month",
+              desc: plan.desc || plan.description,
+              features: Array.isArray(plan.features) ? plan.features : [],
+              popular: Boolean(plan.popular),
+            }))
+          );
+        } else {
+          setPricingPlans(fallbackPlans);
+        }
+      })
+      .catch(() => {
+        setPricingPlans(fallbackPlans);
+      })
+      .finally(() => {
+        setPlansLoading(false);
+      });
   }, []);
 
   const handleSubscribe = async (planKey, planName) => {
@@ -339,6 +363,17 @@ export default function Pricing() {
 
     setLoading(null);
   };
+
+  const getComparePlans = () => {
+    const order = ["starter", "pro", "agency", "scale"];
+
+    return order.map(key => {
+      const found = pricingPlans.find(plan => plan.planKey === key);
+      return found || fallbackPlans.find(plan => plan.planKey === key);
+    }).filter(Boolean);
+  };
+
+  const comparePlans = getComparePlans();
 
   return (
     <main className="page">
@@ -421,12 +456,7 @@ export default function Pricing() {
           text-decoration: none;
           font-size: 0.84rem;
           font-weight: 900;
-        }
-
-        .top-link:hover {
-          color: #ff7f67;
-          border-color: rgba(255,127,103,0.28);
-          background: rgba(255,127,103,0.06);
+          cursor: pointer;
         }
 
         .app-layout {
@@ -504,17 +534,9 @@ export default function Pricing() {
           margin: 0 auto;
         }
 
-        .hero-card,
-        .plan,
-        .compare-card,
-        .guarantee-card {
-          background: #ffffff;
-          border: 1px solid rgba(23,56,56,0.08);
-          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
-        }
-
         .hero-card {
           background: linear-gradient(145deg,#ffffff,#f8fbfa);
+          border: 1px solid rgba(23,56,56,0.08);
           border-radius: 26px;
           padding: 1.7rem;
           box-shadow: 0 24px 60px rgba(23,56,56,0.08);
@@ -538,12 +560,12 @@ export default function Pricing() {
 
         .page-title {
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: clamp(2rem, 4vw, 3rem);
+          font-size: clamp(2.2rem, 4vw, 3.5rem);
           font-weight: 900;
           color: #173838;
           letter-spacing: -0.065em;
           line-height: 1.04;
-          margin-bottom: 0.6rem;
+          margin-bottom: 0.65rem;
         }
 
         .page-sub {
@@ -554,48 +576,55 @@ export default function Pricing() {
         }
 
         .billing-note {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
           margin-top: 1rem;
+          display: inline-flex;
           background: rgba(143,200,193,0.18);
-          border: 1px solid rgba(143,200,193,0.34);
+          border: 1px solid rgba(143,200,193,0.36);
           color: #2f625d;
-          font-size: 0.8rem;
-          font-weight: 900;
-          padding: 0.45rem 0.85rem;
           border-radius: 100px;
+          padding: 0.45rem 0.8rem;
+          font-size: 0.78rem;
+          font-weight: 900;
+        }
+
+        .loading-card {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 22px;
+          padding: 1.5rem;
+          color: #5f7774;
+          font-size: 0.95rem;
+          font-weight: 800;
+          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
+          margin-bottom: 1.25rem;
         }
 
         .plans {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 1rem;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1.25rem;
         }
 
         .plan {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
           border-radius: 22px;
-          padding: 1.35rem;
+          padding: 1.25rem;
+          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
           position: relative;
           display: flex;
           flex-direction: column;
-          transition: all 0.18s ease;
-        }
-
-        .plan:hover {
-          transform: translateY(-2px);
-          border-color: rgba(255,127,103,0.24);
-          box-shadow: 0 22px 50px rgba(23,56,56,0.08);
+          min-height: 100%;
         }
 
         .plan.popular {
-          border-color: rgba(255,127,103,0.28);
-          box-shadow: 0 22px 50px rgba(255,127,103,0.10);
+          border-color: rgba(255,127,103,0.32);
+          box-shadow: 0 20px 44px rgba(255,127,103,0.10);
         }
 
-        .plan.scale-plan {
-          border-color: rgba(167,139,250,0.28);
+        .scale-plan {
+          border-color: rgba(124,58,237,0.22);
         }
 
         .pop-badge,
@@ -742,6 +771,9 @@ export default function Pricing() {
         }
 
         .compare-card {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
           border-radius: 22px;
           padding: 1.25rem;
           margin-bottom: 1.25rem;
@@ -805,6 +837,9 @@ export default function Pricing() {
         }
 
         .guarantee-card {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          box-shadow: 0 16px 34px rgba(23,56,56,0.05);
           border-radius: 20px;
           padding: 1rem 1.25rem;
           color: #5f7774;
@@ -885,57 +920,77 @@ export default function Pricing() {
               <div className="billing-note">Secure payments by Stripe</div>
             </div>
 
-            <div className="plans">
-              {plans.map(plan => (
-                <div
-                  className={`plan${plan.popular ? " popular" : ""}${plan.planKey === "scale" ? " scale-plan" : ""}`}
-                  key={plan.name}
-                >
-                  {plan.popular && <div className="pop-badge">Popular</div>}
-                  {plan.planKey === "scale" && <div className="scale-badge">Premium</div>}
-
-                  <div className="plan-name">{plan.name}</div>
-
-                  <div className="plan-price-wrap">
-                    <div className="plan-price">{plan.price}</div>
-                    <div className="plan-period">{plan.period}</div>
-                  </div>
-
-                  <div className="plan-desc">{plan.desc}</div>
-
-                  <hr className="plan-divider" />
-
-                  <ul className="features">
-                    {plan.features.map(feature => (
-                      <li
-                        key={feature}
-                        className={feature.includes("Everything in") || feature === "Lead Radar" ? "highlight" : ""}
-                      >
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button
-                    className="btn"
-                    onClick={() => handleSubscribe(plan.planKey, plan.name)}
-                    disabled={loading === plan.name}
+            {plansLoading ? (
+              <div className="loading-card">Loading latest packages...</div>
+            ) : (
+              <div className="plans">
+                {pricingPlans.map(plan => (
+                  <div
+                    className={`plan${plan.popular ? " popular" : ""}${plan.planKey === "scale" ? " scale-plan" : ""}`}
+                    key={plan.planKey || plan.name}
                   >
-                    {loading === plan.name ? "Redirecting..." : `Start ${plan.name} Trial →`}
-                  </button>
-                </div>
-              ))}
-            </div>
+                    {plan.popular && <div className="pop-badge">Popular</div>}
+                    {plan.planKey === "scale" && <div className="scale-badge">Premium</div>}
+
+                    <div className="plan-name">{plan.name}</div>
+
+                    <div className="plan-price-wrap">
+                      <div className="plan-price">{plan.price}</div>
+                      <div className="plan-period">{plan.period}</div>
+                    </div>
+
+                    <div className="plan-desc">{plan.desc}</div>
+
+                    <hr className="plan-divider" />
+
+                    <ul className="features">
+                      {plan.features.map(feature => (
+                        <li
+                          key={feature}
+                          className={
+                            feature.includes("Everything in") || feature === "Lead Radar"
+                              ? "highlight"
+                              : ""
+                          }
+                        >
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <button
+                      className="btn"
+                      onClick={() => handleSubscribe(plan.planKey, plan.name)}
+                      disabled={loading === plan.name}
+                    >
+                      {loading === plan.name ? "Redirecting..." : `Start ${plan.name} Trial →`}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="compare-card">
               <div className="compare-title">Compare plans</div>
 
               <div className="compare-grid">
                 <div className="compare-cell compare-header"></div>
-                <div className="compare-cell compare-header">Starter</div>
-                <div className="compare-cell compare-header">Pro</div>
-                <div className="compare-cell compare-header" style={{ color: "#ff7f67" }}>Agency</div>
-                <div className="compare-cell compare-header" style={{ color: "#7c3aed" }}>Scale</div>
+                {comparePlans.map(plan => (
+                  <div
+                    key={plan.planKey}
+                    className="compare-cell compare-header"
+                    style={{
+                      color:
+                        plan.planKey === "scale"
+                          ? "#7c3aed"
+                          : plan.planKey === "agency"
+                            ? "#ff7f67"
+                            : "#173838",
+                    }}
+                  >
+                    {plan.name}
+                  </div>
+                ))}
 
                 {[
                   ["Client workspaces", "1", "5", "15", "Unlimited"],
