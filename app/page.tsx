@@ -451,23 +451,30 @@ export default function Home() {
         }
 
         .preview-card {
-          background: linear-gradient(145deg,#ffffff,#f8fbfa);
+          background:
+            radial-gradient(circle at 18% 12%, rgba(255,127,103,0.10), transparent 28%),
+            radial-gradient(circle at 88% 92%, rgba(143,200,193,0.20), transparent 32%),
+            linear-gradient(145deg,#ffffff,#f8fbfa);
           border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 28px;
-          padding: 1.2rem;
+          border-radius: 30px;
+          padding: 1.35rem;
           box-shadow: 0 26px 70px rgba(23,56,56,0.11);
           position: relative;
+          overflow: hidden;
         }
 
         .preview-top {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 1rem;
+          gap: 1rem;
+          margin-bottom: 1.1rem;
+          position: relative;
+          z-index: 1;
         }
 
         .preview-title {
-          font-size: 0.9rem;
+          font-size: 0.92rem;
           font-weight: 900;
           color: #173838;
         }
@@ -480,83 +487,186 @@ export default function Home() {
           padding: 0.35rem 0.7rem;
           font-size: 0.72rem;
           font-weight: 900;
+          white-space: nowrap;
         }
 
-        .metric-grid {
+        .workflow-preview {
+          position: relative;
+          z-index: 1;
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
           gap: 0.85rem;
-          margin-bottom: 0.9rem;
         }
 
-        .metric {
-          background: #FBF3E3;
-          border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 16px;
-          padding: 1rem;
-        }
-
-        .metric strong {
-          display: block;
-          color: #ff7f67;
-          font-size: 1.65rem;
-          letter-spacing: -0.05em;
-          margin-bottom: 0.2rem;
-        }
-
-        .metric span {
-          color: #5f7774;
-          font-size: 0.78rem;
-          font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-        }
-
-        .lead-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
+        .workflow-card {
           background: #ffffff;
           border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 16px;
-          padding: 0.9rem;
-          margin-top: 0.7rem;
+          border-radius: 18px;
+          padding: 0.95rem;
+          box-shadow: 0 12px 28px rgba(23,56,56,0.04);
         }
 
-        .lead-info {
+        .workflow-card.featured {
+          background: #FBF3E3;
+          border-color: rgba(255,127,103,0.18);
+        }
+
+        .workflow-row {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           gap: 0.75rem;
         }
 
-        .avatar {
+        .workflow-icon {
           width: 36px;
           height: 36px;
-          border-radius: 50%;
-          background: linear-gradient(135deg,#ff7f67,#8fc8c1);
+          border-radius: 13px;
+          background: rgba(255,127,103,0.10);
+          border: 1px solid rgba(255,127,103,0.18);
+          color: #ff7f67;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex: 0 0 auto;
         }
 
-        .lead-name {
-          font-size: 0.86rem;
-          font-weight: 900;
-          color: #173838;
+        .workflow-icon.mint {
+          background: rgba(143,200,193,0.18);
+          border-color: rgba(143,200,193,0.34);
+          color: #2f625d;
         }
 
-        .lead-meta {
-          font-size: 0.76rem;
+        .workflow-content {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .workflow-label {
           color: #819693;
-          margin-top: 0.12rem;
+          font-size: 0.68rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 0.2rem;
+        }
+
+        .workflow-title {
+          color: #173838;
+          font-size: 0.9rem;
+          font-weight: 900;
+          line-height: 1.35;
+        }
+
+        .workflow-copy {
+          color: #5f7774;
+          font-size: 0.78rem;
+          line-height: 1.55;
+          margin-top: 0.25rem;
           font-family: 'Inter', sans-serif;
         }
 
-        .score {
-          background: rgba(255,127,103,0.10);
-          border: 1px solid rgba(255,127,103,0.22);
+        .workflow-status {
           color: #ff7f67;
+          background: rgba(255,127,103,0.08);
+          border: 1px solid rgba(255,127,103,0.18);
           border-radius: 100px;
-          padding: 0.28rem 0.55rem;
-          font-size: 0.7rem;
+          padding: 0.25rem 0.55rem;
+          font-size: 0.68rem;
           font-weight: 900;
+          white-space: nowrap;
+          flex: 0 0 auto;
+        }
+
+        .workflow-status.ready {
+          color: #2f625d;
+          background: rgba(143,200,193,0.18);
+          border-color: rgba(143,200,193,0.34);
+        }
+
+        .pipeline {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr auto 1fr;
+          align-items: stretch;
+          gap: 0.45rem;
+        }
+
+        .pipeline-step {
+          background: rgba(255,255,255,0.88);
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 15px;
+          padding: 0.7rem 0.55rem;
+          text-align: center;
+        }
+
+        .pipeline-step strong {
+          display: block;
+          color: #173838;
+          font-size: 0.76rem;
+          font-weight: 900;
+          margin-bottom: 0.15rem;
+        }
+
+        .pipeline-step span {
+          color: #819693;
+          font-size: 0.66rem;
+          font-weight: 800;
+          font-family: 'Inter', sans-serif;
+        }
+
+        .pipeline-arrow {
+          color: #ff7f67;
+          font-weight: 900;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .insight-card {
+          background: linear-gradient(145deg,#173838,#2f625d);
+          color: #ffffff;
+          border-radius: 18px;
+          padding: 1rem;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .insight-card::after {
+          content: "";
+          position: absolute;
+          width: 160px;
+          height: 160px;
+          right: -70px;
+          top: -70px;
+          background: rgba(255,255,255,0.10);
+          border-radius: 50%;
+        }
+
+        .insight-label {
+          color: rgba(255,255,255,0.68);
+          font-size: 0.68rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          margin-bottom: 0.5rem;
+          position: relative;
+          z-index: 1;
+        }
+
+        .insight-text {
+          font-size: 0.86rem;
+          line-height: 1.55;
+          font-weight: 800;
+          position: relative;
+          z-index: 1;
+        }
+
+        .preview-footer {
+          display: flex;
+          justify-content: space-between;
+          gap: 0.75rem;
+          color: #819693;
+          font-size: 0.72rem;
+          font-weight: 800;
+          font-family: 'Inter', sans-serif;
         }
 
         .section {
@@ -918,52 +1028,80 @@ export default function Home() {
 
           <div className="preview-card">
             <div className="preview-top">
-              <div className="preview-title">Agency Dashboard</div>
-              <div className="status-pill">Live workflow</div>
+              <div className="preview-title">Workflow intelligence</div>
+              <div className="status-pill">Automated flow</div>
             </div>
 
-            <div className="metric-grid">
-              <div className="metric">
-                <strong>124</strong>
-                <span>Total leads</span>
-              </div>
+            <div className="workflow-preview">
+              <div className="workflow-card featured">
+                <div className="workflow-row">
+                  <div className="workflow-icon">
+                    <Icon name="campaign" size={18} />
+                  </div>
 
-              <div className="metric">
-                <strong>38</strong>
-                <span>Hot prospects</span>
-              </div>
+                  <div className="workflow-content">
+                    <div className="workflow-label">Campaign signal</div>
+                    <div className="workflow-title">A prospect engages with your campaign</div>
+                    <div className="workflow-copy">
+                      Capture the source, campaign context, and follow-up intent in one organized workspace.
+                    </div>
+                  </div>
 
-              <div className="metric">
-                <strong>12</strong>
-                <span>Campaigns</span>
-              </div>
-
-              <div className="metric">
-                <strong>4</strong>
-                <span>Clients</span>
-              </div>
-            </div>
-
-            <div className="lead-row">
-              <div className="lead-info">
-                <div className="avatar" />
-                <div>
-                  <div className="lead-name">Sarah Mitchell</div>
-                  <div className="lead-meta">Founder at Studio North</div>
+                  <div className="workflow-status">Captured</div>
                 </div>
               </div>
-              <div className="score">Hot</div>
-            </div>
 
-            <div className="lead-row">
-              <div className="lead-info">
-                <div className="avatar" />
-                <div>
-                  <div className="lead-name">Daniel Hart</div>
-                  <div className="lead-meta">Growth Lead at Orbit</div>
+              <div className="pipeline">
+                <div className="pipeline-step">
+                  <strong>Capture</strong>
+                  <span>Social campaigns</span>
+                </div>
+
+                <div className="pipeline-arrow">→</div>
+
+                <div className="pipeline-step">
+                  <strong>Score</strong>
+                  <span>Lead Radar</span>
+                </div>
+
+                <div className="pipeline-arrow">→</div>
+
+                <div className="pipeline-step">
+                  <strong>Follow up</strong>
+                  <span>Gmail sequence</span>
                 </div>
               </div>
-              <div className="score">Warm</div>
+
+              <div className="workflow-card">
+                <div className="workflow-row">
+                  <div className="workflow-icon mint">
+                    <Icon name="radar" size={18} />
+                  </div>
+
+                  <div className="workflow-content">
+                    <div className="workflow-label">AI qualification</div>
+                    <div className="workflow-title">Matched against your ideal client profile</div>
+                    <div className="workflow-copy">
+                      LeadMagnet highlights fit, outreach angle, and the next best action before your team replies.
+                    </div>
+                  </div>
+
+                  <div className="workflow-status ready">Ready</div>
+                </div>
+              </div>
+
+              <div className="insight-card">
+                <div className="insight-label">Recommended next step</div>
+                <div className="insight-text">
+                  Send a short personalized intro, mention the campaign interaction,
+                  then move the lead into a structured follow-up sequence.
+                </div>
+              </div>
+
+              <div className="preview-footer">
+                <span>Client dashboard updated</span>
+                <span>Report-ready activity</span>
+              </div>
             </div>
           </div>
         </div>
