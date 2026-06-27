@@ -42,10 +42,10 @@ function Icon({ name, size = 22 }: IconProps) {
   const icons: Record<string, ReactNode> = {
     campaign: (
       <svg {...common}>
-        <path d="M4 4h16v16H4z" />
-        <path d="M8 8h8" />
-        <path d="M8 12h8" />
-        <path d="M8 16h5" />
+        <path d="M4 5h16v14H4z" />
+        <path d="M8 9h8" />
+        <path d="M8 13h5" />
+        <path d="M16 17l3 3" />
       </svg>
     ),
     mail: (
@@ -65,7 +65,8 @@ function Icon({ name, size = 22 }: IconProps) {
     analytics: (
       <svg {...common}>
         <path d="M3 3v18h18" />
-        <path d="M7 14l3-3 3 2 5-6" />
+        <path d="M7 15l3-4 3 2 5-7" />
+        <path d="M18 6h3v3" />
       </svg>
     ),
     client: (
@@ -79,11 +80,18 @@ function Icon({ name, size = 22 }: IconProps) {
     radar: (
       <svg {...common}>
         <circle cx="12" cy="12" r="9" />
+        <circle cx="12" cy="12" r="3" />
         <path d="M12 12l6-3" />
         <path d="M12 3v3" />
         <path d="M21 12h-3" />
         <path d="M12 21v-3" />
         <path d="M3 12h3" />
+      </svg>
+    ),
+    shield: (
+      <svg {...common}>
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M9 12l2 2 4-5" />
       </svg>
     ),
     check: (
@@ -97,13 +105,19 @@ function Icon({ name, size = 22 }: IconProps) {
         <path d="M13 5l7 7-7 7" />
       </svg>
     ),
+    spark: (
+      <svg {...common}>
+        <path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8L12 2z" />
+        <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z" />
+      </svg>
+    ),
   };
 
   return icons[name] || null;
 }
 
 export default function Home() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const [plans, setPlans] = useState<Plan[]>([
     {
@@ -188,36 +202,98 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
+  const metrics = [
+    { value: "3", label: "channels connected", detail: "LinkedIn, Instagram, Gmail" },
+    { value: "1", label: "agency dashboard", detail: "Campaigns, clients, and leads" },
+    { value: "7 days", label: "free trial", detail: "Start without a credit card" },
+  ];
+
   const features = [
     {
       icon: "campaign",
       title: "Campaign Manager",
-      desc: "Create LinkedIn and Instagram campaigns, track sources, and manage follow-up workflows from one dashboard.",
+      desc: "Create campaigns, track sources, assign owners, and monitor lead flow from one workspace.",
     },
     {
       icon: "mail",
       title: "Gmail Sequences",
-      desc: "Connect Gmail securely and run structured follow-up sequences without storing passwords.",
+      desc: "Build structured follow-up sequences with clear guardrails and a human-friendly workflow.",
     },
     {
       icon: "leads",
       title: "Leads Dashboard",
-      desc: "Search, filter, score, archive, and export prospects captured from your campaigns.",
-    },
-    {
-      icon: "analytics",
-      title: "Analytics",
-      desc: "See campaign performance, lead volume, conversion quality, and activity trends.",
-    },
-    {
-      icon: "client",
-      title: "Client Manager",
-      desc: "Manage agency clients, portals, tiers, health scores, reports, and revenue in one place.",
+      desc: "Search, filter, score, archive, export, and review prospects captured from your campaigns.",
     },
     {
       icon: "radar",
       title: "Lead Radar",
-      desc: "Use ICP profiles and lead scoring to identify better-fit prospects for outreach.",
+      desc: "Match prospects against ICP profiles, spot high-intent accounts, and prioritize better-fit leads.",
+    },
+    {
+      icon: "client",
+      title: "Client Manager",
+      desc: "Manage agency clients, portals, tiers, health scores, reports, and account performance.",
+    },
+    {
+      icon: "analytics",
+      title: "Reporting",
+      desc: "Turn campaign activity into simple client-ready reports without building spreadsheets manually.",
+    },
+  ];
+
+  const steps = [
+    {
+      label: "01",
+      title: "Capture engagement",
+      desc: "Bring LinkedIn and Instagram campaign signals into one lead workspace.",
+    },
+    {
+      label: "02",
+      title: "Qualify the prospect",
+      desc: "Use Lead Radar, campaign source, and ICP fit to understand who deserves attention first.",
+    },
+    {
+      label: "03",
+      title: "Follow up responsibly",
+      desc: "Move qualified leads into Gmail sequences while keeping the team in control.",
+    },
+    {
+      label: "04",
+      title: "Report the outcome",
+      desc: "Show lead volume, quality, activity, and client progress from the same dashboard.",
+    },
+  ];
+
+  const proof = [
+    {
+      title: "Cleaner pipeline",
+      desc: "Replace scattered sheets with one flow from campaign signal to report-ready lead activity.",
+    },
+    {
+      title: "Better prioritization",
+      desc: "Give sales teams a clear reason to contact each lead, not just another raw list.",
+    },
+    {
+      title: "Agency-ready control",
+      desc: "Separate workspaces, client views, exports, and reporting make the product easier to sell.",
+    },
+  ];
+
+  const testimonials = [
+    {
+      quote:
+        "LeadMagnet gives agencies a stronger way to turn campaign engagement into a managed follow-up pipeline.",
+      name: "Agency growth team",
+    },
+    {
+      quote:
+        "The value is clear: capture the signal, qualify the lead, and show the client what happened.",
+      name: "Outbound consultant",
+    },
+    {
+      quote:
+        "The dashboard makes the product feel practical, not just another automation tool.",
+      name: "Client success lead",
     },
   ];
 
@@ -243,7 +319,7 @@ export default function Home() {
   return (
     <main className="page-shell">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
         * {
           box-sizing: border-box;
@@ -251,27 +327,45 @@ export default function Home() {
           padding: 0;
         }
 
+        html {
+          scroll-behavior: smooth;
+        }
+
         .page-shell {
           min-height: 100vh;
-          background: #FBF3E3;
+          background:
+            radial-gradient(circle at 8% 8%, rgba(255,127,103,0.16), transparent 28%),
+            radial-gradient(circle at 92% 2%, rgba(143,200,193,0.18), transparent 30%),
+            linear-gradient(180deg, #fff8ee 0%, #fbf3e3 45%, #f8fbfa 100%);
           color: #173838;
           font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
           overflow-x: hidden;
+        }
+
+        a {
+          color: inherit;
+        }
+
+        .container {
+          width: 100%;
+          max-width: 1180px;
+          margin: 0 auto;
+          padding: 0 1.5rem;
         }
 
         .nav {
           position: sticky;
           top: 0;
           z-index: 50;
-          height: 64px;
+          height: 68px;
           padding: 0 1.75rem;
-          background: rgba(255,255,255,0.9);
+          background: rgba(255,255,255,0.86);
           backdrop-filter: blur(18px);
           border-bottom: 1px solid rgba(23,56,56,0.08);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          box-shadow: 0 10px 30px rgba(23,56,56,0.04);
+          box-shadow: 0 12px 38px rgba(23,56,56,0.05);
         }
 
         .logo {
@@ -283,12 +377,12 @@ export default function Home() {
         }
 
         .brand-mark {
-          width: 30px;
-          height: 30px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
           background: conic-gradient(from -12deg,#ff7f67 0 44%,transparent 44% 51%,#8fc8c1 51% 86%,transparent 86% 100%);
           position: relative;
-          flex: 0 0 auto;
+          box-shadow: 0 12px 24px rgba(255,127,103,0.18);
         }
 
         .brand-mark:after {
@@ -312,13 +406,13 @@ export default function Home() {
         }
 
         .brand-name .magnet {
-          color: #8fc8c1;
+          color: #67aaa1;
         }
 
         .nav-links {
           display: flex;
           align-items: center;
-          gap: 0.8rem;
+          gap: 0.65rem;
         }
 
         .nav-link {
@@ -326,11 +420,11 @@ export default function Home() {
           text-decoration: none;
           font-family: 'Inter', sans-serif;
           font-size: 0.84rem;
-          font-weight: 700;
-          padding: 0.5rem 0.8rem;
-          border-radius: 9px;
+          font-weight: 800;
+          padding: 0.54rem 0.8rem;
+          border-radius: 10px;
           border: 1px solid transparent;
-          transition: all 0.15s;
+          transition: all 0.18s ease;
         }
 
         .nav-link:hover {
@@ -345,26 +439,26 @@ export default function Home() {
           text-decoration: none;
           font-size: 0.84rem;
           font-weight: 900;
-          padding: 0.62rem 1rem;
-          border-radius: 10px;
-          box-shadow: 0 10px 22px rgba(255,127,103,0.22);
+          padding: 0.68rem 1rem;
+          border-radius: 12px;
+          box-shadow: 0 12px 26px rgba(255,127,103,0.24);
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+          white-space: nowrap;
         }
 
-        .container {
-          width: 100%;
-          max-width: 1180px;
-          margin: 0 auto;
-          padding: 0 1.5rem;
+        .nav-cta:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 16px 34px rgba(255,127,103,0.28);
         }
 
         .hero {
-          padding: 6rem 0 4.5rem;
+          padding: 6.5rem 0 4.2rem;
           position: relative;
         }
 
         .hero-grid {
           display: grid;
-          grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+          grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
           gap: 3rem;
           align-items: center;
         }
@@ -374,25 +468,26 @@ export default function Home() {
           align-items: center;
           gap: 0.5rem;
           color: #ff7f67;
-          background: rgba(255,127,103,0.08);
-          border: 1px solid rgba(255,127,103,0.18);
-          padding: 0.45rem 0.8rem;
+          background: rgba(255,127,103,0.09);
+          border: 1px solid rgba(255,127,103,0.20);
+          padding: 0.48rem 0.86rem;
           border-radius: 100px;
           font-size: 0.72rem;
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          margin-bottom: 1.2rem;
+          margin-bottom: 1.25rem;
           font-family: 'Inter', sans-serif;
         }
 
         .hero-title {
-          font-size: clamp(2.8rem, 6vw, 5.6rem);
-          line-height: 0.96;
-          letter-spacing: -0.075em;
+          font-size: clamp(3rem, 6.3vw, 5.85rem);
+          line-height: 0.95;
+          letter-spacing: -0.078em;
           color: #173838;
           font-weight: 900;
           margin-bottom: 1.25rem;
+          max-width: 760px;
         }
 
         .hero-title span {
@@ -400,10 +495,10 @@ export default function Home() {
         }
 
         .hero-copy {
-          max-width: 620px;
+          max-width: 650px;
           color: #5f7774;
-          font-size: 1.05rem;
-          line-height: 1.75;
+          font-size: 1.08rem;
+          line-height: 1.78;
           font-family: 'Inter', sans-serif;
           margin-bottom: 1.8rem;
         }
@@ -413,28 +508,36 @@ export default function Home() {
           align-items: center;
           gap: 0.9rem;
           flex-wrap: wrap;
-          margin-bottom: 1.5rem;
+          margin-bottom: 1.35rem;
         }
 
         .primary-btn,
-        .secondary-btn {
+        .secondary-btn,
+        .ghost-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 0.45rem;
-          min-height: 44px;
-          padding: 0.8rem 1.15rem;
-          border-radius: 12px;
+          gap: 0.48rem;
+          min-height: 46px;
+          padding: 0.84rem 1.2rem;
+          border-radius: 14px;
           font-size: 0.92rem;
           font-weight: 900;
           text-decoration: none;
           font-family: 'Inter', sans-serif;
+          transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
         }
 
         .primary-btn {
           background: #ff7f67;
           color: #173838;
           box-shadow: 0 16px 34px rgba(255,127,103,0.24);
+        }
+
+        .primary-btn:hover,
+        .secondary-btn:hover,
+        .ghost-btn:hover {
+          transform: translateY(-2px);
         }
 
         .secondary-btn {
@@ -444,23 +547,82 @@ export default function Home() {
           box-shadow: 0 12px 28px rgba(23,56,56,0.05);
         }
 
+        .ghost-btn {
+          background: transparent;
+          color: #2f625d;
+          border: 1px solid rgba(47,98,93,0.14);
+        }
+
         .hero-note {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
           color: #819693;
-          font-size: 0.84rem;
+          font-size: 0.85rem;
           font-family: 'Inter', sans-serif;
+          font-weight: 700;
+        }
+
+        .metric-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.85rem;
+          margin-top: 2rem;
+          max-width: 700px;
+        }
+
+        .metric-card {
+          background: rgba(255,255,255,0.74);
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 18px;
+          padding: 1rem;
+          box-shadow: 0 16px 36px rgba(23,56,56,0.05);
+        }
+
+        .metric-card strong {
+          display: block;
+          font-size: 1.4rem;
+          color: #173838;
+          font-weight: 900;
+          letter-spacing: -0.04em;
+          margin-bottom: 0.2rem;
+        }
+
+        .metric-card span {
+          display: block;
+          color: #2f625d;
+          font-size: 0.78rem;
+          font-weight: 900;
+          margin-bottom: 0.15rem;
+        }
+
+        .metric-card small {
+          color: #819693;
+          font-family: 'Inter', sans-serif;
+          font-weight: 700;
+          line-height: 1.4;
         }
 
         .preview-card {
           background:
-            radial-gradient(circle at 18% 12%, rgba(255,127,103,0.10), transparent 28%),
-            radial-gradient(circle at 88% 92%, rgba(143,200,193,0.20), transparent 32%),
+            radial-gradient(circle at 18% 12%, rgba(255,127,103,0.13), transparent 30%),
+            radial-gradient(circle at 88% 92%, rgba(143,200,193,0.26), transparent 34%),
             linear-gradient(145deg,#ffffff,#f8fbfa);
           border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 30px;
+          border-radius: 32px;
           padding: 1.35rem;
-          box-shadow: 0 26px 70px rgba(23,56,56,0.11);
+          box-shadow: 0 30px 80px rgba(23,56,56,0.13);
           position: relative;
           overflow: hidden;
+        }
+
+        .preview-card::before {
+          content: "";
+          position: absolute;
+          inset: 14px;
+          border: 1px solid rgba(255,255,255,0.74);
+          border-radius: 24px;
+          pointer-events: none;
         }
 
         .preview-top {
@@ -474,17 +636,17 @@ export default function Home() {
         }
 
         .preview-title {
-          font-size: 0.92rem;
+          font-size: 0.95rem;
           font-weight: 900;
           color: #173838;
         }
 
         .status-pill {
-          background: rgba(143,200,193,0.20);
-          border: 1px solid rgba(143,200,193,0.36);
+          background: rgba(143,200,193,0.22);
+          border: 1px solid rgba(143,200,193,0.38);
           color: #2f625d;
           border-radius: 100px;
-          padding: 0.35rem 0.7rem;
+          padding: 0.38rem 0.72rem;
           font-size: 0.72rem;
           font-weight: 900;
           white-space: nowrap;
@@ -494,20 +656,20 @@ export default function Home() {
           position: relative;
           z-index: 1;
           display: grid;
-          gap: 0.85rem;
+          gap: 0.86rem;
         }
 
         .workflow-card {
           background: #ffffff;
           border: 1px solid rgba(23,56,56,0.08);
           border-radius: 18px;
-          padding: 0.95rem;
-          box-shadow: 0 12px 28px rgba(23,56,56,0.04);
+          padding: 0.98rem;
+          box-shadow: 0 12px 30px rgba(23,56,56,0.05);
         }
 
         .workflow-card.featured {
-          background: #FBF3E3;
-          border-color: rgba(255,127,103,0.18);
+          background: #fff8ee;
+          border-color: rgba(255,127,103,0.20);
         }
 
         .workflow-row {
@@ -517,9 +679,9 @@ export default function Home() {
         }
 
         .workflow-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: 13px;
+          width: 38px;
+          height: 38px;
+          border-radius: 14px;
           background: rgba(255,127,103,0.10);
           border: 1px solid rgba(255,127,103,0.18);
           color: #ff7f67;
@@ -551,16 +713,16 @@ export default function Home() {
 
         .workflow-title {
           color: #173838;
-          font-size: 0.9rem;
+          font-size: 0.92rem;
           font-weight: 900;
           line-height: 1.35;
         }
 
         .workflow-copy {
           color: #5f7774;
-          font-size: 0.78rem;
-          line-height: 1.55;
-          margin-top: 0.25rem;
+          font-size: 0.79rem;
+          line-height: 1.56;
+          margin-top: 0.28rem;
           font-family: 'Inter', sans-serif;
         }
 
@@ -569,7 +731,7 @@ export default function Home() {
           background: rgba(255,127,103,0.08);
           border: 1px solid rgba(255,127,103,0.18);
           border-radius: 100px;
-          padding: 0.25rem 0.55rem;
+          padding: 0.26rem 0.58rem;
           font-size: 0.68rem;
           font-weight: 900;
           white-space: nowrap;
@@ -593,7 +755,7 @@ export default function Home() {
           background: rgba(255,255,255,0.88);
           border: 1px solid rgba(23,56,56,0.08);
           border-radius: 15px;
-          padding: 0.7rem 0.55rem;
+          padding: 0.72rem 0.55rem;
           text-align: center;
         }
 
@@ -624,7 +786,7 @@ export default function Home() {
           background: linear-gradient(145deg,#173838,#2f625d);
           color: #ffffff;
           border-radius: 18px;
-          padding: 1rem;
+          padding: 1.05rem;
           position: relative;
           overflow: hidden;
         }
@@ -652,8 +814,8 @@ export default function Home() {
         }
 
         .insight-text {
-          font-size: 0.86rem;
-          line-height: 1.55;
+          font-size: 0.88rem;
+          line-height: 1.58;
           font-weight: 800;
           position: relative;
           z-index: 1;
@@ -669,13 +831,68 @@ export default function Home() {
           font-family: 'Inter', sans-serif;
         }
 
+        .logo-strip {
+          padding: 0 0 3.5rem;
+        }
+
+        .strip-card {
+          background: rgba(255,255,255,0.66);
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 22px;
+          padding: 1rem 1.2rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          flex-wrap: wrap;
+          box-shadow: 0 16px 40px rgba(23,56,56,0.04);
+        }
+
+        .strip-label {
+          color: #819693;
+          font-family: 'Inter', sans-serif;
+          font-size: 0.76rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+        }
+
+        .strip-items {
+          display: flex;
+          gap: 0.85rem;
+          flex-wrap: wrap;
+        }
+
+        .strip-item {
+          color: #2f625d;
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 100px;
+          padding: 0.44rem 0.75rem;
+          font-size: 0.78rem;
+          font-weight: 900;
+          font-family: 'Inter', sans-serif;
+        }
+
         .section {
-          padding: 4.5rem 0;
+          padding: 4.7rem 0;
+        }
+
+        .section.alt {
+          background: rgba(255,255,255,0.45);
+          border-top: 1px solid rgba(23,56,56,0.06);
+          border-bottom: 1px solid rgba(23,56,56,0.06);
         }
 
         .section-head {
-          max-width: 720px;
+          max-width: 750px;
           margin-bottom: 2rem;
+        }
+
+        .section-head.center {
+          text-align: center;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         .section-tag {
@@ -689,18 +906,18 @@ export default function Home() {
         }
 
         .section-title {
-          font-size: clamp(2rem, 4vw, 3.3rem);
+          font-size: clamp(2rem, 4vw, 3.35rem);
           color: #173838;
           font-weight: 900;
           letter-spacing: -0.06em;
           line-height: 1.05;
-          margin-bottom: 0.8rem;
+          margin-bottom: 0.85rem;
         }
 
         .section-copy {
           color: #5f7774;
           font-size: 0.98rem;
-          line-height: 1.7;
+          line-height: 1.75;
           font-family: 'Inter', sans-serif;
         }
 
@@ -713,15 +930,22 @@ export default function Home() {
         .feature-card {
           background: linear-gradient(145deg,#ffffff,#f8fbfa);
           border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 22px;
-          padding: 1.35rem;
-          box-shadow: 0 18px 40px rgba(23,56,56,0.05);
+          border-radius: 23px;
+          padding: 1.38rem;
+          box-shadow: 0 18px 42px rgba(23,56,56,0.055);
+          min-height: 210px;
+          transition: transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .feature-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 24px 54px rgba(23,56,56,0.08);
         }
 
         .feature-icon {
-          width: 42px;
-          height: 42px;
-          border-radius: 14px;
+          width: 44px;
+          height: 44px;
+          border-radius: 15px;
           background: rgba(255,127,103,0.10);
           border: 1px solid rgba(255,127,103,0.20);
           color: #ff7f67;
@@ -731,33 +955,157 @@ export default function Home() {
           margin-bottom: 1rem;
         }
 
-        .feature-card h3 {
+        .feature-card h3,
+        .proof-card h3,
+        .step-card h3,
+        .testimonial-card h3 {
           color: #173838;
           font-size: 1rem;
           font-weight: 900;
           margin-bottom: 0.55rem;
+          letter-spacing: -0.02em;
         }
 
-        .feature-card p {
+        .feature-card p,
+        .proof-card p,
+        .step-card p,
+        .testimonial-card p {
           color: #5f7774;
           font-size: 0.88rem;
-          line-height: 1.65;
+          line-height: 1.66;
           font-family: 'Inter', sans-serif;
+        }
+
+        .steps-grid {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 1rem;
+        }
+
+        .step-card {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 22px;
+          padding: 1.35rem;
+          box-shadow: 0 18px 42px rgba(23,56,56,0.05);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .step-card::after {
+          content: "";
+          position: absolute;
+          right: -38px;
+          top: -38px;
+          width: 92px;
+          height: 92px;
+          background: rgba(255,127,103,0.08);
+          border-radius: 50%;
+        }
+
+        .step-label {
+          display: inline-flex;
+          width: 40px;
+          height: 40px;
+          border-radius: 14px;
+          align-items: center;
+          justify-content: center;
+          background: #fbf3e3;
+          border: 1px solid rgba(255,127,103,0.18);
+          color: #ff7f67;
+          font-weight: 900;
+          margin-bottom: 1rem;
+          position: relative;
+          z-index: 1;
+        }
+
+        .radar-panel {
+          display: grid;
+          grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+          gap: 1.2rem;
+          align-items: stretch;
+        }
+
+        .radar-card,
+        .proof-card,
+        .testimonial-card {
+          background: #ffffff;
+          border: 1px solid rgba(23,56,56,0.08);
+          border-radius: 24px;
+          padding: 1.4rem;
+          box-shadow: 0 18px 42px rgba(23,56,56,0.05);
+        }
+
+        .radar-card.dark {
+          background: linear-gradient(145deg,#173838,#2f625d);
+          color: #ffffff;
+        }
+
+        .radar-card.dark h3,
+        .radar-card.dark p {
+          color: #ffffff;
+        }
+
+        .radar-score {
+          display: grid;
+          gap: 0.78rem;
+          margin-top: 1rem;
+        }
+
+        .score-row {
+          display: grid;
+          grid-template-columns: 120px 1fr auto;
+          gap: 0.75rem;
+          align-items: center;
+          color: rgba(255,255,255,0.82);
+          font-family: 'Inter', sans-serif;
+          font-size: 0.8rem;
+          font-weight: 800;
+        }
+
+        .score-track {
+          height: 9px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.16);
+          overflow: hidden;
+        }
+
+        .score-fill {
+          height: 100%;
+          border-radius: inherit;
+          background: #8fc8c1;
+        }
+
+        .proof-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1rem;
+        }
+
+        .proof-card {
+          background: linear-gradient(145deg,#ffffff,#fffaf2);
         }
 
         .plans-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
           gap: 1rem;
         }
 
         .plan-card {
           background: #ffffff;
           border: 1px solid rgba(23,56,56,0.09);
-          border-radius: 22px;
+          border-radius: 24px;
           padding: 1.45rem;
-          box-shadow: 0 18px 40px rgba(23,56,56,0.05);
+          box-shadow: 0 18px 42px rgba(23,56,56,0.055);
           position: relative;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .plan-card.popular {
+          border-color: rgba(255,127,103,0.28);
+          box-shadow: 0 24px 58px rgba(255,127,103,0.12);
         }
 
         .plan-badge {
@@ -768,7 +1116,7 @@ export default function Home() {
           background: rgba(255,127,103,0.08);
           border: 1px solid rgba(255,127,103,0.18);
           border-radius: 100px;
-          padding: 0.25rem 0.6rem;
+          padding: 0.26rem 0.62rem;
           font-size: 0.68rem;
           font-weight: 900;
           text-transform: uppercase;
@@ -790,7 +1138,7 @@ export default function Home() {
         }
 
         .price strong {
-          font-size: 2.2rem;
+          font-size: 2.25rem;
           color: #173838;
           font-weight: 900;
           letter-spacing: -0.05em;
@@ -805,8 +1153,8 @@ export default function Home() {
         .plan-desc {
           color: #5f7774;
           font-size: 0.84rem;
-          line-height: 1.55;
-          min-height: 42px;
+          line-height: 1.56;
+          min-height: 58px;
           font-family: 'Inter', sans-serif;
           margin-bottom: 1.1rem;
         }
@@ -815,8 +1163,9 @@ export default function Home() {
           list-style: none;
           display: flex;
           flex-direction: column;
-          gap: 0.55rem;
+          gap: 0.58rem;
           margin-bottom: 1.25rem;
+          flex: 1;
         }
 
         .features-list li {
@@ -840,26 +1189,49 @@ export default function Home() {
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 42px;
+          min-height: 44px;
           background: #ff7f67;
           color: #173838;
-          border-radius: 12px;
+          border-radius: 13px;
           text-decoration: none;
           font-size: 0.88rem;
           font-weight: 900;
           font-family: 'Inter', sans-serif;
+          box-shadow: 0 12px 26px rgba(255,127,103,0.18);
+        }
+
+        .testimonial-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 1rem;
+        }
+
+        .testimonial-card p {
+          font-size: 0.94rem;
+          color: #173838;
+          font-weight: 700;
+        }
+
+        .testimonial-card h3 {
+          color: #2f625d;
+          font-size: 0.85rem;
+          margin-top: 1rem;
+          margin-bottom: 0;
         }
 
         .faq-list {
           display: grid;
           gap: 0.8rem;
+          max-width: 860px;
+          margin: 0 auto;
         }
 
         .faq-item {
           background: #ffffff;
           border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 16px;
+          border-radius: 18px;
           overflow: hidden;
+          box-shadow: 0 12px 30px rgba(23,56,56,0.04);
         }
 
         .faq-question {
@@ -888,12 +1260,24 @@ export default function Home() {
         }
 
         .cta-band {
-          background: linear-gradient(145deg,#ffffff,#f8fbfa);
+          background:
+            radial-gradient(circle at 12% 20%, rgba(255,127,103,0.16), transparent 30%),
+            radial-gradient(circle at 92% 88%, rgba(143,200,193,0.22), transparent 30%),
+            linear-gradient(145deg,#ffffff,#f8fbfa);
           border: 1px solid rgba(23,56,56,0.08);
-          border-radius: 28px;
-          padding: 2.4rem;
+          border-radius: 30px;
+          padding: 2.55rem;
           text-align: center;
-          box-shadow: 0 22px 55px rgba(23,56,56,0.07);
+          box-shadow: 0 24px 60px rgba(23,56,56,0.08);
+        }
+
+        .cta-actions {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.85rem;
+          flex-wrap: wrap;
+          margin-top: 1.4rem;
         }
 
         .footer {
@@ -902,6 +1286,7 @@ export default function Home() {
           color: #819693;
           font-size: 0.82rem;
           font-family: 'Inter', sans-serif;
+          background: rgba(255,255,255,0.45);
         }
 
         .footer-inner {
@@ -915,61 +1300,118 @@ export default function Home() {
         .footer-links {
           display: flex;
           gap: 1rem;
+          flex-wrap: wrap;
         }
 
         .footer-links a {
           color: #5f7774;
           text-decoration: none;
-          font-weight: 700;
+          font-weight: 800;
         }
 
-        @media(max-width: 900px) {
-          .hero-grid {
+        @media(max-width: 1020px) {
+          .hero-grid,
+          .radar-panel {
             grid-template-columns: 1fr;
           }
 
-          .features-grid {
-            grid-template-columns: 1fr 1fr;
+          .features-grid,
+          .steps-grid,
+          .proof-grid,
+          .testimonial-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media(max-width: 760px) {
+          .nav {
+            padding: 0 1rem;
           }
 
           .nav-links .hide-mobile {
             display: none;
           }
-        }
 
-        @media(max-width: 640px) {
-          .nav {
-            padding: 0 1rem;
+          .hero {
+            padding: 4.6rem 0 3.2rem;
           }
 
+          .hero-title {
+            letter-spacing: -0.065em;
+          }
+
+          .metric-grid,
+          .features-grid,
+          .steps-grid,
+          .proof-grid,
+          .testimonial-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .strip-card {
+            align-items: flex-start;
+          }
+
+          .pipeline {
+            grid-template-columns: 1fr;
+          }
+
+          .pipeline-arrow {
+            display: none;
+          }
+
+          .score-row {
+            grid-template-columns: 1fr;
+            gap: 0.35rem;
+          }
+
+          .preview-card {
+            border-radius: 24px;
+          }
+
+          .workflow-row {
+            flex-wrap: wrap;
+          }
+
+          .section {
+            padding: 3.6rem 0;
+          }
+
+          .cta-band {
+            padding: 1.7rem;
+          }
+        }
+
+        @media(max-width: 500px) {
           .brand-name {
             font-size: 0.95rem;
           }
 
-          .hero {
-            padding: 4rem 0 3rem;
+          .nav-cta {
+            padding: 0.62rem 0.8rem;
+            font-size: 0.78rem;
           }
 
-          .features-grid {
-            grid-template-columns: 1fr;
+          .hero-actions,
+          .cta-actions {
+            align-items: stretch;
+            flex-direction: column;
           }
 
-          .metric-grid {
-            grid-template-columns: 1fr;
+          .primary-btn,
+          .secondary-btn,
+          .ghost-btn {
+            width: 100%;
           }
 
-          .preview-card {
-            border-radius: 22px;
-          }
-
-          .cta-band {
-            padding: 1.6rem;
+          .preview-footer {
+            flex-direction: column;
           }
         }
       `}</style>
 
       <nav className="nav">
-        <Link href="/" className="logo">
+        <Link href="/" className="logo" aria-label="LeadMagnet home">
           <span className="brand-mark" />
           <span className="brand-name">
             <span className="lead">lead</span>
@@ -980,6 +1422,9 @@ export default function Home() {
         <div className="nav-links">
           <a href="#features" className="nav-link hide-mobile">
             Features
+          </a>
+          <a href="#workflow" className="nav-link hide-mobile">
+            Workflow
           </a>
           <a href="#pricing" className="nav-link hide-mobile">
             Pricing
@@ -999,36 +1444,48 @@ export default function Home() {
       <section className="hero">
         <div className="container hero-grid">
           <div>
-            <div className="kicker">Built for marketing agencies</div>
+            <div className="kicker">
+              <Icon name="spark" size={15} /> Built for marketing agencies
+            </div>
 
             <h1 className="hero-title">
-              Turn social engagement into <span>qualified leads</span>
+              Turn campaign engagement into <span>qualified sales leads.</span>
             </h1>
 
             <p className="hero-copy">
-              LeadMagnet helps agencies capture engaged prospects from LinkedIn
-              and Instagram campaigns, organise them in one dashboard, and
-              automate responsible Gmail follow-ups.
+              LeadMagnet helps agencies capture prospects from LinkedIn and
+              Instagram campaigns, qualify them with Lead Radar, and move the
+              right leads into structured Gmail follow-ups.
             </p>
 
             <div className="hero-actions">
               <Link href="/signup" className="primary-btn">
                 Start Free Trial <Icon name="arrow" size={16} />
               </Link>
-              <a href="#features" className="secondary-btn">
-                See how it works
+              <a href="#workflow" className="secondary-btn">
+                See the workflow
               </a>
             </div>
 
             <p className="hero-note">
-              No credit card required. Try the full workflow before choosing a
-              plan.
+              <Icon name="shield" size={16} />
+              No credit card required. Try the full workflow before choosing a plan.
             </p>
+
+            <div className="metric-grid">
+              {metrics.map((metric) => (
+                <div className="metric-card" key={metric.label}>
+                  <strong>{metric.value}</strong>
+                  <span>{metric.label}</span>
+                  <small>{metric.detail}</small>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="preview-card">
+          <div className="preview-card" aria-label="LeadMagnet workflow preview">
             <div className="preview-top">
-              <div className="preview-title">Workflow intelligence</div>
+              <div className="preview-title">Live lead workflow</div>
               <div className="status-pill">Automated flow</div>
             </div>
 
@@ -1041,9 +1498,12 @@ export default function Home() {
 
                   <div className="workflow-content">
                     <div className="workflow-label">Campaign signal</div>
-                    <div className="workflow-title">A prospect engages with your campaign</div>
+                    <div className="workflow-title">
+                      A prospect engages with your campaign
+                    </div>
                     <div className="workflow-copy">
-                      Capture the source, campaign context, and follow-up intent in one organized workspace.
+                      Capture the source, campaign context, and follow-up intent
+                      in one organized workspace.
                     </div>
                   </div>
 
@@ -1080,9 +1540,12 @@ export default function Home() {
 
                   <div className="workflow-content">
                     <div className="workflow-label">AI qualification</div>
-                    <div className="workflow-title">Matched against your ideal client profile</div>
+                    <div className="workflow-title">
+                      Matched against your ideal client profile
+                    </div>
                     <div className="workflow-copy">
-                      LeadMagnet highlights fit, outreach angle, and the next best action before your team replies.
+                      LeadMagnet highlights fit, outreach angle, and the next
+                      best action before your team replies.
                     </div>
                   </div>
 
@@ -1093,8 +1556,9 @@ export default function Home() {
               <div className="insight-card">
                 <div className="insight-label">Recommended next step</div>
                 <div className="insight-text">
-                  Send a short personalized intro, mention the campaign interaction,
-                  then move the lead into a structured follow-up sequence.
+                  Send a short personalized intro, mention the campaign
+                  interaction, then move the lead into a structured follow-up
+                  sequence.
                 </div>
               </div>
 
@@ -1102,6 +1566,20 @@ export default function Home() {
                 <span>Client dashboard updated</span>
                 <span>Report-ready activity</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="logo-strip">
+        <div className="container">
+          <div className="strip-card">
+            <div className="strip-label">Designed for agency workflows</div>
+            <div className="strip-items">
+              <span className="strip-item">Lead capture</span>
+              <span className="strip-item">ICP scoring</span>
+              <span className="strip-item">Gmail follow-up</span>
+              <span className="strip-item">Client reports</span>
             </div>
           </div>
         </div>
@@ -1117,9 +1595,9 @@ export default function Home() {
             </h2>
 
             <p className="section-copy">
-              Run campaigns, organise lead data, create follow-up sequences,
+              Run campaigns, organize lead data, create follow-up sequences,
               manage clients, and show results without switching between
-              scattered spreadsheets.
+              disconnected tools.
             </p>
           </div>
 
@@ -1137,7 +1615,84 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section" id="pricing">
+      <section className="section alt" id="workflow">
+        <div className="container">
+          <div className="section-head center">
+            <div className="section-tag">How it works</div>
+            <h2 className="section-title">
+              From first signal to client-ready report in one simple flow.
+            </h2>
+            <p className="section-copy">
+              The page now explains the product faster: what comes in, how it is
+              qualified, and what the agency can show the client.
+            </p>
+          </div>
+
+          <div className="steps-grid">
+            {steps.map((step) => (
+              <div className="step-card" key={step.label}>
+                <div className="step-label">{step.label}</div>
+                <h3>{step.title}</h3>
+                <p>{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section" id="lead-radar">
+        <div className="container radar-panel">
+          <div className="radar-card dark">
+            <div className="section-tag">Lead Radar</div>
+            <h2 className="section-title" style={{ color: "#ffffff" }}>
+              Qualify before your team spends time on outreach.
+            </h2>
+            <p className="section-copy" style={{ color: "rgba(255,255,255,0.76)" }}>
+              Lead Radar gives the landing page a stronger product hook by
+              explaining how agencies can prioritize prospects with ICP fit,
+              source context, and recommended next actions.
+            </p>
+
+            <div className="radar-score">
+              <div className="score-row">
+                <span>ICP fit</span>
+                <div className="score-track">
+                  <div className="score-fill" style={{ width: "86%" }} />
+                </div>
+                <strong>86%</strong>
+              </div>
+              <div className="score-row">
+                <span>Intent signal</span>
+                <div className="score-track">
+                  <div className="score-fill" style={{ width: "74%" }} />
+                </div>
+                <strong>74%</strong>
+              </div>
+              <div className="score-row">
+                <span>Next action</span>
+                <div className="score-track">
+                  <div className="score-fill" style={{ width: "92%" }} />
+                </div>
+                <strong>Ready</strong>
+              </div>
+            </div>
+          </div>
+
+          <div className="proof-grid">
+            {proof.map((item) => (
+              <div className="proof-card" key={item.title}>
+                <div className="feature-icon">
+                  <Icon name="check" />
+                </div>
+                <h3>{item.title}</h3>
+                <p>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt" id="pricing">
         <div className="container">
           <div className="section-head">
             <div className="section-tag">Pricing</div>
@@ -1154,7 +1709,10 @@ export default function Home() {
 
           <div className="plans-grid">
             {plans.map((plan) => (
-              <div className="plan-card" key={plan.name}>
+              <div
+                className={`plan-card ${plan.popular ? "popular" : ""}`}
+                key={plan.name}
+              >
                 {plan.popular && <div className="plan-badge">Popular</div>}
 
                 <div className="plan-name">{plan.name}</div>
@@ -1186,9 +1744,29 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section" id="faq">
+      <section className="section" id="proof">
         <div className="container">
-          <div className="section-head">
+          <div className="section-head center">
+            <div className="section-tag">Why agencies care</div>
+            <h2 className="section-title">
+              Clear value, sharper messaging, and more trust before signup.
+            </h2>
+          </div>
+
+          <div className="testimonial-grid">
+            {testimonials.map((testimonial) => (
+              <div className="testimonial-card" key={testimonial.name}>
+                <p>“{testimonial.quote}”</p>
+                <h3>{testimonial.name}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section alt" id="faq">
+        <div className="container">
+          <div className="section-head center">
             <div className="section-tag">FAQ</div>
             <h2 className="section-title">Questions before you start?</h2>
           </div>
@@ -1198,14 +1776,19 @@ export default function Home() {
               <div className="faq-item" key={faq.q}>
                 <button
                   className="faq-question"
+                  type="button"
+                  aria-expanded={openFaq === index}
+                  aria-controls={`faq-${index}`}
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
                 >
                   {faq.q}
-                  <span>{openFaq === index ? "−" : "+"}</span>
+                  <span aria-hidden="true">{openFaq === index ? "−" : "+"}</span>
                 </button>
 
                 {openFaq === index && (
-                  <div className="faq-answer">{faq.a}</div>
+                  <div className="faq-answer" id={`faq-${index}`}>
+                    {faq.a}
+                  </div>
                 )}
               </div>
             ))}
@@ -1224,15 +1807,20 @@ export default function Home() {
 
             <p
               className="section-copy"
-              style={{ margin: "0 auto 1.4rem", maxWidth: 620 }}
+              style={{ margin: "0 auto", maxWidth: 660 }}
             >
-              Create your account, connect your platforms, and start organising
-              prospects from social campaigns.
+              Create your account, connect your platforms, and start organizing
+              prospects from social campaigns with a cleaner agency workflow.
             </p>
 
-            <Link href="/signup" className="primary-btn">
-              Start Free Trial <Icon name="arrow" size={16} />
-            </Link>
+            <div className="cta-actions">
+              <Link href="/signup" className="primary-btn">
+                Start Free Trial <Icon name="arrow" size={16} />
+              </Link>
+              <Link href="/contact" className="ghost-btn">
+                Talk to support
+              </Link>
+            </div>
           </div>
         </div>
       </section>
