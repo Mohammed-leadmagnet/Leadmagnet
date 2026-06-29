@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { ReactNode, SVGProps } from "react";
 
 type IconProps = {
@@ -182,16 +182,10 @@ export default function AppNavigator({
   averageLeadScore = 0,
 }: AppNavigatorProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   function isActiveRoute(href: string) {
     if (href.startsWith("/campaigns?tab=")) {
-      if (pathname !== "/campaigns") return false;
-
-      const requestedTab = href.split("tab=")[1];
-      const currentTab = searchParams.get("tab") || "campaigns";
-
-      return requestedTab === currentTab;
+      return pathname === "/campaigns";
     }
 
     if (href === "/agency") {

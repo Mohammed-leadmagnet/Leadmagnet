@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import AppNavigator from "@/app/components/AppNavigator";
 import { createClient } from "@supabase/supabase-js";
 
@@ -140,7 +139,6 @@ function BrandLogo() {
 }
 
 export default function Campaigns() {
-  const searchParams = useSearchParams();
   const [user, setUser] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
   const [leads, setLeads] = useState([]);
@@ -174,12 +172,25 @@ export default function Campaigns() {
   }, []);
 
   useEffect(() => {
-    const tab = searchParams.get("tab");
+    const readTabFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
 
-    if (tab === "leads" || tab === "analytics" || tab === "campaigns") {
-      setActiveTab(tab);
-    }
-  }, [searchParams]);
+      if (tab === "leads" || tab === "analytics" || tab === "campaigns") {
+        setActiveTab(tab);
+      } else {
+        setActiveTab("campaigns");
+      }
+    };
+
+    readTabFromUrl();
+
+    window.addEventListener("popstate", readTabFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", readTabFromUrl);
+    };
+  }, []);
 
   const loadCampaigns = async (userId) => {
     const { data } = await supabase
