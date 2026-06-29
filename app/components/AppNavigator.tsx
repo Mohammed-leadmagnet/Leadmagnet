@@ -24,9 +24,9 @@ const navGroups = [
     label: "Main",
     items: [
       { label: "Dashboard", href: "/dashboard", icon: "analytics" },
-      { label: "Campaigns", href: "/campaigns?tab=campaigns", icon: "campaign" },
-      { label: "All Leads", href: "/campaigns?tab=leads", icon: "leads", hasBadge: true },
-      { label: "Analytics", href: "/campaigns?tab=analytics", icon: "chart" },
+      { label: "Campaigns", href: "/campaigns", icon: "campaign" },
+      { label: "All Leads", href: "/leads", icon: "leads", hasBadge: true },
+      { label: "Analytics", href: "/analytics", icon: "chart" },
     ],
   },
   {
@@ -184,10 +184,6 @@ export default function AppNavigator({
   const pathname = usePathname();
 
   function isActiveRoute(href: string) {
-    if (href.startsWith("/campaigns?tab=")) {
-      return pathname === "/campaigns";
-    }
-
     if (href === "/agency") {
       return pathname === "/agency";
     }
