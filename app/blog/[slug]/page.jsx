@@ -1,5 +1,6 @@
 import { blogPosts } from "@/lib/blog-posts";
 import Link from "next/link";
+import AppNavigator from "@/app/components/AppNavigator";
 import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
@@ -37,6 +38,17 @@ export default async function BlogArticle({ params }) {
           background: #FBF3E3;
           color: #173838;
           font-family: 'Inter', sans-serif;
+        }
+
+        .app-layout {
+          display: grid;
+          grid-template-columns: 290px minmax(0, 1fr);
+          min-height: 100vh;
+        }
+
+        .content {
+          padding: 2rem;
+          overflow-x: hidden;
         }
 
         .nav {
@@ -118,7 +130,7 @@ export default async function BlogArticle({ params }) {
         .article-wrap {
           max-width: 840px;
           margin: 0 auto;
-          padding: 3rem 1.5rem 5rem;
+          padding: 0 0 3rem;
         }
 
         .article-hero {
@@ -306,13 +318,27 @@ export default async function BlogArticle({ params }) {
           font-weight: 900;
         }
 
+        @media(max-width: 1000px) {
+          .app-layout {
+            grid-template-columns: 1fr;
+          }
+
+          .content {
+            padding: 1.25rem;
+          }
+        }
+
         @media(max-width: 700px) {
           .nav {
             padding: 0 1rem;
           }
 
+          .content {
+            padding: 1rem;
+          }
+
           .article-wrap {
-            padding: 2rem 1rem 4rem;
+            padding: 0 0 3rem;
           }
 
           .article-hero,
@@ -327,19 +353,11 @@ export default async function BlogArticle({ params }) {
         }
       `}</style>
 
-      <nav className="nav">
-        <a href="/" className="logo">
-          <span className="brand-mark" />
-          <span className="brand-name">
-            <span className="lead">lead</span>
-            <span className="magnet">magnet</span> inc
-          </span>
-        </a>
+      <div className="app-layout">
+        <AppNavigator />
 
-        <Link href="/blog" className="back">Back to Blog</Link>
-      </nav>
-
-      <article className="article-wrap">
+        <section className="content">
+          <article className="article-wrap">
         <section className="article-hero">
           <div className="article-meta">
             <span className="article-cat">{post.category}</span>
@@ -380,7 +398,9 @@ export default async function BlogArticle({ params }) {
             ))}
           </div>
         </div>
-      </article>
+          </article>
+        </section>
+      </div>
     </main>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import AppNavigator from "@/app/components/AppNavigator";
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -887,6 +888,15 @@ export default function LeadRadar() {
   const creditsRemaining = creditsLimit - creditsUsed;
   const creditsPct = Math.min((creditsUsed / creditsLimit) * 100, 100);
   const dupCount = Object.keys(duplicateMap).length;
+  const scoredLeads = leads.filter(l => l.lead_scores?.[0]?.fit_score || l.lead_scores?.[0]?.total_score);
+  const averageLeadScore = scoredLeads.length
+    ? Math.round(
+        scoredLeads.reduce((total, lead) => {
+          const score = lead.lead_scores?.[0];
+          return total + (Number(score?.fit_score) || Number(score?.total_score) || 0);
+        }, 0) / scoredLeads.length
+      )
+    : 0;
 
   const TagInput = ({ field, label, placeholder }) => (
     <div>
@@ -924,9 +934,13 @@ export default function LeadRadar() {
 
         .page {
           min-height: 100vh;
-          background: #FBF3E3;
+          background:
+            radial-gradient(circle at 12% 10%, rgba(255,127,103,0.08), transparent 28%),
+            #FBF3E3;
           color: #173838;
           font-family: 'Inter', sans-serif;
+          display: grid;
+          grid-template-columns: 290px minmax(0, 1fr);
         }
 
         .topbar {
@@ -1005,72 +1019,8 @@ export default function LeadRadar() {
           background: rgba(255,127,103,0.06);
         }
 
-        .app-layout {
-          display: grid;
-          grid-template-columns: 230px minmax(0, 1fr);
-          min-height: calc(100vh - 72px);
-        }
-
-        .sidebar {
-          background: rgba(255,255,255,0.72);
-          border-right: 1px solid rgba(23,56,56,0.08);
-          padding: 1.2rem 0.85rem;
-        }
-
-        .side-section {
-          margin-bottom: 1.35rem;
-        }
-
-        .side-label {
-          color: #819693;
-          font-size: 0.68rem;
-          font-weight: 900;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          margin: 0 0.55rem 0.5rem;
-        }
-
-        .side-item {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 0.7rem;
-          min-height: 40px;
-          border-radius: 12px;
-          padding: 0 0.7rem;
-          background: transparent;
-          border: 1px solid transparent;
-          color: #5f7774;
-          text-decoration: none;
-          cursor: pointer;
-          font-weight: 800;
-          font-size: 0.86rem;
-          margin-bottom: 0.25rem;
-        }
-
-        .side-item:hover,
-        .side-item.active {
-          background: rgba(255,127,103,0.12);
-          color: #ff7f67;
-          border-color: rgba(255,127,103,0.22);
-        }
-
-        .side-icon {
-          width: 18px;
-          height: 18px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: currentColor;
-          flex: 0 0 auto;
-        }
-
-        .side-icon svg {
-          width: 18px;
-          height: 18px;
-        }
-
         .content {
+          min-width: 0;
           padding: 2rem;
           overflow-x: hidden;
         }
@@ -1661,21 +1611,9 @@ export default function LeadRadar() {
   color: #ef4444;
 }
 
-        @media(max-width: 1000px) {
-          .app-layout {
+        @media(max-width: 1150px) {
+          .page {
             grid-template-columns: 1fr;
-          }
-
-          .sidebar {
-            display: flex;
-            overflow-x: auto;
-            gap: 0.8rem;
-            padding: 0.8rem;
-          }
-
-          .side-section {
-            min-width: 190px;
-            margin-bottom: 0;
           }
         }
 
@@ -1704,15 +1642,13 @@ export default function LeadRadar() {
         }
       `}</style>
 
-      <header className="topbar">
-        <BrandLogo />
-        <a href="/agency" className="top-link">Client Manager</a>
-      </header>
+      <AppNavigator
+        leadCandidates={totalLeads}
+        completedRadarRuns={scoredLeads.length}
+        averageLeadScore={averageLeadScore}
+      />
 
-      <div className="app-layout">
-        <Sidebar />
-
-        <section className="content">
+      <section className="content">
           <div className="content-inner">
             {success && <div className="success-bar">{success}</div>}
             {error && <div className="error-bar">{error}</div>}
@@ -1940,8 +1876,7 @@ export default function LeadRadar() {
               </>
             )}
           </div>
-        </section>
-      </div>
+      </section>
 
       {showAddLead && (
         <div className="modal-overlay">

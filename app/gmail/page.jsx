@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import AppNavigator from "@/app/components/AppNavigator";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -465,8 +466,8 @@ export default function Gmail() {
 
         .app-layout {
           display: grid;
-          grid-template-columns: 230px minmax(0, 1fr);
-          min-height: calc(100vh - 72px);
+          grid-template-columns: 290px minmax(0, 1fr);
+          min-height: 100vh;
         }
 
         .sidebar {
@@ -1106,13 +1107,8 @@ export default function Gmail() {
         }
       `}</style>
 
-      <header className="topbar">
-        <BrandLogo />
-        <a href="/dashboard" className="top-link">Dashboard</a>
-      </header>
-
       <div className="app-layout">
-        <Sidebar />
+        <AppNavigator />
 
         <section className="content">
           <div className="content-inner">

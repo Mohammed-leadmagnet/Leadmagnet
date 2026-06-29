@@ -1,226 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import AppNavigator from "@/app/components/AppNavigator";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
-
-function Icon({ name }) {
-  const common = {
-    width: "24",
-    height: "24",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-  };
-
-  const icons = {
-    dashboard: (
-      <svg {...common}>
-        <rect x="3" y="3" width="7" height="7" rx="1" />
-        <rect x="14" y="3" width="7" height="7" rx="1" />
-        <rect x="3" y="14" width="7" height="7" rx="1" />
-        <rect x="14" y="14" width="7" height="7" rx="1" />
-      </svg>
-    ),
-    leads: (
-      <svg {...common}>
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-    analytics: (
-      <svg {...common}>
-        <path d="M3 3v18h18" />
-        <path d="m7 14 4-4 3 3 5-7" />
-      </svg>
-    ),
-    linkedin: (
-      <svg {...common}>
-        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
-        <rect x="2" y="9" width="4" height="12" />
-        <circle cx="4" cy="4" r="2" />
-      </svg>
-    ),
-    instagram: (
-      <svg {...common}>
-        <rect x="2" y="2" width="20" height="20" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.5" cy="6.5" r="1" />
-      </svg>
-    ),
-    gmail: (
-      <svg {...common}>
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <path d="m3 7 9 6 9-6" />
-      </svg>
-    ),
-    clients: (
-      <svg {...common}>
-        <rect x="3" y="4" width="18" height="16" rx="2" />
-        <path d="M7 8h10" />
-        <path d="M7 12h6" />
-        <path d="M7 16h8" />
-      </svg>
-    ),
-    radar: (
-      <svg {...common}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 3v4" />
-        <path d="M12 17v4" />
-        <path d="M3 12h4" />
-        <path d="M17 12h4" />
-        <path d="m12 12 5-5" />
-      </svg>
-    ),
-    blog: (
-      <svg {...common}>
-        <path d="M4 4h16v16H4z" />
-        <path d="M8 8h8" />
-        <path d="M8 12h8" />
-        <path d="M8 16h5" />
-      </svg>
-    ),
-    settings: (
-      <svg {...common}>
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 2v3" />
-        <path d="M12 19v3" />
-        <path d="M2 12h3" />
-        <path d="M19 12h3" />
-        <path d="m4.93 4.93 2.12 2.12" />
-        <path d="m16.95 16.95 2.12 2.12" />
-        <path d="m19.07 4.93-2.12 2.12" />
-        <path d="m7.05 16.95-2.12 2.12" />
-      </svg>
-    ),
-    billing: (
-      <svg {...common}>
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <path d="M3 10h18" />
-      </svg>
-    ),
-    support: (
-      <svg {...common}>
-        <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
-      </svg>
-    ),
-    logout: (
-      <svg {...common}>
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <path d="M16 17l5-5-5-5" />
-        <path d="M21 12H9" />
-      </svg>
-    ),
-  };
-
-  return icons[name];
-}
-
-function BrandLogo() {
-  return (
-    <a href="/" className="logo">
-      <span className="brand-mark" />
-      <span className="brand-name">
-        <span className="lead">lead</span>
-        <span className="magnet">magnet</span> inc
-      </span>
-    </a>
-  );
-}
-
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="side-section">
-        <div className="side-label">Main</div>
-
-        <a className="side-item" href="/dashboard">
-          <span className="side-icon"><Icon name="dashboard" /></span>
-          Dashboard
-        </a>
-
-        <a className="side-item" href="/dashboard">
-          <span className="side-icon"><Icon name="leads" /></span>
-          All Leads
-        </a>
-
-        <a className="side-item" href="/dashboard">
-          <span className="side-icon"><Icon name="analytics" /></span>
-          Analytics
-        </a>
-      </div>
-
-      <div className="side-section">
-        <div className="side-label">Platforms</div>
-
-        <a className="side-item" href="/linkedin">
-          <span className="side-icon"><Icon name="linkedin" /></span>
-          LinkedIn
-        </a>
-
-        <a className="side-item" href="/instagram">
-          <span className="side-icon"><Icon name="instagram" /></span>
-          Instagram
-        </a>
-
-        <a className="side-item" href="/gmail">
-          <span className="side-icon"><Icon name="gmail" /></span>
-          Gmail
-        </a>
-      </div>
-
-      <div className="side-section">
-        <div className="side-label">Agency</div>
-
-        <a className="side-item" href="/agency">
-          <span className="side-icon"><Icon name="clients" /></span>
-          Client Manager
-        </a>
-
-        <a className="side-item" href="/agency/lead-radar">
-          <span className="side-icon"><Icon name="radar" /></span>
-          Lead Radar
-        </a>
-      </div>
-
-      <div className="side-section">
-        <div className="side-label">Resources</div>
-
-        <a className="side-item" href="/blog">
-          <span className="side-icon"><Icon name="blog" /></span>
-          Blog
-        </a>
-      </div>
-
-      <div className="side-section">
-        <div className="side-label">Account</div>
-
-        <a className="side-item active" href="/settings">
-          <span className="side-icon"><Icon name="settings" /></span>
-          Settings
-        </a>
-
-        <a className="side-item" href="/pricing">
-          <span className="side-icon"><Icon name="billing" /></span>
-          Billing
-        </a>
-
-        <a className="side-item" href="/contact">
-          <span className="side-icon"><Icon name="support" /></span>
-          Support
-        </a>
-      </div>
-    </aside>
-  );
-}
 
 export default function SettingsPage() {
   const [user, setUser] = useState(null);
@@ -378,8 +164,8 @@ export default function SettingsPage() {
 
         .app-layout {
           display: grid;
-          grid-template-columns: 230px minmax(0, 1fr);
-          min-height: calc(100vh - 72px);
+          grid-template-columns: 290px minmax(0, 1fr);
+          min-height: 100vh;
         }
 
         .sidebar {
@@ -613,17 +399,6 @@ export default function SettingsPage() {
             grid-template-columns: 1fr;
           }
 
-          .sidebar {
-            display: flex;
-            overflow-x: auto;
-            gap: 0.8rem;
-            padding: 0.8rem;
-          }
-
-          .side-section {
-            min-width: 190px;
-            margin-bottom: 0;
-          }
         }
 
         @media(max-width: 760px) {
@@ -645,19 +420,8 @@ export default function SettingsPage() {
         }
       `}</style>
 
-      <header className="topbar">
-        <BrandLogo />
-
-        <div className="top-actions">
-          <a href="/dashboard" className="top-link">Dashboard</a>
-          <button className="logout-btn" onClick={handleLogout}>
-            Sign out
-          </button>
-        </div>
-      </header>
-
       <div className="app-layout">
-        <Sidebar />
+        <AppNavigator />
 
         <section className="content">
           <div className="content-inner">

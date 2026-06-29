@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import AppNavigator from "@/app/components/AppNavigator";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -353,6 +354,11 @@ export default function LinkedIn() {
     setCampaigns(prev => prev.filter(c => c.id !== id));
   };
 
+  const totalLeads = campaigns.reduce(
+    (total, campaign) => total + (Number(campaign.leads_count) || 0),
+    0
+  );
+
   return (
     <main className="page">
       <style>{`
@@ -449,8 +455,8 @@ export default function LinkedIn() {
 
         .app-layout {
           display: grid;
-          grid-template-columns: 230px minmax(0, 1fr);
-          min-height: calc(100vh - 72px);
+          grid-template-columns: 290px minmax(0, 1fr);
+          min-height: 100vh;
         }
 
         .sidebar {
@@ -1076,13 +1082,8 @@ export default function LinkedIn() {
         }
       `}</style>
 
-      <header className="topbar">
-        <BrandLogo />
-        <a href="/dashboard" className="top-link">Dashboard</a>
-      </header>
-
       <div className="app-layout">
-        <Sidebar />
+        <AppNavigator leadCandidates={totalLeads} />
 
         <section className="content">
           <div className="content-inner">

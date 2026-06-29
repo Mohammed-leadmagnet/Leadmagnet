@@ -1,5 +1,6 @@
 import { blogPosts } from "@/lib/blog-posts";
 import Link from "next/link";
+import AppNavigator from "@/app/components/AppNavigator";
 
 export const metadata = {
   title: "Blog — LeadMagnet | Lead Generation Tips for Marketing Agencies",
@@ -27,90 +28,24 @@ export default function Blog() {
           font-family: 'Inter', sans-serif;
         }
 
-        .nav {
-          height: 64px;
-          background: rgba(255,255,255,0.92);
-          backdrop-filter: blur(18px);
-          border-bottom: 1px solid rgba(23,56,56,0.08);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 1.5rem;
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          box-shadow: 0 10px 30px rgba(23,56,56,0.04);
+        .app-layout {
+          display: grid;
+          grid-template-columns: 290px minmax(0, 1fr);
+          min-height: 100vh;
         }
 
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 0.62rem;
-          text-decoration: none;
+        .content {
+          padding: 2rem;
+          overflow-x: hidden;
         }
 
-        .brand-mark {
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          background: conic-gradient(from -12deg,#ff7f67 0 44%,transparent 44% 51%,#8fc8c1 51% 86%,transparent 86% 100%);
-          position: relative;
-          flex: 0 0 auto;
-        }
-
-        .brand-mark:after {
-          content: "";
-          position: absolute;
-          inset: 8px;
-          border-radius: 50%;
-          background: #ffffff;
-        }
-
-        .brand-name {
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: 1.06rem;
-          font-weight: 900;
-          letter-spacing: -0.035em;
-          color: #173838;
-          line-height: 1;
-        }
-
-        .brand-name .lead {
-          color: #ff7f67;
-        }
-
-        .brand-name .magnet {
-          color: #8fc8c1;
-        }
-
-        .nav-links {
-          display: flex;
-          gap: 1.25rem;
-          align-items: center;
-        }
-
-        .nav-links a {
-          color: #5f7774;
-          text-decoration: none;
-          font-size: 0.86rem;
-          font-weight: 800;
-        }
-
-        .nav-links a:hover {
-          color: #ff7f67;
-        }
-
-        .nav-cta {
-          background: #ff7f67;
-          color: #173838 !important;
-          font-weight: 900 !important;
-          padding: 0.62rem 1rem;
-          border-radius: 12px;
-          box-shadow: 0 14px 28px rgba(255,127,103,0.20);
+        .content-inner {
+          max-width: 1120px;
+          margin: 0 auto;
         }
 
         .hero-wrap {
-          padding: 4.5rem 1.5rem 2.25rem;
+          padding: 0 0 2.25rem;
         }
 
         .hero {
@@ -162,7 +97,6 @@ export default function Blog() {
           justify-content: center;
           flex-wrap: wrap;
           margin-bottom: 2rem;
-          padding: 0 1.5rem;
         }
 
         .cat {
@@ -181,9 +115,7 @@ export default function Blog() {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
           gap: 1.25rem;
-          max-width: 1120px;
-          margin: 0 auto;
-          padding: 0 1.5rem 5rem;
+          padding: 0 0 4rem;
         }
 
         .post-card {
@@ -258,17 +190,23 @@ export default function Blog() {
           font-weight: 900;
         }
 
-        @media(max-width: 700px) {
-          .nav {
-            padding: 0 1rem;
+        @media(max-width: 1000px) {
+          .app-layout {
+            grid-template-columns: 1fr;
           }
 
-          .nav-links a:not(.nav-cta) {
-            display: none;
+          .content {
+            padding: 1.25rem;
+          }
+        }
+
+        @media(max-width: 700px) {
+          .content {
+            padding: 1rem;
           }
 
           .hero-wrap {
-            padding: 2.5rem 1rem 1.5rem;
+            padding: 0 0 1.5rem;
           }
 
           .hero {
@@ -277,7 +215,7 @@ export default function Blog() {
 
           .posts {
             grid-template-columns: 1fr;
-            padding: 0 1rem 4rem;
+            padding-bottom: 3rem;
           }
 
           .post-read {
@@ -286,52 +224,43 @@ export default function Blog() {
         }
       `}</style>
 
-      <nav className="nav">
-        <a href="/" className="logo">
-          <span className="brand-mark" />
-          <span className="brand-name">
-            <span className="lead">lead</span>
-            <span className="magnet">magnet</span> inc
-          </span>
-        </a>
+      <div className="app-layout">
+        <AppNavigator />
 
-        <div className="nav-links">
-          <a href="/#features">Features</a>
-          <a href="/pricing">Pricing</a>
-          <a href="/login">Log in</a>
-          <a href="/signup" className="nav-cta">Start Free Trial</a>
-        </div>
-      </nav>
-
-      <div className="hero-wrap">
-        <section className="hero">
-          <div className="hero-tag">Blog</div>
-          <h1 className="hero-title">Insights for modern marketing agencies</h1>
-          <p className="hero-sub">
-            Practical guides on lead generation, AI scoring, client management,
-            and growing your agency sustainably.
-          </p>
-        </section>
-      </div>
-
-      <div className="cats">
-        {categories.map(c => <span key={c} className="cat">{c}</span>)}
-      </div>
-
-      <div className="posts">
-        {blogPosts.map(post => (
-          <Link href={`/blog/${post.slug}`} key={post.slug} className="post-card">
-            <div className="post-meta">
-              <span className="post-cat">{post.category}</span>
-              <span className="post-date">{new Date(post.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
-              <span className="post-read">{post.readTime}</span>
+        <section className="content">
+          <div className="content-inner">
+            <div className="hero-wrap">
+              <section className="hero">
+                <div className="hero-tag">Blog</div>
+                <h1 className="hero-title">Insights for modern marketing agencies</h1>
+                <p className="hero-sub">
+                  Practical guides on lead generation, AI scoring, client management,
+                  and growing your agency sustainably.
+                </p>
+              </section>
             </div>
 
-            <h2 className="post-title">{post.title}</h2>
-            <p className="post-excerpt">{post.excerpt}</p>
-            <span className="post-link">Read article →</span>
-          </Link>
-        ))}
+            <div className="cats">
+              {categories.map(c => <span key={c} className="cat">{c}</span>)}
+            </div>
+
+            <div className="posts">
+              {blogPosts.map(post => (
+                <Link href={`/blog/${post.slug}`} key={post.slug} className="post-card">
+                  <div className="post-meta">
+                    <span className="post-cat">{post.category}</span>
+                    <span className="post-date">{new Date(post.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                    <span className="post-read">{post.readTime}</span>
+                  </div>
+
+                  <h2 className="post-title">{post.title}</h2>
+                  <p className="post-excerpt">{post.excerpt}</p>
+                  <span className="post-link">Read article →</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );

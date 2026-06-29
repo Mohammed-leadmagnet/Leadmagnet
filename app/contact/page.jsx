@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import AppNavigator from "@/app/components/AppNavigator";
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
@@ -49,8 +50,23 @@ export default function Contact() {
           background: #FBF3E3;
           color: #173838;
           font-family: 'Inter', sans-serif;
-          display: flex;
-          flex-direction: column;
+        }
+
+        .app-layout {
+          display: grid;
+          grid-template-columns: 290px minmax(0, 1fr);
+          min-height: 100vh;
+        }
+
+        .content {
+          padding: 2rem;
+          overflow-x: hidden;
+        }
+
+        .content-inner {
+          width: 100%;
+          max-width: 820px;
+          margin: 0 auto;
         }
 
         .nav {
@@ -131,10 +147,8 @@ export default function Contact() {
 
         .container {
           width: 100%;
-          max-width: 760px;
-          margin: 0 auto;
-          padding: 4rem 1.5rem 6rem;
-          flex: 1;
+          margin: 0;
+          padding: 0;
         }
 
         .hero {
@@ -361,9 +375,19 @@ export default function Contact() {
           color: #ff7f67;
         }
 
+        @media(max-width: 1000px) {
+          .app-layout {
+            grid-template-columns: 1fr;
+          }
+
+          .content {
+            padding: 1.25rem;
+          }
+        }
+
         @media(max-width: 700px) {
-          .container {
-            padding: 2.5rem 1rem 4rem;
+          .content {
+            padding: 1rem;
           }
 
           .nav {
@@ -385,20 +409,13 @@ export default function Contact() {
         }
       `}</style>
 
-      <nav className="nav">
-        <a href="/" className="logo">
-          <span className="brand-mark" />
-          <span className="brand-name">
-            <span className="lead">lead</span>
-            <span className="magnet">magnet</span> inc
-          </span>
-        </a>
+      <div className="app-layout">
+        <AppNavigator />
 
-        <a href="/" className="back-btn">Back to home</a>
-      </nav>
-
-      <div className="container">
-        <section className="hero">
+        <section className="content">
+          <div className="content-inner">
+            <div className="container">
+              <section className="hero">
           <span className="page-tag">Support</span>
           <h1 className="page-title">How can we help?</h1>
           <p className="page-sub">
@@ -487,19 +504,10 @@ export default function Contact() {
             </form>
           )}
         </div>
+            </div>
+          </div>
+        </section>
       </div>
-
-      <footer>
-        <div className="footer-logo">LeadMagnet Inc.</div>
-
-        <div className="footer-links">
-          <a href="/privacy">Privacy</a>
-          <a href="/terms">Terms</a>
-          <a href="/">Home</a>
-        </div>
-
-        <div>© 2026 LeadMagnet Inc. All rights reserved.</div>
-      </footer>
     </main>
   );
 }

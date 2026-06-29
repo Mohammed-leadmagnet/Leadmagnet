@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import AppNavigator from "@/app/components/AppNavigator";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
@@ -137,7 +139,8 @@ function BrandLogo() {
   );
 }
 
-export default function Dashboard() {
+export default function Campaigns() {
+  const searchParams = useSearchParams();
   const [user, setUser] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
   const [leads, setLeads] = useState([]);
@@ -169,6 +172,14 @@ export default function Dashboard() {
       loadAgencyClients(data.user.id);
     });
   }, []);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+
+    if (tab === "leads" || tab === "analytics" || tab === "campaigns") {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const loadCampaigns = async (userId) => {
     const { data } = await supabase
@@ -446,11 +457,13 @@ export default function Dashboard() {
 
         .page{
           min-height:100vh;
-          background:#FBF3E3;
+          background:
+            radial-gradient(circle at 12% 10%, rgba(255,127,103,0.08), transparent 28%),
+            #FBF3E3;
           font-family:'Plus Jakarta Sans','Inter',sans-serif;
           color:#173838;
-          display:flex;
-          flex-direction:column;
+          display:grid;
+          grid-template-columns:290px minmax(0, 1fr);
         }
 
         .nav{
@@ -741,6 +754,41 @@ export default function Dashboard() {
           margin-bottom:1.5rem;
           font-family:'Inter',sans-serif;
           font-weight:800;
+        }
+
+        .campaign-tabs{
+          display:flex;
+          gap:0.45rem;
+          flex-wrap:wrap;
+          margin-bottom:1.5rem;
+          background:rgba(255,255,255,0.72);
+          border:1px solid rgba(23,56,56,0.08);
+          border-radius:16px;
+          padding:0.35rem;
+          width:fit-content;
+          box-shadow:0 12px 28px rgba(23,56,56,0.04);
+        }
+
+        .campaign-tab{
+          min-height:38px;
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          padding:0 0.95rem;
+          border-radius:12px;
+          color:#5f7774;
+          text-decoration:none;
+          font-family:'Plus Jakarta Sans',sans-serif;
+          font-size:0.82rem;
+          font-weight:900;
+          border:1px solid transparent;
+        }
+
+        .campaign-tab:hover,
+        .campaign-tab.active{
+          background:rgba(255,127,103,0.12);
+          color:#ff7f67;
+          border-color:rgba(255,127,103,0.22);
         }
 
         .stats-grid{
@@ -1559,8 +1607,11 @@ export default function Dashboard() {
           font-family:'Inter',sans-serif;
         }
 
+        @media(max-width:1150px){
+          .page{grid-template-columns:1fr;}
+        }
+
         @media(max-width:900px){
-          .sidebar{display:none;}
           .stats-grid{grid-template-columns:repeat(2,1fr);}
           .content{padding:1.5rem 1rem 2rem;}
         }
@@ -1573,95 +1624,31 @@ export default function Dashboard() {
         }
       `}</style>
 
-      <nav className="nav">
-        <BrandLogo />
+      <AppNavigator
+        leadCandidates={allLeads.length}
+        completedRadarRuns={0}
+        averageLeadScore={0}
+      />
 
-        <div className="nav-right">
-          <div className="user-pill">
-            <div className="user-avatar">{user?.email?.charAt(0).toUpperCase()}</div>
-            <span className="user-email">{user?.email}</span>
-          </div>
-
-          <button className="logout-btn" onClick={handleLogout}>Sign out</button>
-        </div>
-      </nav>
-
-      <div className="layout">
-        <div className="sidebar">
-          <div className="sidebar-section">Main</div>
-
-          {[
-            { id: "campaigns", icon: "campaign", label: "Campaigns" },
-            { id: "leads", icon: "leads", label: "All Leads", badge: allLeads.length || null },
-            { id: "analytics", icon: "analytics", label: "Analytics" },
-          ].map(item => (
-            <button key={item.id} className={`nav-item ${activeTab === item.id ? "active" : ""}`} onClick={() => setActiveTab(item.id)}>
-              <span className="nav-icon"><Icon name={item.icon} /></span>
-              {item.label}
-              {item.badge ? <span className="nav-badge">{item.badge}</span> : null}
-            </button>
-          ))}
-
-          <div className="sidebar-section">Platforms</div>
-
-          {[
-            { label: "LinkedIn", icon: "linkedin", href: "/linkedin" },
-            { label: "Instagram", icon: "instagram", href: "/instagram" },
-            { label: "Gmail", icon: "gmail", href: "/gmail" },
-          ].map(p => (
-            <button key={p.href} className="nav-item" onClick={() => window.location.href = p.href}>
-              <span className="nav-icon"><Icon name={p.icon} /></span>
-              {p.label}
-            </button>
-          ))}
-
-          <div className="sidebar-section">Agency</div>
-
-          <button className="nav-item" onClick={() => window.location.href = "/agency"}>
-            <span className="nav-icon"><Icon name="clients" /></span>
-            Client Manager
-          </button>
-
-          <button className="nav-item" onClick={() => window.location.href = "/agency/lead-radar"}>
-            <span className="nav-icon"><Icon name="radar" /></span>
-            Lead Radar
-          </button>
-
-          <div className="sidebar-section">Resources</div>
-
-          <button className="nav-item" onClick={() => window.location.href = "/blog"}>
-            <span className="nav-icon"><Icon name="blog" /></span>
-            Blog
-          </button>
-
-          <div className="sidebar-section">Account</div>
-
-          <button className={`nav-item ${activeTab === "settings" ? "active" : ""}`} onClick={() => setActiveTab("settings")}>
-            <span className="nav-icon"><Icon name="settings" /></span>
-            Settings
-          </button>
-
-          <button className={`nav-item ${activeTab === "billing" ? "active" : ""}`} onClick={() => setActiveTab("billing")}>
-            <span className="nav-icon"><Icon name="billing" /></span>
-            Billing
-          </button>
-
-          <button className="nav-item" onClick={() => window.location.href = "/contact"}>
-            <span className="nav-icon"><Icon name="support" /></span>
-            Support
-          </button>
-
-          <div className="sidebar-footer">
-            <div className="plan-pill">
-              <div className="plan-name">Free Trial</div>
-              <div className="plan-sub">7 days remaining</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="content">
+      <div className="content">
           {success && <div className="success-bar">✓ {success}</div>}
           {error && <div className="error-bar">⚠ {error}</div>}
+
+          <div className="campaign-tabs">
+            {[
+              { id: "campaigns", label: "Campaigns", href: "/campaigns?tab=campaigns" },
+              { id: "leads", label: "All Leads", href: "/campaigns?tab=leads" },
+              { id: "analytics", label: "Analytics", href: "/campaigns?tab=analytics" },
+            ].map(tab => (
+              <a
+                key={tab.id}
+                className={`campaign-tab ${activeTab === tab.id ? "active" : ""}`}
+                href={tab.href}
+              >
+                {tab.label}
+              </a>
+            ))}
+          </div>
 
           {activeTab === "campaigns" && (
             <>
@@ -2071,7 +2058,6 @@ export default function Dashboard() {
               </div>
             </>
           )}
-        </div>
       </div>
 
       {showNewCampaign && (
